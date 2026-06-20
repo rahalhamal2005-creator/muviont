@@ -1,0 +1,131 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  name          String?
+  image         String?
+  role          Role        @default(USER)
+  emailVerified DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  watchlist     Watchlist[]
+  history       History[]
+  ratings       Rating[]
+  searchLogs    SearchLog[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+}
+
+model Watchlist {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId     String   // TMDB ID or AniList ID
+  mediaType   String   // "movie" | "series" | "anime"
+  title       String
+  posterPath  String?
+  addedAt     DateTime @default(now())
+
+  @@unique([userId, mediaId, mediaType])
+}
+
+model History {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId     String
+  mediaType   String
+  progress    Int      // duration watched in seconds
+  duration    Int      // total duration in seconds
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, mediaId, mediaType])
+}
+
+model Rating {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId     String
+  mediaType   String
+  score       Float    // rating from 0.0 to 10.0
+  review      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, mediaId, mediaType])
+}
+
+model EntertainmentNews {
+  id          String   @id @default(uuid())
+  title       String
+  category    String   // "movie" | "anime" | "series" | "industry"
+  description String
+  url         String
+  imageUrl    String?
+  publishedAt DateTime
+  createdAt   DateTime @default(now())
+}
+
+model SearchLog {
+  id              String   @id @default(uuid())
+  query           String
+  isAI            Boolean  @default(false)
+  resultCount     Int      @default(0)
+  responseTimeMs  Int      @default(0)
+  timestamp       DateTime @default(now())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([timestamp])
+}
+
+model RecommendationClick {
+  id        String   @id @default(uuid())
+  mediaId   String
+  timestamp DateTime @default(now())
+
+  @@index([timestamp])
+}
+
+model ProviderMetric {
+  id          String   @id @default(uuid())
+  provider    String   // "TMDB" | "AniList" | "GDELT" | "NewsAPI" | "TheNewsAPI"
+  endpoint    String
+  latency     Int      // milliseconds
+  success     Boolean
+  errorMsg    String?
+  timestamp   DateTime @default(now())
+
+  @@index([timestamp])
+}
+
+model SystemMetric {
+  id          String   @id @default(uuid())
+  metricType  String   // "CPU" | "MEMORY" | "CACHE_HIT_RATIO" | "REDIS_USAGE"
+  value       Float
+  timestamp   DateTime @default(now())
+
+  @@index([timestamp])
+}

@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: #000000;
+  color: #ffffff;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Luxury scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f1f1f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff0000;
+}
+
+/* Custom radial and linear gradient overrides */
+.bg-radial-at-c {
+  background-image: radial-gradient(circle at center, var(--tw-gradient-stops));
+}
+
+.bg-radial-at-b {
+  background-image: radial-gradient(circle at bottom, var(--tw-gradient-stops));
+}
+
+/* WebKit scrollbar adjustments for category rows */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #ef4444;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
