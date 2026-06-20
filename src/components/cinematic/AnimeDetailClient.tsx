@@ -131,14 +131,14 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
           
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-4">
-            <button
-              onClick={() => setIsTrailerOpen(true)}
-              disabled={!anime.trailerUrl}
-              className="flex items-center gap-2 px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(255,0,0,0.3)] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+            {/* PRIMARY: Watch Now — streaming-first */}
+            <Link
+              href={`/watch/anime/${anime.id}`}
+              className="flex items-center gap-2 px-8 py-3.5 bg-[var(--red)] hover:bg-[var(--red)]/90 text-white font-black rounded-full transition-all duration-300 shadow-[0_0_20px_var(--red-glow)] hover:scale-105 active:scale-95"
             >
               <Play className="w-4 h-4 fill-current" />
-              Watch Trailer
-            </button>
+              Watch Now
+            </Link>
 
             <button
               onClick={toggleWatchlist}

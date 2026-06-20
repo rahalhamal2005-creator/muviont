@@ -1,5 +1,40 @@
 import { db } from "../db";
 
+export interface TMDBEpisode {
+  episodeNumber: number;
+  name: string;
+  overview: string;
+  stillPath: string;
+  airDate: string;
+  runtime: number;
+}
+
+export interface TMDBSeason {
+  seasonNumber: number;
+  episodeCount: number;
+  name: string;
+  posterPath: string;
+  airDate: string;
+}
+
+export interface TMDBGenre {
+  id: number;
+  name: string;
+}
+
+export interface TMDBWatchProvider {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string;
+}
+
+export interface TMDBWatchProviders {
+  US?: TMDBWatchProvider[];
+  GB?: TMDBWatchProvider[];
+  CA?: TMDBWatchProvider[];
+  AU?: TMDBWatchProvider[];
+}
+
 export interface TMDBMedia {
   id: string;
   title: string;
@@ -229,6 +264,183 @@ export class TMDBProvider {
     } catch (err: any) {
       await this.logMetric(endpoint, Date.now() - startTime, false, err.message);
       throw err;
+    }
+  }
+
+  async getNowPlaying(): Promise<TMDBMedia[]> {
+    this.checkApiKey();
+    const endpoint = `/movie/now_playing`;
+    const startTime = Date.now();
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) throw new Error(`TMDB API Error: HTTP ${res.status}`);
+      const data = await res.json();
+      const mapped = (data.results || []).slice(0, 12).map((item: any) => this.mapMedia(item, "movie"));
+      await this.logMetric(endpoint, Date.now() - startTime, true);
+      return mapped;
+    } catch (err: any) {
+      await this.logMetric(endpoint, Date.now() - startTime, false, err.message);
+      throw err;
+    }
+  }
+
+  async getPopular(type: "movie" | "series"): Promise<TMDBMedia[]> {
+    this.checkApiKey();
+    const endpoint = type === "movie" ? `/movie/popular` : `/tv/popular`;
+    const startTime = Date.now();
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) throw new Error(`TMDB API Error: HTTP ${res.status}`);
+      const data = await res.json();
+      const mapped = (data.results || []).slice(0, 12).map((item: any) => this.mapMedia(item, type));
+      await this.logMetric(endpoint, Date.now() - startTime, true);
+      return mapped;
+    } catch (err: any) {
+      await this.logMetric(endpoint, Date.now() - startTime, false, err.message);
+      throw err;
+    }
+  }
+
+  async getGenreList(type: "movie" | "series"): Promise<TMDBGenre[]> {
+    this.checkApiKey();
+    const endpoint = type === "movie" ? `/genre/movie/list` : `/genre/tv/list`;
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) throw new Error(`TMDB API Error: HTTP ${res.status}`);
+      const data = await res.json();
+      return (data.genres || []) as TMDBGenre[];
+    } catch {
+      return [];
+    }
+  }
+
+  async discover(
+    type: "movie" | "series",
+    options: {
+      genreId?: string;
+      year?: string;
+      sortBy?: string;
+      page?: number;
+    } = {}
+  ): Promise<{ results: TMDBMedia[]; totalPages: number }> {
+    this.checkApiKey();
+    const tmdbType = type === "series" ? "tv" : "movie";
+    const endpoint = `/discover/${tmdbType}`;
+    const startTime = Date.now();
+
+    const params = new URLSearchParams({
+      api_key: this.apiKey!,
+      page: String(options.page || 1),
+      sort_by: options.sortBy || "popularity.desc",
+    });
+    if (options.genreId) params.set("with_genres", options.genreId);
+    if (options.year) {
+      if (type === "series") params.set("first_air_date_year", options.year);
+      else params.set("primary_release_year", options.year);
+    }
+
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?${params.toString()}`, {
+        next: { revalidate: 1800 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) throw new Error(`TMDB API Error: HTTP ${res.status}`);
+      const data = await res.json();
+      const mapped = (data.results || []).map((item: any) => this.mapMedia(item, type));
+      await this.logMetric(endpoint, Date.now() - startTime, true);
+      return { results: mapped, totalPages: Math.min(data.total_pages || 1, 20) };
+    } catch (err: any) {
+      await this.logMetric(endpoint, Date.now() - startTime, false, err.message);
+      throw err;
+    }
+  }
+
+  async getWatchProviders(id: string): Promise<TMDBWatchProviders> {
+    this.checkApiKey();
+    const type = id.startsWith("m-") ? "movie" : "tv";
+    const rawId = id.substring(2);
+    const endpoint = type === "movie" ? `/movie/${rawId}/watch/providers` : `/tv/${rawId}/watch/providers`;
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) return {};
+      const data = await res.json();
+      const pr = data.results || {};
+      return {
+        US: pr.US?.flatrate || [],
+        GB: pr.GB?.flatrate || [],
+        CA: pr.CA?.flatrate || [],
+        AU: pr.AU?.flatrate || [],
+      };
+    } catch {
+      return {};
+    }
+  }
+
+  async getSeasonEpisodes(seriesId: string, season: number): Promise<TMDBEpisode[]> {
+    this.checkApiKey();
+    const rawId = seriesId.startsWith("s-") ? seriesId.substring(2) : seriesId;
+    const endpoint = `/tv/${rawId}/season/${season}`;
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.episodes || []).map((ep: any) => ({
+        episodeNumber: ep.episode_number,
+        name: ep.name || `Episode ${ep.episode_number}`,
+        overview: ep.overview || "",
+        stillPath: ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : "",
+        airDate: ep.air_date || "",
+        runtime: ep.runtime || 45,
+      })) as TMDBEpisode[];
+    } catch {
+      // Fallback: return generic episode list
+      return Array.from({ length: 12 }, (_, i) => ({
+        episodeNumber: i + 1,
+        name: `Episode ${i + 1}`,
+        overview: "",
+        stillPath: "",
+        airDate: "",
+        runtime: 45,
+      }));
+    }
+  }
+
+  async getSeriesSeasons(id: string): Promise<TMDBSeason[]> {
+    this.checkApiKey();
+    const rawId = id.startsWith("s-") ? id.substring(2) : id;
+    try {
+      const res = await fetch(`${this.baseUrl}/tv/${rawId}?api_key=${this.apiKey}`, {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.seasons || [])
+        .filter((s: any) => s.season_number > 0)
+        .map((s: any) => ({
+          seasonNumber: s.season_number,
+          episodeCount: s.episode_count || 0,
+          name: s.name || `Season ${s.season_number}`,
+          posterPath: s.poster_path ? `https://image.tmdb.org/t/p/w300${s.poster_path}` : "",
+          airDate: s.air_date || "",
+        })) as TMDBSeason[];
+    } catch {
+      return [];
     }
   }
 }

@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import MovieDetailClient from "@/components/cinematic/MovieDetailClient";
 import { TMDBProvider } from "@/lib/providers/tmdb.provider";
+import SeriesDetailClient from "@/components/cinematic/SeriesDetailClient";
 
-export const revalidate = 3600; // Cache details for 1 hour
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -12,77 +12,57 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const tmdb = new TMDBProvider();
-  
+
   try {
     const series = await tmdb.getDetails(id);
-    if (!series) {
-      return {
-        title: "Series Not Found | MUVIONT",
-        description: "The requested TV series could not be found."
-      };
-    }
+    if (!series) return { title: "Series Not Found | MUVIONT" };
 
-    const title = `${series.title} | MUVIONT`;
-    const description = series.overview || `Stream ${series.title} in stunning detail on MUVIONT.`;
-    const keywords = ["Muviont", "streaming", "TV series", series.title, ...(series.genres || [])];
-    const canonical = `/series/${id}`;
-    const image = series.backdropPath || series.posterPath || "/logo.png";
+    const title       = `${series.title} — Watch Online Free | MUVIONT`;
+    const description = series.overview?.substring(0, 160) || `Stream ${series.title} in HD on MUVIONT.`;
+    const keywords    = ["MUVIONT", "watch series online", "streaming", series.title, ...(series.genres || [])];
+    const image       = series.backdropPath || series.posterPath || "/logo.png";
 
     return {
       title,
       description,
       keywords,
-      alternates: {
-        canonical
-      },
+      alternates: { canonical: `/series/${id}` },
       openGraph: {
         title,
         description,
-        url: canonical,
+        url: `/series/${id}`,
         type: "video.tv_show",
-        images: [
-          {
-            url: image,
-            width: 1200,
-            height: 630,
-            alt: `${series.title} Backdrop`
-          }
-        ]
+        images: [{ url: image, width: 1200, height: 630, alt: `${series.title} backdrop` }],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description,
-        images: [image]
-      }
+        images: [image],
+      },
     };
-  } catch (err: any) {
-    console.error(`Metadata generation failed for series ${id}:`, err.message);
-    return {
-      title: "Watch Series | MUVIONT",
-      description: "Experience premium visual streaming on MUVIONT."
-    };
+  } catch {
+    return { title: "Watch Series | MUVIONT" };
   }
 }
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-  const tmdb = new TMDBProvider();
+  const tmdb   = new TMDBProvider();
 
-  // Fetch details and recommendations in parallel, catching errors to prevent build-time crashes
-  const [series, recommendations] = await Promise.all([
-    tmdb.getDetails(id).catch(err => { console.error(`Series details fetch failed for ${id}:`, err.message); return null; }),
-    tmdb.getRecommendations(id).catch(err => { console.error(`Series recommendations fetch failed for ${id}:`, err.message); return []; })
+  const [series, seasons, recommendations] = await Promise.all([
+    tmdb.getDetails(id).catch(() => null),
+    tmdb.getSeriesSeasons(id).catch(() => []),
+    tmdb.getRecommendations(id).catch(() => []),
   ]);
 
-  if (!series) {
-    return notFound();
-  }
+  if (!series) return notFound();
 
   return (
-    <MovieDetailClient 
-      movie={series} 
-      recommendations={recommendations} 
+    <SeriesDetailClient
+      series={series}
+      seasons={seasons}
+      recommendations={recommendations}
     />
   );
 }

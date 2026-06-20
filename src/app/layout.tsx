@@ -1,33 +1,28 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "@/app/globals.css";
 
-const inter = Inter({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-outfit",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "MUVIONT | Luxury Cinematic Streaming Platform",
-  description: "Next-generation streaming platform delivering unmatched cinematic visual depth, AI searches, and curated news.",
+  title: "MUVIONT | Premium Streaming Platform",
+  description: "Watch movies, series, and anime in cinematic quality. Powered by AI search, personalized recommendations, and premium streaming.",
   metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
   icons: {
     icon: "/favicon.jpg",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "MUVIONT | Luxury Cinematic Streaming Hub",
-    description: "Next-generation streaming platform valued for premium performance, AI searches, and content aesthetics.",
+    title: "MUVIONT | Premium Streaming Platform",
+    description: "Watch movies, series, and anime in cinematic quality on MUVIONT.",
     url: "/",
     siteName: "MUVIONT",
-    images: [
-      {
-        url: "/logo.png",
-        width: 1200,
-        height: 630,
-        alt: "MUVIONT Cinema Brand Backdrop",
-      },
-    ],
+    images: [{ url: "/logo.png", width: 1200, height: 630, alt: "MUVIONT" }],
     locale: "en_US",
     type: "website",
   },
@@ -39,24 +34,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark bg-black selection:bg-red-600 selection:text-white">
-      <body className={`${inter.variable} antialiased bg-black text-white font-sans overflow-x-hidden min-h-screen`}>
+    <html lang="en" className="dark">
+      <body className={`${outfit.variable} antialiased`} style={{ fontFamily: "var(--font-outfit), system-ui, sans-serif" }}>
         {children}
 
-        {/* PWA Service Worker Client Script Registration */}
+        {/* PWA Service Worker */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(
-                    function(registration) {
-                      console.log('Muviont ServiceWorker registration successful with scope: ', registration.scope);
-                    },
-                    function(err) {
-                      console.warn('Muviont ServiceWorker registration failed: ', err);
-                    }
-                  );
+                  navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.warn('SW registration failed:', err);
+                  });
                 });
               }
             `,

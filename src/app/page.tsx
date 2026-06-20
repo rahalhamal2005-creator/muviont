@@ -3,19 +3,32 @@ import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 import { AniListProvider } from "@/lib/providers/anilist.provider";
 import { newsService } from "@/lib/news/news.service";
 
-// Enable dynamic static regeneration (ISR) - Page rebuilds in background every 15 minutes
+// ISR: Rebuild every 15 minutes
 export const revalidate = 900;
 
 export default async function Page() {
-  const tmdb = new TMDBProvider();
+  const tmdb    = new TMDBProvider();
   const anilist = new AniListProvider();
 
-  // Run initial fetches in parallel, catching errors to prevent build-time failures
-  const [trendingMovies, trendingSeries, trendingAnime, newsArticles] = await Promise.all([
-    tmdb.getTrending("movie").catch(err => { console.error("Trending movies fetch failed:", err.message); return []; }),
-    tmdb.getTrending("series").catch(err => { console.error("Trending series fetch failed:", err.message); return []; }),
-    anilist.getTrending().catch(err => { console.error("Trending anime fetch failed:", err.message); return []; }),
-    newsService.getLatestNews().catch(err => { console.error("Latest news fetch failed:", err.message); return []; })
+  // Fetch all 10 sections in parallel
+  const [
+    trendingMovies,
+    trendingSeries,
+    trendingAnime,
+    topRatedMovies,
+    topRatedSeries,
+    nowPlaying,
+    popularMovies,
+    newsArticles,
+  ] = await Promise.all([
+    tmdb.getTrending("movie").catch(() => []),
+    tmdb.getTrending("series").catch(() => []),
+    anilist.getTrending().catch(() => []),
+    tmdb.getTopRated("movie").catch(() => []),
+    tmdb.getTopRated("series").catch(() => []),
+    tmdb.getNowPlaying().catch(() => []),
+    tmdb.getPopular("movie").catch(() => []),
+    newsService.getLatestNews().catch(() => []),
   ]);
 
   return (
@@ -23,6 +36,10 @@ export default async function Page() {
       trendingMovies={trendingMovies}
       trendingSeries={trendingSeries}
       trendingAnime={trendingAnime}
+      topRatedMovies={topRatedMovies}
+      topRatedSeries={topRatedSeries}
+      nowPlaying={nowPlaying}
+      popularMovies={popularMovies}
       newsArticles={newsArticles}
     />
   );
