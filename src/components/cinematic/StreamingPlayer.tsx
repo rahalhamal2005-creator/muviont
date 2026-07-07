@@ -172,6 +172,7 @@ export default function StreamingPlayer({
           scrolling="no"
           className="w-full block"
           style={{ aspectRatio: "16/9", display: "block" }}
+          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           onLoad={handleLoad}
           onError={handleError}
         />
@@ -216,7 +217,7 @@ export default function StreamingPlayer({
 
       {/* Note */}
       <p className="text-[11px] text-[var(--text-dim)] leading-relaxed">
-        Content is streamed from third-party providers. If one source doesn&apos;t work, try switching. For best results, disable browser ad blockers.
+        Content is streamed from third-party providers. If one source doesn&apos;t work, try switching. For best results, use an ad blocker (like uBlock Origin).
       </p>
     </div>
   );

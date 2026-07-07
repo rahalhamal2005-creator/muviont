@@ -143,6 +143,7 @@ export class AniListProvider {
             season
             nextAiringEpisode { episode airingAt }
             studios(isMain: true) { nodes { name } }
+            trailer { id site }
           }
         }
       }
@@ -177,6 +178,7 @@ export class AniListProvider {
             episodes
             season
             nextAiringEpisode { episode airingAt }
+            trailer { id site }
           }
         }
       }
@@ -400,7 +402,7 @@ export class AniListProvider {
 
   async discover(options: { genre?: string; year?: string; sort?: string; page?: number }): Promise<{ results: AniListMedia[]; totalPages: number }> {
     const query = `
-      query ($page: Int, $genre: String, $year: Int, $sort: [MediaSort]) {
+      query ($page: Int, $genre: String, $year: String, $sort: [MediaSort]) {
         Page(page: $page, perPage: 14) {
           pageInfo {
             total
@@ -419,6 +421,7 @@ export class AniListProvider {
             episodes
             popularity
             nextAiringEpisode { episode airingAt }
+            trailer { id site }
           }
         }
       }
