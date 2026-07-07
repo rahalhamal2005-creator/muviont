@@ -119,6 +119,12 @@ export default function StreamingPlayer({
     }
   };
 
+  const activeSourceKey = STREAMING_SOURCES[activeSource]?.key || "";
+  const isVidSrc = activeSourceKey.includes("vidsrc");
+  const sandboxValue = isVidSrc 
+    ? undefined 
+    : "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups";
+
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       {/* Player Container */}
@@ -178,7 +184,7 @@ export default function StreamingPlayer({
           scrolling="no"
           className="w-full block"
           style={{ aspectRatio: "16/9", display: "block" }}
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
+          sandbox={sandboxValue}
           onLoad={handleLoad}
           onError={handleError}
         />
