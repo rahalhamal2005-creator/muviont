@@ -55,6 +55,12 @@ export default function StreamingPlayer({
     setCurrentUrl(embedUrl);
     setLoading(true);
     setError(false);
+
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 4500);
+
+    return () => clearTimeout(timer);
   }, [embedUrl]);
 
   const handleLoad = () => {
