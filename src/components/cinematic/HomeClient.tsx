@@ -48,6 +48,12 @@ export default function HomeClient({
   const [loadingRecs,      setLoadingRecs]      = useState(false);
 
   useEffect(() => {
+    // Migration to clear old mock history
+    if (typeof window !== "undefined" && !localStorage.getItem("muviont_history_cleaned")) {
+      localStorage.removeItem("muviont_history");
+      localStorage.setItem("muviont_history_cleaned", "true");
+    }
+
     // Load history
     const loadHistory = async () => {
       try {
@@ -63,19 +69,9 @@ export default function HomeClient({
         console.warn("Failed to fetch DB watch progress, falling back to local history", err);
       }
 
-      // Fallback to localStorage
+      // Load from localStorage
       const savedHistory = JSON.parse(localStorage.getItem("muviont_history") || "[]");
-      if (savedHistory.length === 0 && trendingMovies.length > 1) {
-        const seeded = [
-          { ...trendingMovies[1], type: "movie",  progress: 2840, duration: 7200 },
-          { ...trendingMovies[2], type: "movie",  progress: 480,  duration: 5400 },
-          { ...trendingAnime[0],  type: "anime",  progress: 340,  duration: 1440 },
-        ].filter(Boolean);
-        setContinueWatching(seeded);
-        localStorage.setItem("muviont_history", JSON.stringify(seeded));
-      } else {
-        setContinueWatching(savedHistory);
-      }
+      setContinueWatching(savedHistory);
     };
 
     loadHistory();
