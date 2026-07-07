@@ -1,9 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/api/auth/callback/google`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "";
+  let redirectUri = "";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
+  const proto = req.headers.get("x-forwarded-proto") || "http";
+  
+  if (host.includes("localhost") || host.includes("127.0.0.1") || host.includes("3000")) {
+    redirectUri = `http://${host}/api/auth/callback/google`;
+  } else if (appUrl) {
+    const cleanAppUrl = appUrl.endsWith("/") ? appUrl.slice(0, -1) : appUrl;
+    redirectUri = `${cleanAppUrl}/api/auth/callback/google`;
+  } else {
+    redirectUri = `https://muviont.com/api/auth/callback/google`;
+  }
   const scope = "openid email profile";
   
   // Generate secure random state
@@ -11,7 +23,7 @@ export async function GET() {
   const cookieStore = await cookies();
   cookieStore.set("oauth_state", state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: proto === "https",
     path: "/",
     maxAge: 3600
   });

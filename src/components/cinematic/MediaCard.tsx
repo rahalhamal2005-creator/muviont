@@ -73,7 +73,7 @@ export default function MediaCard({
           className="flex items-center gap-2 px-5 py-2.5 bg-[var(--red)] hover:bg-[var(--red)]/90 text-white text-sm font-bold rounded-full shadow-[0_0_20px_var(--red-glow)] transition-all hover:scale-105"
         >
           <Play className="w-4 h-4 fill-current" />
-          Watch Now
+          {progressPct !== null ? "Resume" : "Watch Now"}
         </Link>
         <button
           onClick={handleWatchlist}

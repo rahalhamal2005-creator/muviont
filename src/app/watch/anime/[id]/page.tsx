@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { AniListProvider } from "@/lib/providers/anilist.provider";
+import { AniListProvider, AniListMedia } from "@/lib/providers/anilist.provider";
 import WatchAnimeClient from "@/components/cinematic/WatchAnimeClient";
 
 interface WatchAnimePageProps {

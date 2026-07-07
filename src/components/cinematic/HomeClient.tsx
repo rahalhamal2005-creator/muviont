@@ -13,7 +13,7 @@ import { AniListMedia } from "@/lib/providers/anilist.provider";
 import { NormalizedArticle } from "@/lib/news/news.types";
 import {
   Flame, Star, Tv, Clock, Sparkles,
-  Film, BookOpen, Zap, TrendingUp, Play,
+  Film, BookOpen, Zap, TrendingUp,
 } from "lucide-react";
 
 interface HomeClientProps {
@@ -44,28 +44,41 @@ export default function HomeClient({
 }: HomeClientProps) {
   const [showSearch,       setShowSearch]       = useState(false);
   const [continueWatching, setContinueWatching] = useState<any[]>([]);
-  const [watchlist,        setWatchlist]        = useState<any[]>([]);
   const [aiRecs,           setAiRecs]           = useState<any[]>([]);
   const [loadingRecs,      setLoadingRecs]      = useState(false);
 
   useEffect(() => {
-    // Load local watchlist & history
-    const savedWatchlist = JSON.parse(localStorage.getItem("muviont_watchlist") || "[]");
-    const savedHistory   = JSON.parse(localStorage.getItem("muviont_history") || "[]");
-    setWatchlist(savedWatchlist);
+    // Load history
+    const loadHistory = async () => {
+      try {
+        const res = await fetch("/api/watch-progress");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.history && data.history.length > 0) {
+            setContinueWatching(data.history);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch DB watch progress, falling back to local history", err);
+      }
 
-    // If no history, seed with first trending movie to demo continue watching
-    if (savedHistory.length === 0 && trendingMovies.length > 1) {
-      const seeded = [
-        { ...trendingMovies[1], type: "movie",  progress: 2840, duration: 7200 },
-        { ...trendingMovies[2], type: "movie",  progress: 480,  duration: 5400 },
-        { ...trendingAnime[0],  type: "anime",  progress: 340,  duration: 1440 },
-      ].filter(Boolean);
-      setContinueWatching(seeded);
-      localStorage.setItem("muviont_history", JSON.stringify(seeded));
-    } else {
-      setContinueWatching(savedHistory);
-    }
+      // Fallback to localStorage
+      const savedHistory = JSON.parse(localStorage.getItem("muviont_history") || "[]");
+      if (savedHistory.length === 0 && trendingMovies.length > 1) {
+        const seeded = [
+          { ...trendingMovies[1], type: "movie",  progress: 2840, duration: 7200 },
+          { ...trendingMovies[2], type: "movie",  progress: 480,  duration: 5400 },
+          { ...trendingAnime[0],  type: "anime",  progress: 340,  duration: 1440 },
+        ].filter(Boolean);
+        setContinueWatching(seeded);
+        localStorage.setItem("muviont_history", JSON.stringify(seeded));
+      } else {
+        setContinueWatching(savedHistory);
+      }
+    };
+
+    loadHistory();
 
     // Fetch AI recommendations
     const fetchRecs = async () => {

@@ -18,7 +18,18 @@ export async function GET(req: NextRequest) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = `${process.env.BETTER_AUTH_URL || "http://localhost:3000"}/api/auth/callback/google`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "";
+  let redirectUri = "";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
+  
+  if (host.includes("localhost") || host.includes("127.0.0.1") || host.includes("3000")) {
+    redirectUri = `http://${host}/api/auth/callback/google`;
+  } else if (appUrl) {
+    const cleanAppUrl = appUrl.endsWith("/") ? appUrl.slice(0, -1) : appUrl;
+    redirectUri = `${cleanAppUrl}/api/auth/callback/google`;
+  } else {
+    redirectUri = `https://muviont.com/api/auth/callback/google`;
+  }
 
   try {
     // Exchange Code for Access Token
@@ -108,9 +119,31 @@ export async function GET(req: NextRequest) {
       expires: expiresAt
     });
 
+    // Log successful OAuth operation
+    await db.providerMetric.create({
+      data: {
+        provider: "GoogleOAuth",
+        endpoint: "/api/auth/callback/google",
+        latency: 0,
+        success: true
+      }
+    }).catch(() => {});
+
     return NextResponse.redirect(new URL("/", req.url));
   } catch (err: any) {
     console.error("OAuth Callback Error:", err.message);
+    
+    // Log failed OAuth operation
+    await db.providerMetric.create({
+      data: {
+        provider: "GoogleOAuth",
+        endpoint: "/api/auth/callback/google",
+        latency: 0,
+        success: false,
+        errorMsg: err.message || "OAuth Callback Error"
+      }
+    }).catch(() => {});
+
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(err.message)}`, req.url));
   }
 }

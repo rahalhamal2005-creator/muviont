@@ -18,6 +18,12 @@ export interface StreamSource {
  */
 export const STREAMING_SOURCES: StreamSource[] = [
   {
+    name: "VidLink",
+    key: "vidlink",
+    movieUrl:  (id) => `https://vidlink.pro/movie/${id}`,
+    seriesUrl: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
+  },
+  {
     name: "VidSrc Pro",
     key: "vidsrc-pro",
     movieUrl:  (id) => `https://vidsrc.cc/v2/embed/movie/${id}`,
@@ -28,6 +34,18 @@ export const STREAMING_SOURCES: StreamSource[] = [
     key: "vidsrc",
     movieUrl:  (id) => `https://vidsrc.to/embed/movie/${id}`,
     seriesUrl: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    name: "SuperEmbed",
+    key: "superembed",
+    movieUrl:  (id) => `https://play.superembed.xyz/?video_id=${id}&tmdb=1`,
+    seriesUrl: (id, s, e) => `https://play.superembed.xyz/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
+  },
+  {
+    name: "MultiEmbed",
+    key: "multiembed",
+    movieUrl:  (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
+    seriesUrl: (id, s, e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
   {
     name: "2Embed",

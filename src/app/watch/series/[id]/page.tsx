@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { TMDBProvider } from "@/lib/providers/tmdb.provider";
+import { TMDBProvider, TMDBSeason, TMDBMedia } from "@/lib/providers/tmdb.provider";
 import WatchSeriesClient from "@/components/cinematic/WatchSeriesClient";
 
 interface WatchSeriesPageProps {

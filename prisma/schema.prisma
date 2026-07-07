@@ -57,6 +57,8 @@ model History {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   mediaId     String
   mediaType   String
+  season      Int?     // For series / anime
+  episode     Int?     // For series / anime
   progress    Int      // duration watched in seconds
   duration    Int      // total duration in seconds
   updatedAt   DateTime @updatedAt

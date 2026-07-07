@@ -60,7 +60,7 @@ export class TelemetryService {
 
       const providerStats: Record<string, { uptime: number; avgLatency: number; totalRequests: number; failedRequests: number }> = {};
       
-      const uniqueProviders = ["TMDB", "AniList", "YouTube", "NewsAPI"];
+      const uniqueProviders = ["TMDB", "AniList", "YouTube", "NewsAPI", "vidsrc-pro", "vidsrc", "2embed", "moviesapi", "GoogleOAuth", "TMDB_Episode"];
       uniqueProviders.forEach(p => {
         const pMetrics = metrics.filter(m => m.provider === p);
         const total = pMetrics.length;
@@ -171,7 +171,13 @@ export class TelemetryService {
           "TMDB": { uptime: 100, avgLatency: 120, totalRequests: 24, failedRequests: 0 },
           "AniList": { uptime: 100, avgLatency: 180, totalRequests: 18, failedRequests: 0 },
           "YouTube": { uptime: 100, avgLatency: 80, totalRequests: 15, failedRequests: 0 },
-          "NewsAPI": { uptime: 100, avgLatency: 150, totalRequests: 10, failedRequests: 0 }
+          "NewsAPI": { uptime: 100, avgLatency: 150, totalRequests: 10, failedRequests: 0 },
+          "vidsrc-pro": { uptime: 100, avgLatency: 50, totalRequests: 5, failedRequests: 0 },
+          "vidsrc": { uptime: 100, avgLatency: 60, totalRequests: 5, failedRequests: 0 },
+          "2embed": { uptime: 100, avgLatency: 75, totalRequests: 5, failedRequests: 0 },
+          "moviesapi": { uptime: 100, avgLatency: 90, totalRequests: 5, failedRequests: 0 },
+          "GoogleOAuth": { uptime: 100, avgLatency: 0, totalRequests: 2, failedRequests: 0 },
+          "TMDB_Episode": { uptime: 100, avgLatency: 100, totalRequests: 8, failedRequests: 0 }
         },
         searchStats: { 
           total: 0, 

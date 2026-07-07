@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Tv, ChevronDown } from "lucide-react";
+import { Tv } from "lucide-react";
 
 interface Episode {
   episodeNumber: number;

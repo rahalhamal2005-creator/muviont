@@ -5,17 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Search, Shield, Film, Tv, Star, Flame,
-  Heart, Home, X, Menu, User, LogOut,
+  Search, Shield, Film, Tv, Star,
+  Heart, Home, User, LogOut,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const NAV_LINKS = [
   { href: "/",        label: "Home",      icon: Home  },
   { href: "/movies",  label: "Movies",    icon: Film  },
   { href: "/series",  label: "Series",    icon: Tv    },
   { href: "/anime",   label: "Anime",     icon: Star  },
-  { href: "/trending",label: "Trending",  icon: Flame },
   { href: "/watchlist",label: "Watchlist",icon: Heart },
 ];
 
@@ -27,7 +26,6 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
   const [scrolled, setScrolled]     = useState(false);
   const [user, setUser]             = useState<any>(null);
   const [loading, setLoading]       = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -54,7 +52,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 hidden md:block ${
           scrolled
             ? "bg-[var(--bg)]/95 backdrop-blur-xl border-b border-[var(--border)] shadow-[0_4px_30px_rgba(0,0,0,0.6)]"
             : "bg-gradient-to-b from-[var(--bg)]/90 via-[var(--bg)]/30 to-transparent"
@@ -64,7 +62,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
 
           {/* Logo */}
           <Link href="/" className="relative w-32 h-9 flex-shrink-0">
-            <Image src="/logo.png" alt="MUVIONT" fill priority className="object-contain" />
+            <Image src="/logo.svg" alt="MUVIONT" fill priority className="object-contain" />
           </Link>
 
           {/* Desktop Nav */}
@@ -160,46 +158,8 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
                 </div>
               </div>
             )}
-
-            {/* Mobile Hamburger */}
-            <button
-              onClick={() => setMobileOpen(v => !v)}
-              className="lg:hidden p-2 rounded-lg bg-white/6 border border-[var(--border)] text-[var(--text-muted)] hover:text-white transition-colors"
-            >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
           </div>
         </div>
-
-        {/* Mobile Nav Drawer */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden border-t border-[var(--border)] bg-[var(--bg)]/98 backdrop-blur-xl overflow-hidden"
-            >
-              <div className="px-4 py-3 flex flex-col gap-1">
-                {NAV_LINKS.map(({ href, label, icon: Icon }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
-                      pathname === href
-                        ? "bg-[var(--red)]/15 text-white"
-                        : "text-[var(--text-muted)] hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.header>
     </>
   );

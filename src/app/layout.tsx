@@ -14,15 +14,15 @@ export const metadata: Metadata = {
   description: "Watch movies, series, and anime in cinematic quality. Powered by AI search, personalized recommendations, and premium streaming.",
   metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
   icons: {
-    icon: "/favicon.jpg",
-    apple: "/logo.png",
+    icon: "/logo-icon.svg",
+    apple: "/logo-icon.svg",
   },
   openGraph: {
     title: "MUVIONT | Premium Streaming Platform",
     description: "Watch movies, series, and anime in cinematic quality on MUVIONT.",
     url: "/",
     siteName: "MUVIONT",
-    images: [{ url: "/logo.png", width: 1200, height: 630, alt: "MUVIONT" }],
+    images: [{ url: "/logo-icon.svg", width: 512, height: 512, alt: "MUVIONT" }],
     locale: "en_US",
     type: "website",
   },

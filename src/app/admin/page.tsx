@@ -306,6 +306,41 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Diagnostic Failure Logs */}
+            <div className="p-6 rounded-xl border border-neutral-900 bg-neutral-950/40">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-300 mb-4">
+                Diagnostic Failure Logs (24h)
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <span className="text-[10px] uppercase text-neutral-500 font-bold">Stream Playback Failures</span>
+                  <p className="text-2xl font-bold mt-1 text-white">
+                    {((metrics.providerStats?.["vidsrc-pro"]?.failedRequests || 0) +
+                      (metrics.providerStats?.["vidsrc"]?.failedRequests || 0) +
+                      (metrics.providerStats?.["2embed"]?.failedRequests || 0) +
+                      (metrics.providerStats?.["moviesapi"]?.failedRequests || 0)) as number}
+                  </p>
+                  <p className="text-[10px] text-neutral-400 mt-1">Failed video stream loads.</p>
+                </div>
+
+                <div className="p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <span className="text-[10px] uppercase text-neutral-500 font-bold">Episode Fetch Failures</span>
+                  <p className="text-2xl font-bold mt-1 text-white">
+                    {metrics.providerStats?.["TMDB_Episode"]?.failedRequests || 0}
+                  </p>
+                  <p className="text-[10px] text-neutral-400 mt-1">TMDB season/episode API timeouts.</p>
+                </div>
+
+                <div className="p-4 rounded-lg bg-neutral-900/50 border border-neutral-800">
+                  <span className="text-[10px] uppercase text-neutral-500 font-bold">Google OAuth Failures</span>
+                  <p className="text-2xl font-bold mt-1 text-white">
+                    {metrics.providerStats?.["GoogleOAuth"]?.failedRequests || 0}
+                  </p>
+                  <p className="text-[10px] text-neutral-400 mt-1">State validation or callback token errors.</p>
+                </div>
+              </div>
+            </div>
+
             {/* News Provider Health Failover diagnostics */}
             <div className="p-6 rounded-xl border border-neutral-900 bg-neutral-950/40">
               <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-300 mb-4">

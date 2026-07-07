@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  Play, RefreshCw, ExternalLink, ChevronDown, Maximize2, AlertCircle,
+  Play, RefreshCw, ExternalLink, Maximize2, AlertCircle,
 } from "lucide-react";
 import { STREAMING_SOURCES } from "@/lib/streaming";
 
@@ -21,9 +21,35 @@ export default function StreamingPlayer({
   const [currentUrl, setCurrentUrl]       = useState(embedUrl);
   const [loading, setLoading]             = useState(true);
   const [error, setError]                 = useState(false);
-  const [fullscreen, setFullscreen]       = useState(false);
+  const [healthMap, setHealthMap]         = useState<Record<string, "ONLINE" | "OFFLINE">>({});
   const iframeRef  = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const switchSource = useCallback((idx: number) => {
+    setActiveSource(idx);
+    setLoading(true);
+    setError(false);
+    onSourceChange?.(idx);
+  }, [onSourceChange]);
+
+  // Fetch provider health and auto-switch if active is offline
+  useEffect(() => {
+    fetch("/api/provider-health")
+      .then(r => r.ok ? r.json() : {})
+      .then((data: Record<string, string>) => {
+        setHealthMap(data as Record<string, "ONLINE" | "OFFLINE">);
+        
+        // Auto-switch logic: if current active source is offline, find first online one
+        const currentSourceKey = STREAMING_SOURCES[activeSource]?.key;
+        if (data[currentSourceKey] === "OFFLINE") {
+          const firstOnlineIndex = STREAMING_SOURCES.findIndex(s => data[s.key] === "ONLINE");
+          if (firstOnlineIndex !== -1 && firstOnlineIndex !== activeSource) {
+            switchSource(firstOnlineIndex);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [activeSource, switchSource]);
 
   useEffect(() => {
     setCurrentUrl(embedUrl);
@@ -39,20 +65,41 @@ export default function StreamingPlayer({
   const handleError = () => {
     setLoading(false);
     setError(true);
-  };
+    
+    // Mark current source as offline dynamically
+    const currentKey = STREAMING_SOURCES[activeSource]?.key;
+    const currentName = STREAMING_SOURCES[activeSource]?.name;
+    if (currentKey) {
+      setHealthMap(prev => ({ ...prev, [currentKey]: "OFFLINE" }));
+      
+      // Report stream failure
+      fetch("/api/diagnostics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "stream_failure",
+          provider: currentName || currentKey,
+          endpoint: currentUrl,
+          errorMsg: `Stream load failed for ${title}`
+        })
+      }).catch(() => {});
+    }
 
-  const switchSource = (idx: number) => {
-    setActiveSource(idx);
-    setLoading(true);
-    setError(false);
-    onSourceChange?.(idx);
+    // Attempt auto-switch to next working source
+    const nextOnlineIndex = STREAMING_SOURCES.findIndex((s, idx) => 
+      idx !== activeSource && (healthMap[s.key] === "ONLINE" || !healthMap[s.key])
+    );
+    if (nextOnlineIndex !== -1) {
+      setTimeout(() => {
+        switchSource(nextOnlineIndex);
+      }, 3000); // 3s delay to let user see status change
+    }
   };
 
   const reloadPlayer = () => {
     setLoading(true);
     setError(false);
     if (iframeRef.current) {
-      // eslint-disable-next-line no-self-assign
       iframeRef.current.src = iframeRef.current.src;
     }
   };
@@ -61,10 +108,8 @@ export default function StreamingPlayer({
     if (!wrapperRef.current) return;
     if (!document.fullscreenElement) {
       wrapperRef.current.requestFullscreen?.();
-      setFullscreen(true);
     } else {
       document.exitFullscreen?.();
-      setFullscreen(false);
     }
   };
 
@@ -90,7 +135,10 @@ export default function StreamingPlayer({
             <AlertCircle className="w-12 h-12 text-[var(--red)]/60" />
             <div className="text-center">
               <p className="text-white font-bold mb-1">Stream failed to load</p>
-              <p className="text-sm text-[var(--text-muted)]">Try switching to a different source below</p>
+              <p className="text-xs text-[var(--red)] font-semibold uppercase tracking-wider animate-pulse mb-1">
+                Auto-switching to next working source...
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">Try switching to a different source below manually if it persists</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -146,15 +194,23 @@ export default function StreamingPlayer({
           <span className="text-[var(--text-dim)] normal-case font-normal">— switch if stream doesn&apos;t load</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {STREAMING_SOURCES.map((source, i) => (
-            <button
-              key={source.key}
-              onClick={() => switchSource(i)}
-              className={`source-btn ${activeSource === i ? "active" : ""}`}
-            >
-              {source.name}
-            </button>
-          ))}
+          {STREAMING_SOURCES.map((source, i) => {
+            const status = healthMap[source.key] || "ONLINE";
+            return (
+              <button
+                key={source.key}
+                onClick={() => switchSource(i)}
+                disabled={status === "OFFLINE" && activeSource !== i}
+                className={`source-btn flex items-center gap-1.5 ${activeSource === i ? "active" : ""} disabled:opacity-40 disabled:cursor-not-allowed disabled:border-neutral-900`}
+              >
+                {source.name}
+                <span className={`w-1.5 h-1.5 rounded-full ${status === "ONLINE" ? "bg-emerald-500 shadow-[0_0_6px_#10b981]" : "bg-red-500 shadow-[0_0_6px_#ef4444]"}`} />
+                <span className="text-[8px] uppercase tracking-wide opacity-65 font-bold">
+                  {status}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

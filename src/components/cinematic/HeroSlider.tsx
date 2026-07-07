@@ -11,7 +11,7 @@ interface HeroSliderProps {
   onPlayTrailer?: (id: string, title: string) => void;
 }
 
-export default function HeroSlider({ items, onPlayTrailer }: HeroSliderProps) {
+export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: HeroSliderProps) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 

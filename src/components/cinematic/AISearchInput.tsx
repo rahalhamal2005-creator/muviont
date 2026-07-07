@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { X, Search, Sparkles, AlertCircle, RefreshCw } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { X, Search, Sparkles, AlertCircle, RefreshCw, Clock, Flame, Film } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import MediaCard from "./MediaCard";
 import { AIIntent } from "@/lib/ai";
@@ -10,31 +10,38 @@ interface AISearchInputProps {
   onClose: () => void;
 }
 
+const TRENDING_SEARCHES = [
+  "One Piece",
+  "Solo Leveling",
+  "Naruto Shippuden",
+  "Bleach",
+  "Solo Leveling Season 2"
+];
+
+const POPULAR_SEARCHES = [
+  "Interstellar",
+  "Dune",
+  "Wednesday",
+  "Stranger Things",
+  "Avatar"
+];
+
 export default function AISearchInput({ onClose }: AISearchInputProps) {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [isAI, setIsAI] = useState(false);
   const [aiIntent, setAiIntent] = useState<AIIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // Focus search box on load
-    inputRef.current?.focus();
-    // Disable body scroll when modal is open
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
-  const handleSearch = async (searchQuery: string) => {
+  const handleSearch = useCallback(async (searchQuery: string, saveToRecent = true) => {
     if (!searchQuery.trim()) return;
     setLoading(true);
     setError(null);
-    setResults([]);
     setIsAI(false);
     setAiIntent(null);
 
@@ -51,30 +58,70 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
       setResults(data.results || []);
       setIsAI(!!data.isAI);
       setAiIntent(data.intent || null);
+
+      // Save to recent searches if search was successful
+      if (saveToRecent && data.results?.length > 0) {
+        setRecentSearches(prev => {
+          const filtered = prev.filter(s => s.toLowerCase() !== searchQuery.toLowerCase());
+          const updated = [searchQuery, ...filtered].slice(0, 5);
+          localStorage.setItem("muviont_recent_searches", JSON.stringify(updated));
+          return updated;
+        });
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Focus and local history check on mount
+  useEffect(() => {
+    inputRef.current?.focus();
+    document.body.style.overflow = "hidden";
+    
+    // Load recent searches
+    const saved = JSON.parse(localStorage.getItem("muviont_recent_searches") || "[]");
+    setRecentSearches(saved);
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
+  // Debouncing effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 350);
+
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  // Execute Search automatically on debounced query change
+  useEffect(() => {
+    if (debouncedQuery.trim().length >= 2) {
+      handleSearch(debouncedQuery, false);
+    } else if (debouncedQuery.trim().length === 0) {
+      setResults([]);
+      setError(null);
+    }
+  }, [debouncedQuery, handleSearch]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSearch(query);
+      handleSearch(query, true);
     }
   };
 
-  const suggestions = [
-    "anime like Solo Leveling",
-    "movies similar to Interstellar",
-    "dark mystery series",
-    "best sci-fi movies",
-    " বুধবার"
-  ];
-
   const handleSuggestionClick = (sug: string) => {
     setQuery(sug);
-    handleSearch(sug);
+    handleSearch(sug, true);
+  };
+
+  const clearRecent = () => {
+    localStorage.removeItem("muviont_recent_searches");
+    setRecentSearches([]);
   };
 
   return (
@@ -86,23 +133,23 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
         className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-xl p-6 overflow-y-auto"
       >
         {/* Header Control */}
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between mb-8">
-          <span className="text-xs font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4" />
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between mb-6">
+          <span className="text-xs font-bold uppercase tracking-widest text-[var(--red)] flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 animate-pulse" />
             AI Smart Search Engine
           </span>
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-neutral-900 border border-neutral-800 text-white/80 hover:bg-neutral-800 hover:text-white transition-all duration-200"
+            className="p-2 rounded-full bg-neutral-900 border border-neutral-800 text-white/80 hover:bg-neutral-850 hover:text-white transition-all duration-200 cursor-pointer"
             aria-label="Close search"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Floating Input Container */}
+        {/* Search Bar Input */}
         <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-          <div className="relative w-full rounded-full border border-neutral-800 bg-neutral-950 p-2 shadow-[0_0_30px_rgba(255,0,0,0.1)] focus-within:shadow-[0_0_30px_rgba(255,0,0,0.25)] focus-within:border-red-600/50 transition-all duration-300 flex items-center">
+          <div className="relative w-full rounded-full border border-neutral-800 bg-neutral-950 p-2 shadow-[0_0_30px_rgba(255,0,0,0.1)] focus-within:shadow-[0_0_30px_rgba(255,0,0,0.25)] focus-within:border-[var(--red)]/50 transition-all duration-300 flex items-center">
             <Search className="w-6 h-6 text-neutral-500 ml-4" />
             <input
               ref={inputRef}
@@ -110,32 +157,98 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask MUVIONT AI (e.g. 'dark mystery series' or 'anime like Solo Leveling')..."
+              placeholder="Ask MUVIONT AI or type a title (e.g. 'anime like Solo Leveling' or 'One Piece')..."
               className="w-full bg-transparent border-0 outline-none text-white text-base sm:text-lg px-4 py-3 placeholder-neutral-500"
             />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="p-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-850 transition-colors mr-2 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             <button
-              onClick={() => handleSearch(query)}
+              onClick={() => handleSearch(query, true)}
               disabled={loading || !query.trim()}
-              className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-red-600 flex items-center gap-1 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,0,0,0.2)]"
+              className="px-6 py-3 rounded-full bg-[var(--red)] hover:bg-[var(--red-hover)] text-white font-bold transition-all duration-300 disabled:opacity-50 flex items-center gap-1 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,0,0,0.2)] cursor-pointer"
             >
               Search
             </button>
           </div>
 
-          {/* Prompt Suggestions */}
+          {/* Autocomplete Suggestions Box (when query is short or empty) */}
           {!query && results.length === 0 && (
-            <div className="w-full mt-6 text-center">
-              <p className="text-xs text-neutral-500 mb-3">Or try these conversational prompts:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {suggestions.map((sug) => (
-                  <button
-                    key={sug}
-                    onClick={() => handleSuggestionClick(sug)}
-                    className="px-4 py-2 rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 text-xs hover:border-red-600/40 hover:text-red-500 hover:bg-neutral-900 transition-all duration-200"
-                  >
-                    "{sug}"
-                  </button>
-                ))}
+            <div className="w-full max-w-3xl mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Recent Searches */}
+              <div>
+                <div className="flex items-center justify-between mb-3 text-neutral-500">
+                  <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    Recent Searches
+                  </span>
+                  {recentSearches.length > 0 && (
+                    <button onClick={clearRecent} className="text-[9px] font-extrabold uppercase text-[var(--red)] hover:underline cursor-pointer">
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {recentSearches.length > 0 ? (
+                  <div className="flex flex-col gap-1">
+                    {recentSearches.map(term => (
+                      <button
+                        key={term}
+                        onClick={() => handleSuggestionClick(term)}
+                        className="text-left py-2 px-3 rounded-lg hover:bg-neutral-900/60 text-xs font-semibold text-neutral-300 hover:text-white transition-colors duration-150 flex items-center gap-2 cursor-pointer"
+                      >
+                        <Clock className="w-3 h-3 opacity-55" />
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-neutral-600 italic py-2">No recent search logs</p>
+                )}
+              </div>
+
+              {/* Trending Searches */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-3 flex items-center gap-1">
+                  <Flame className="w-3.5 h-3.5 text-[var(--red)] animate-pulse" />
+                  Trending Searches
+                </span>
+                <div className="flex flex-col gap-1">
+                  {TRENDING_SEARCHES.map(term => (
+                    <button
+                      key={term}
+                      onClick={() => handleSuggestionClick(term)}
+                      className="text-left py-2 px-3 rounded-lg hover:bg-neutral-900/60 text-xs font-semibold text-neutral-300 hover:text-white transition-colors duration-150 flex items-center gap-2 cursor-pointer"
+                    >
+                      <Flame className="w-3 h-3 text-[var(--red)]" />
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Popular Searches */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-3 flex items-center gap-1">
+                  <Film className="w-3.5 h-3.5" />
+                  Popular Suggestions
+                </span>
+                <div className="flex flex-col gap-1">
+                  {POPULAR_SEARCHES.map(term => (
+                    <button
+                      key={term}
+                      onClick={() => handleSuggestionClick(term)}
+                      className="text-left py-2 px-3 rounded-lg hover:bg-neutral-900/60 text-xs font-semibold text-neutral-300 hover:text-white transition-colors duration-150 flex items-center gap-2 cursor-pointer"
+                    >
+                      <Search className="w-3 h-3 opacity-55" />
+                      {term}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -143,8 +256,8 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
           {/* Loader status */}
           {loading && (
             <div className="flex flex-col items-center justify-center mt-20 gap-3">
-              <RefreshCw className="w-8 h-8 text-red-500 animate-spin" />
-              <p className="text-sm text-neutral-400">Muviont AI is parsing query and indexing catalogs...</p>
+              <RefreshCw className="w-8 h-8 text-[var(--red)] animate-spin" />
+              <p className="text-sm text-neutral-400">Searching catalogs...</p>
             </div>
           )}
 
@@ -166,10 +279,9 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-8 p-6 rounded-xl border border-neutral-800 bg-neutral-900/30 backdrop-blur-md relative overflow-hidden"
                 >
-                  {/* Decorative glowing gradient */}
                   <div className="absolute -top-12 -left-12 w-24 h-24 bg-red-600/10 rounded-full blur-2xl" />
                   
-                  <div className="flex items-center gap-2 text-xs font-bold text-red-500 uppercase tracking-widest mb-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[var(--red)] uppercase tracking-widest mb-2">
                     <Sparkles className="w-4 h-4" />
                     AI Reasoning
                   </div>
@@ -195,7 +307,7 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
               </h2>
 
               {/* Cards Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 animate-in fade-in duration-200">
                 {results.map((item) => (
                   <MediaCard
                     key={item.id}
@@ -212,7 +324,7 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
           )}
 
           {/* Empty search results state */}
-          {!loading && !error && query && results.length === 0 && (
+          {!loading && !error && query.trim().length >= 2 && results.length === 0 && (
             <div className="text-center mt-20">
               <p className="text-base font-bold text-neutral-400">No titles match your query</p>
               <p className="text-xs text-neutral-600 mt-2">Try searching using keywords, genres, or actors.</p>

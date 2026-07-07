@@ -1,4 +1,5 @@
 import { db } from "../db";
+import { TMDBProvider } from "./tmdb.provider";
 
 export interface AniListMedia {
   id: string;
@@ -11,13 +12,16 @@ export interface AniListMedia {
   rating: number; // 0.0 - 10.0 scale
   genres: string[];
   status: string; // "RELEASING" | "FINISHED" | "NOT_YET_RELEASED"
-  episodes: number;
+  episodes: number; // Total or latest episodes
+  totalEpisodes?: number | null; // Explicit total episodes if defined
+  latestEpisode?: number; // Explicit latest aired episode
   season?: string;
   studios: string[];
   characters: { name: string; image: string; role: string }[];
   trailerUrl?: string;
   nextAiringEpisode?: { episode: number; airingAt: number };
   popularity?: number;
+  tmdbId?: string;
 }
 
 export class AniListProviderError extends Error {
@@ -56,6 +60,15 @@ export class AniListProvider {
   }
 
   private mapMedia(media: any): AniListMedia {
+    const totalEpisodes = media.episodes; // can be null for ongoing shows
+    let latestEpisode = media.episodes || 0;
+    
+    if (media.status === "RELEASING" && media.nextAiringEpisode) {
+      latestEpisode = media.nextAiringEpisode.episode - 1;
+    }
+
+    const finalEpisodes = totalEpisodes || latestEpisode || 0;
+
     return {
       id: `a-${media.id}`,
       title: media.title.romaji || media.title.english || "",
@@ -67,7 +80,9 @@ export class AniListProvider {
       rating: media.averageScore ? Math.round(media.averageScore) / 10 : 7.0,
       genres: media.genres || [],
       status: media.status || "FINISHED",
-      episodes: media.episodes || 12,
+      episodes: finalEpisodes,
+      totalEpisodes: totalEpisodes,
+      latestEpisode: latestEpisode,
       season: media.season || undefined,
       studios: media.studios?.nodes?.map((s: any) => s.name) || [],
       characters: media.characters?.edges?.map((e: any) => ({
@@ -126,6 +141,7 @@ export class AniListProvider {
             status
             episodes
             season
+            nextAiringEpisode { episode airingAt }
             studios(isMain: true) { nodes { name } }
           }
         }
@@ -194,6 +210,7 @@ export class AniListProvider {
             status
             episodes
             popularity
+            nextAiringEpisode { episode airingAt }
           }
         }
       }
@@ -247,6 +264,43 @@ export class AniListProvider {
       const data = await this.fetchGraphQL(query, { id: parseInt(rawId) });
       if (!data.Media) return null;
       const mapped = this.mapMedia(data.Media);
+
+      // Try to get TMDB details to enrich and override episode counts/status
+      try {
+        const tmdb = new TMDBProvider();
+        const searchTitle = mapped.englishTitle || mapped.title;
+        if (searchTitle) {
+          const tmdbResults = await tmdb.search(searchTitle);
+          // Look for a TV show match (series) prioritizing Animation (genre ID 16) and Japanese language
+          let matchedSeries = tmdbResults.find(r => r.type === "series" && r.genreIds?.includes(16));
+          if (!matchedSeries) {
+            matchedSeries = tmdbResults.find(r => r.type === "series" && r.originalLanguage === "ja");
+          }
+          if (!matchedSeries) {
+            matchedSeries = tmdbResults.find(r => r.type === "series");
+          }
+          if (matchedSeries) {
+            mapped.tmdbId = matchedSeries.id;
+            const tmdbDetails = await tmdb.getDetails(matchedSeries.id);
+            if (tmdbDetails) {
+              // Override mapped values with TMDB data
+              mapped.totalEpisodes = tmdbDetails.totalEpisodes || mapped.totalEpisodes;
+              mapped.latestEpisode = tmdbDetails.totalEpisodes || mapped.latestEpisode;
+              mapped.episodes = tmdbDetails.totalEpisodes || mapped.episodes;
+              mapped.status = tmdbDetails.status || mapped.status;
+              if (tmdbDetails.nextEpisode) {
+                mapped.nextAiringEpisode = {
+                  episode: tmdbDetails.nextEpisode.episodeNumber,
+                  airingAt: Math.floor(new Date(tmdbDetails.nextEpisode.airDate).getTime() / 1000)
+                };
+              }
+            }
+          }
+        }
+      } catch (err: any) {
+        console.warn("Failed to enrich AniList media with TMDB data:", err.message);
+      }
+
       await this.logMetric(`getDetails/${id}`, Date.now() - startTime, true);
       return mapped;
     } catch (err: any) {
@@ -319,6 +373,7 @@ export class AniListProvider {
                 status
                 episodes
                 popularity
+                nextAiringEpisode { episode airingAt }
               }
             }
           }
@@ -340,6 +395,57 @@ export class AniListProvider {
     } catch (err: any) {
       await this.logMetric(`getRecommendations/${id}`, Date.now() - startTime, false, err.message);
       throw new AniListProviderError(err.message || `Failed to fetch recommendations for anime ID: ${id}`, err);
+    }
+  }
+
+  async discover(options: { genre?: string; year?: string; sort?: string; page?: number }): Promise<{ results: AniListMedia[]; totalPages: number }> {
+    const query = `
+      query ($page: Int, $genre: String, $year: Int, $sort: [MediaSort]) {
+        Page(page: $page, perPage: 14) {
+          pageInfo {
+            total
+            lastPage
+          }
+          media(type: ANIME, genre: $genre, startDate_like: $year, sort: $sort) {
+            id
+            title { romaji english }
+            description
+            coverImage { large }
+            bannerImage
+            startDate { year month day }
+            averageScore
+            genres
+            status
+            episodes
+            popularity
+            nextAiringEpisode { episode airingAt }
+          }
+        }
+      }
+    `;
+    
+    let sortVal = "POPULARITY_DESC";
+    if (options.sort === "vote_average.desc") sortVal = "SCORE_DESC";
+    else if (options.sort === "release_date.desc") sortVal = "START_DATE_DESC";
+    else if (options.sort === "release_date.asc") sortVal = "START_DATE_ASC";
+
+    const variables: any = {
+      page: options.page || 1,
+      sort: [sortVal]
+    };
+    if (options.genre) variables.genre = options.genre;
+    if (options.year) variables.year = `${options.year}%`;
+
+    try {
+      const data = await this.fetchGraphQL(query, variables);
+      const mapped = (data.Page.media || []).map((m: any) => this.mapMedia(m));
+      return {
+        results: mapped,
+        totalPages: Math.min(data.Page.pageInfo.lastPage || 1, 50)
+      };
+    } catch (err: any) {
+      console.error("AniList discover error:", err.message);
+      return { results: [], totalPages: 1 };
     }
   }
 }

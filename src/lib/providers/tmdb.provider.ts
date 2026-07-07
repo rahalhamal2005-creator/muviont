@@ -35,6 +35,17 @@ export interface TMDBWatchProviders {
   AU?: TMDBWatchProvider[];
 }
 
+export interface TMDBMediaCast {
+  name: string;
+  character: string;
+  profilePath: string;
+}
+
+export interface TMDBProductionCompany {
+  name: string;
+  logoPath: string;
+}
+
 export interface TMDBMedia {
   id: string;
   title: string;
@@ -47,8 +58,19 @@ export interface TMDBMedia {
   genres: string[];
   director?: string;
   cast?: string[];
+  detailedCast?: TMDBMediaCast[];
+  productionCompanies?: TMDBProductionCompany[];
+  runtime?: number;
+  status?: string;
+  language?: string;
+  country?: string;
   trailerUrl?: string;
   popularity?: number;
+  totalEpisodes?: number;
+  seasonsCount?: number;
+  nextEpisode?: { episodeNumber: number; airDate: string; name?: string };
+  genreIds?: number[];
+  originalLanguage?: string;
 }
 
 export class TMDBProvider {
@@ -84,7 +106,9 @@ export class TMDBProvider {
       rating: Math.round((item.vote_average || 0) * 10) / 10,
       type,
       genres: item.genre_ids ? [] : (item.genres ? item.genres.map((g: any) => g.name) : []),
-      popularity: item.popularity || 0
+      popularity: item.popularity || 0,
+      genreIds: item.genre_ids || [],
+      originalLanguage: item.original_language || ""
     };
   }
 
@@ -185,10 +209,16 @@ export class TMDBProvider {
       const details = await detailsRes.json();
 
       let cast: string[] = [];
+      let detailedCast: TMDBMediaCast[] = [];
       let director = "";
       if (creditsRes.ok) {
         const credits = await creditsRes.json();
-        cast = (credits.cast || []).slice(0, 5).map((c: any) => c.name);
+        cast = (credits.cast || []).slice(0, 8).map((c: any) => c.name);
+        detailedCast = (credits.cast || []).slice(0, 8).map((c: any) => ({
+          name: c.name,
+          character: c.character || "",
+          profilePath: c.profile_path ? `https://image.tmdb.org/t/p/w185${c.profile_path}` : ""
+        }));
         const dirObj = (credits.crew || []).find((c: any) => c.job === "Director");
         if (dirObj) director = dirObj.name;
       }
@@ -203,7 +233,28 @@ export class TMDBProvider {
       const mapped = this.mapMedia(details, type);
       mapped.director = director;
       mapped.cast = cast;
+      mapped.detailedCast = detailedCast;
+      mapped.productionCompanies = (details.production_companies || []).slice(0, 6).map((pc: any) => ({
+        name: pc.name,
+        logoPath: pc.logo_path ? `https://image.tmdb.org/t/p/w185${pc.logo_path}` : ""
+      }));
+      mapped.runtime = details.runtime || (details.episode_run_time ? details.episode_run_time[0] : 0) || 0;
+      mapped.status = details.status || "";
+      mapped.language = details.spoken_languages?.map((l: any) => l.english_name).join(", ") || details.original_language || "";
+      mapped.country = details.production_countries?.map((c: any) => c.name).join(", ") || "";
       mapped.trailerUrl = trailerUrl;
+
+      if (type === "series") {
+        mapped.totalEpisodes = details.number_of_episodes || 0;
+        mapped.seasonsCount = details.number_of_seasons || 0;
+        if (details.next_episode_to_air) {
+          mapped.nextEpisode = {
+            episodeNumber: details.next_episode_to_air.episode_number,
+            airDate: details.next_episode_to_air.air_date,
+            name: details.next_episode_to_air.name || ""
+          };
+        }
+      }
 
       await this.logMetric(endpoint, Date.now() - startTime, true);
       return mapped;

