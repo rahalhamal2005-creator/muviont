@@ -73,7 +73,7 @@ function LoginContent() {
       
       {/* Brand Logo */}
       <div className="relative w-36 h-10 mb-6 select-none">
-        <Image src="/logo.png" alt="MUVIONT Logo" fill className="object-contain" priority />
+        <Image src="/logo.svg" alt="MUVIONT Logo" fill className="object-contain" priority />
       </div>
 
       <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-1.5 justify-center">
