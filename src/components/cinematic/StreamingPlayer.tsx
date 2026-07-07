@@ -172,7 +172,6 @@ export default function StreamingPlayer({
           scrolling="no"
           className="w-full block"
           style={{ aspectRatio: "16/9", display: "block" }}
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           onLoad={handleLoad}
           onError={handleError}
         />
