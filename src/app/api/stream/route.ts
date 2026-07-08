@@ -59,11 +59,22 @@ export async function GET(req: Request) {
       }, { status: 404 });
     }
 
+    // Map subtitles to our converter if they are SRT
+    const subtitles = (data.subtitles || []).map((sub: any) => {
+      const isSrt = sub.format === "srt" || sub.url.endsWith(".srt");
+      return {
+        url: isSrt ? `/api/subtitles?url=${encodeURIComponent(sub.url)}` : sub.url,
+        label: sub.label,
+        language: sub.lang || "en"
+      };
+    });
+
     return NextResponse.json({
       url: bestSource.url,
       type: bestSource.type || "mp4",
       quality: bestSource.quality || "auto",
-      provider: bestSource.provider?.name || "CinePro"
+      provider: bestSource.provider?.name || "CinePro",
+      subtitles: subtitles
     });
   } catch (err: any) {
     return NextResponse.json({ 

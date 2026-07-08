@@ -12,11 +12,14 @@ declare global {
 interface HLSPlayerProps {
   src: string; // .m3u8 or .mp4 URL
   title: string;
+  subtitles?: Array<{ url: string; label: string; language: string }>;
   onProgress?: (progress: number) => void;
   className?: string;
 }
 
-export default function HLSPlayer({ src, title, onProgress, className = "" }: HLSPlayerProps) {
+export default function HLSPlayer({
+  src, title, subtitles = [], onProgress, className = ""
+}: HLSPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<any>(null);
   const hlsRef = useRef<any>(null);
@@ -80,8 +83,8 @@ export default function HLSPlayer({ src, title, onProgress, className = "" }: HL
       hlsRef.current = null;
     }
 
-    const initPlyr = () => {
-      const plyr = new Plyr(video, {
+    const initPlyr = (hlsInstance?: any) => {
+      const plyrConfig: any = {
         controls: [
           "play-large",
           "play",
@@ -100,7 +103,29 @@ export default function HLSPlayer({ src, title, onProgress, className = "" }: HL
         keyboard: { focused: true, global: true },
         tooltips: { controls: true, seek: true },
         title: title,
-      });
+      };
+
+      if (hlsInstance) {
+        const levels = hlsInstance.levels || [];
+        const heights = levels.map((l: any) => l.height).filter((h: number) => h > 0);
+        plyrConfig.quality = {
+          default: 0, // Auto
+          options: [0, ...heights],
+          forced: true,
+          onChange: (newQuality: number) => {
+            if (newQuality === 0) {
+              hlsInstance.currentLevel = -1; // Auto
+            } else {
+              const levelIdx = levels.findIndex((l: any) => l.height === newQuality);
+              if (levelIdx !== -1) {
+                hlsInstance.currentLevel = levelIdx;
+              }
+            }
+          }
+        };
+      }
+
+      const plyr = new Plyr(video, plyrConfig);
 
       // Track progress
       plyr.on("timeupdate", () => {
@@ -125,7 +150,7 @@ export default function HLSPlayer({ src, title, onProgress, className = "" }: HL
         hlsRef.current = hls;
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          initPlyr();
+          initPlyr(hls);
         });
 
         hls.on(Hls.Events.ERROR, (event: any, data: any) => {
@@ -206,7 +231,18 @@ export default function HLSPlayer({ src, title, onProgress, className = "" }: HL
         className="w-full h-full object-cover"
         playsInline
         crossOrigin="anonymous"
-      />
+      >
+        {subtitles && subtitles.map((sub, idx) => (
+          <track
+            key={idx}
+            kind="captions"
+            label={sub.label}
+            src={sub.url}
+            srcLang={sub.language}
+            default={idx === 0}
+          />
+        ))}
+      </video>
     </div>
   );
 }

@@ -24,6 +24,7 @@ export default function StreamingPlayer({
   const [error, setError]                 = useState(false);
   const [healthMap, setHealthMap]         = useState<Record<string, "ONLINE" | "OFFLINE">>({});
   const [directStreamUrl, setDirectStreamUrl] = useState<string | null>(null);
+  const [directStreamSubtitles, setDirectStreamSubtitles] = useState<any[]>([]);
   const [directStreamError, setDirectStreamError] = useState<string | null>(null);
   const iframeRef  = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -72,6 +73,7 @@ export default function StreamingPlayer({
   useEffect(() => {
     if (activeSourceKey !== "direct-stream") {
       setDirectStreamUrl(null);
+      setDirectStreamSubtitles([]);
       setDirectStreamError(null);
       return;
     }
@@ -79,12 +81,14 @@ export default function StreamingPlayer({
     setLoading(true);
     setDirectStreamError(null);
     setDirectStreamUrl(null);
+    setDirectStreamSubtitles([]);
 
     fetch(embedUrl)
       .then(async (res) => {
         const data = await res.json();
         if (res.ok && data.url) {
           setDirectStreamUrl(data.url);
+          setDirectStreamSubtitles(data.subtitles || []);
           setLoading(false);
         } else {
           setDirectStreamError(data.message || "Failed to load stream link.");
@@ -212,6 +216,7 @@ export default function StreamingPlayer({
             <HLSPlayer
               src={directStreamUrl}
               title={title}
+              subtitles={directStreamSubtitles}
             />
           ) : directStreamError ? (
             <div className="w-full bg-[#08080a]/95 border border-white/[0.04] backdrop-blur-md rounded-xl flex flex-col items-center justify-center p-8 text-center" style={{ aspectRatio: "16/9" }}>
