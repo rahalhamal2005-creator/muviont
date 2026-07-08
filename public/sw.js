@@ -1,6 +1,5 @@
-const CACHE_NAME = "muviont-cache-v1";
+const CACHE_NAME = "muviont-cache-v2";
 const ASSETS_TO_CACHE = [
-  "/",
   "/favicon.jpg",
   "/logo.png",
   "/next.svg",
