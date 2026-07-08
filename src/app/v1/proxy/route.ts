@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
@@ -25,11 +26,20 @@ export async function GET(req: Request) {
       headers["Range"] = rangeHeader;
     }
 
-    const res = await fetch(targetUrl, { headers });
+    const res = await fetch(targetUrl, { 
+      headers,
+      cache: "no-store"
+    });
 
     const responseHeaders = new Headers();
+    const contentType = res.headers.get("content-type") || "";
+    const isPlaylist = contentType.includes("mpegurl") || contentType.includes("mpegURL") || contentType.includes("text");
+
     res.headers.forEach((value, key) => {
       const lowerKey = key.toLowerCase();
+      if (lowerKey === "content-length" && isPlaylist) {
+        return; // Prevent length mismatch on gzipped playlists
+      }
       if ([
         "content-type",
         "content-length",
