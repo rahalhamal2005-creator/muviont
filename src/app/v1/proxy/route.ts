@@ -3,6 +3,26 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function rewritePlaylist(text: string): string {
+  const regex = /\/v1\/proxy\?data=([^\s"'\`<>]+)/g;
+  return text.replace(regex, (match, encodedData) => {
+    try {
+      const decodedData = decodeURIComponent(encodedData);
+      const parsed = JSON.parse(decodedData);
+      if (parsed.url) {
+        const isSubPlaylist = parsed.url.includes(".m3u8") || parsed.url.includes("playlist");
+        if (isSubPlaylist) {
+          return match; // Keep sub-playlists proxied
+        }
+        return parsed.url; // Return original direct URL for segments to bypass datacenter IP blocks!
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+    return match;
+  });
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -55,6 +75,16 @@ export async function GET(req: Request) {
     responseHeaders.set("Access-Control-Allow-Origin", "*");
     responseHeaders.set("Access-Control-Allow-Methods", "GET, OPTIONS");
     responseHeaders.set("Access-Control-Allow-Headers", "Range, Content-Type");
+
+    if (isPlaylist) {
+      const text = await res.text();
+      const rewrittenText = rewritePlaylist(text);
+      return new Response(rewrittenText, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: responseHeaders
+      });
+    }
 
     return new Response(res.body, {
       status: res.status,
