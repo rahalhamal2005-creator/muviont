@@ -19,6 +19,7 @@ export default function StreamingPlayer({
   embedUrl, title, sourceIndex = 0, onSourceChange, className = "",
 }: StreamingPlayerProps) {
   const [activeSource, setActiveSource]   = useState(sourceIndex);
+  const [showSources, setShowSources]     = useState(false);
   const [currentUrl, setCurrentUrl]       = useState(embedUrl);
   const [loading, setLoading]             = useState(true);
   const [error, setError]                 = useState(false);
@@ -68,6 +69,13 @@ export default function StreamingPlayer({
 
     return () => clearTimeout(timer);
   }, [embedUrl]);
+
+  // Show sources automatically if there is an error on the default player
+  useEffect(() => {
+    if (directStreamError || error) {
+      setShowSources(true);
+    }
+  }, [directStreamError, error]);
 
   // Load stream URL if direct-stream is active
   useEffect(() => {
@@ -239,7 +247,7 @@ export default function StreamingPlayer({
                     CinePro GitHub
                   </a>
                   <button
-                    onClick={() => switchSource(0)}
+                    onClick={() => switchSource(1)}
                     className="px-4 py-2 bg-[var(--red)] hover:bg-red-750 text-[10px] font-extrabold uppercase tracking-widest rounded-lg transition-colors text-white font-black"
                   >
                     Switch to VidLink
@@ -282,33 +290,48 @@ export default function StreamingPlayer({
         )}
       </div>
 
+      {/* Toggle Server Button */}
+      {!showSources && (
+        <div className="flex justify-end mt-1">
+          <button
+            onClick={() => setShowSources(true)}
+            className="text-[10px] text-neutral-500 hover:text-white uppercase tracking-wider font-extrabold flex items-center gap-1.5 transition-colors"
+          >
+            <RefreshCw className="w-3 h-3" />
+            Switch Server / Problems playing?
+          </button>
+        </div>
+      )}
+
       {/* Source Switcher — CineVault pattern */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wider">
-          <Play className="w-3 h-3 text-[var(--red)]" />
-          Stream Source
-          <span className="text-[var(--text-dim)] normal-case font-normal">— switch if stream doesn&apos;t load</span>
+      {showSources && (
+        <div className="flex flex-col gap-2 border-t border-white/[0.04] pt-4 animate-fade-in">
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wider">
+            <Play className="w-3 h-3 text-[var(--red)]" />
+            Stream Source
+            <span className="text-[var(--text-dim)] normal-case font-normal">— switch if stream doesn&apos;t load</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {STREAMING_SOURCES.map((source, i) => {
+              const status = healthMap[source.key] || "ONLINE";
+              return (
+                <button
+                  key={source.key}
+                  onClick={() => switchSource(i)}
+                  disabled={status === "OFFLINE" && activeSource !== i}
+                  className={`source-btn flex items-center gap-1.5 ${activeSource === i ? "active" : ""} disabled:opacity-40 disabled:cursor-not-allowed disabled:border-neutral-900`}
+                >
+                  {source.name}
+                  <span className={`w-1.5 h-1.5 rounded-full ${status === "ONLINE" ? "bg-emerald-500 shadow-[0_0_6px_#10b981]" : "bg-red-500 shadow-[0_0_6px_#ef4444]"}`} />
+                  <span className="text-[8px] uppercase tracking-wide opacity-65 font-bold">
+                    {status}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {STREAMING_SOURCES.map((source, i) => {
-            const status = healthMap[source.key] || "ONLINE";
-            return (
-              <button
-                key={source.key}
-                onClick={() => switchSource(i)}
-                disabled={status === "OFFLINE" && activeSource !== i}
-                className={`source-btn flex items-center gap-1.5 ${activeSource === i ? "active" : ""} disabled:opacity-40 disabled:cursor-not-allowed disabled:border-neutral-900`}
-              >
-                {source.name}
-                <span className={`w-1.5 h-1.5 rounded-full ${status === "ONLINE" ? "bg-emerald-500 shadow-[0_0_6px_#10b981]" : "bg-red-500 shadow-[0_0_6px_#ef4444]"}`} />
-                <span className="text-[8px] uppercase tracking-wide opacity-65 font-bold">
-                  {status}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      )}
 
       {/* Note */}
       <p className="text-[11px] text-[var(--text-dim)] leading-relaxed">

@@ -18,16 +18,16 @@ export interface StreamSource {
  */
 export const STREAMING_SOURCES: StreamSource[] = [
   {
-    name: "VidLink",
-    key: "vidlink",
-    movieUrl:  (id) => `https://vidlink.pro/movie/${id}`,
-    seriesUrl: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
-  },
-  {
     name: "Direct HLS Stream",
     key: "direct-stream",
     movieUrl:  (id) => `/api/stream?id=${id}&type=movie`,
     seriesUrl: (id, s, e) => `/api/stream?id=${id}&type=series&season=${s}&episode=${e}`,
+  },
+  {
+    name: "VidLink",
+    key: "vidlink",
+    movieUrl:  (id) => `https://vidlink.pro/movie/${id}`,
+    seriesUrl: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
   },
   {
     name: "VidSrc Pro",
