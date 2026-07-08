@@ -24,6 +24,12 @@ export const STREAMING_SOURCES: StreamSource[] = [
     seriesUrl: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
   },
   {
+    name: "Direct HLS Stream",
+    key: "direct-stream",
+    movieUrl:  (id) => `/api/stream?id=${id}&type=movie`,
+    seriesUrl: (id, s, e) => `/api/stream?id=${id}&type=series&season=${s}&episode=${e}`,
+  },
+  {
     name: "VidSrc Pro",
     key: "vidsrc-pro",
     movieUrl:  (id) => `https://vidsrc.cc/v2/embed/movie/${id}`,

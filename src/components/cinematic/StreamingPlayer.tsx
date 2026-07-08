@@ -5,6 +5,7 @@ import {
   Play, RefreshCw, ExternalLink, Maximize2, AlertCircle,
 } from "lucide-react";
 import { STREAMING_SOURCES } from "@/lib/streaming";
+import HLSPlayer from "./HLSPlayer";
 
 interface StreamingPlayerProps {
   embedUrl: string;
@@ -22,8 +23,12 @@ export default function StreamingPlayer({
   const [loading, setLoading]             = useState(true);
   const [error, setError]                 = useState(false);
   const [healthMap, setHealthMap]         = useState<Record<string, "ONLINE" | "OFFLINE">>({});
+  const [directStreamUrl, setDirectStreamUrl] = useState<string | null>(null);
+  const [directStreamError, setDirectStreamError] = useState<string | null>(null);
   const iframeRef  = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const activeSourceKey = STREAMING_SOURCES[activeSource]?.key || "";
 
   const switchSource = useCallback((idx: number) => {
     setActiveSource(idx);
@@ -62,6 +67,35 @@ export default function StreamingPlayer({
 
     return () => clearTimeout(timer);
   }, [embedUrl]);
+
+  // Load stream URL if direct-stream is active
+  useEffect(() => {
+    if (activeSourceKey !== "direct-stream") {
+      setDirectStreamUrl(null);
+      setDirectStreamError(null);
+      return;
+    }
+
+    setLoading(true);
+    setDirectStreamError(null);
+    setDirectStreamUrl(null);
+
+    fetch(embedUrl)
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok && data.url) {
+          setDirectStreamUrl(data.url);
+          setLoading(false);
+        } else {
+          setDirectStreamError(data.message || "Failed to load stream link.");
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        setDirectStreamError("Failed to fetch stream details from server.");
+        setLoading(false);
+      });
+  }, [activeSourceKey, embedUrl]);
 
   const handleLoad = () => {
     setLoading(false);
@@ -119,11 +153,10 @@ export default function StreamingPlayer({
     }
   };
 
-  const activeSourceKey = STREAMING_SOURCES[activeSource]?.key || "";
   const isVidSrc = activeSourceKey.includes("vidsrc");
   const sandboxValue = isVidSrc 
     ? undefined 
-    : "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups";
+    : "allow-scripts allow-same-origin allow-forms allow-presentation";
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
@@ -173,30 +206,75 @@ export default function StreamingPlayer({
           </div>
         )}
 
-        {/* Iframe Player */}
-        <iframe
-          ref={iframeRef}
-          src={currentUrl}
-          title={`Watch ${title}`}
-          allowFullScreen
-          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-          frameBorder="0"
-          scrolling="no"
-          className="w-full block"
-          style={{ aspectRatio: "16/9", display: "block" }}
-          sandbox={sandboxValue}
-          onLoad={handleLoad}
-          onError={handleError}
-        />
+        {/* Iframe or Native HLS Player */}
+        {activeSourceKey === "direct-stream" ? (
+          directStreamUrl ? (
+            <HLSPlayer
+              src={directStreamUrl}
+              title={title}
+            />
+          ) : directStreamError ? (
+            <div className="w-full bg-[#08080a]/95 border border-white/[0.04] backdrop-blur-md rounded-xl flex flex-col items-center justify-center p-8 text-center" style={{ aspectRatio: "16/9" }}>
+              <div className="max-w-md space-y-4">
+                <AlertCircle className="w-12 h-12 text-[var(--red)] mx-auto opacity-80" />
+                <h3 className="text-base font-bold text-white uppercase tracking-wider">CinePro Setup Required</h3>
+                <p className="text-xs text-neutral-400 leading-relaxed font-semibold">
+                  Had l-option dial <strong>Direct Stream</strong> khassha configuration dial <code>CINEPRO_API_URL</code> f Vercel environment variables.
+                </p>
+                <p className="text-[11px] text-neutral-500 leading-relaxed">
+                  Ila bghiti t-tferrj bla isharat db, khdem b source <strong>VidLink</strong> (li darna fiha block popups 9wi f sandbox).
+                </p>
+                <div className="flex flex-wrap justify-center gap-3 pt-2">
+                  <a
+                    href="https://github.com/cinepro-org/core"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] text-[10px] font-extrabold uppercase tracking-widest rounded-lg transition-colors"
+                  >
+                    CinePro GitHub
+                  </a>
+                  <button
+                    onClick={() => switchSource(0)}
+                    className="px-4 py-2 bg-[var(--red)] hover:bg-red-750 text-[10px] font-extrabold uppercase tracking-widest rounded-lg transition-colors text-white font-black"
+                  >
+                    Switch to VidLink
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="w-full bg-neutral-950 flex flex-col items-center justify-center gap-3" style={{ aspectRatio: "16/9" }}>
+              <div className="w-8 h-8 border-2 border-[var(--red)] border-t-transparent rounded-full animate-spin" />
+              <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-widest">Resolving Direct HLS Stream...</p>
+            </div>
+          )
+        ) : (
+          <iframe
+            ref={iframeRef}
+            src={currentUrl}
+            title={`Watch ${title}`}
+            allowFullScreen
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            frameBorder="0"
+            scrolling="no"
+            className="w-full block"
+            style={{ aspectRatio: "16/9", display: "block" }}
+            sandbox={sandboxValue}
+            onLoad={handleLoad}
+            onError={handleError}
+          />
+        )}
 
         {/* Fullscreen button overlay */}
-        <button
-          onClick={handleFullscreen}
-          className="absolute bottom-3 right-3 z-10 p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm transition-all opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
-          title="Fullscreen"
-        >
-          <Maximize2 className="w-4 h-4" />
-        </button>
+        {activeSourceKey !== "direct-stream" && (
+          <button
+            onClick={handleFullscreen}
+            className="absolute bottom-3 right-3 z-10 p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm transition-all opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
+            title="Fullscreen"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Source Switcher — CineVault pattern */}
