@@ -24,7 +24,14 @@ export async function GET(req: Request) {
 
     // Normalize endpoint url
     const baseUrl = cineproUrl.endsWith("/") ? cineproUrl.slice(0, -1) : cineproUrl;
-    const targetUrl = `${baseUrl}/api/stream?id=${id}&type=${type}&season=${season}&episode=${episode}`;
+    
+    // Map to OMSS routes: Movie vs TV/Series
+    let targetUrl = "";
+    if (type === "movie") {
+      targetUrl = `${baseUrl}/v1/movies/${id}`;
+    } else {
+      targetUrl = `${baseUrl}/v1/tv/${id}/seasons/${season}/episodes/${episode}`;
+    }
     
     console.log(`Forwarding stream request to CinePro: ${targetUrl}`);
     const res = await fetch(targetUrl, {
@@ -41,15 +48,23 @@ export async function GET(req: Request) {
 
     const data = await res.json();
     
-    // Validate returned stream url
-    if (!data.url) {
+    // Extract first working source URL from OMSS sources array
+    const sources = data.sources || [];
+    const bestSource = sources.find((s: any) => s.url && s.url.trim() !== "");
+
+    if (!bestSource || !bestSource.url) {
       return NextResponse.json({
         error: "NO_STREAM_FOUND",
         message: "No active stream file (.m3u8/.mp4) was found by the CinePro resolvers."
       }, { status: 404 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      url: bestSource.url,
+      type: bestSource.type || "mp4",
+      quality: bestSource.quality || "auto",
+      provider: bestSource.provider?.name || "CinePro"
+    });
   } catch (err: any) {
     return NextResponse.json({ 
       error: "SERVER_ERROR", 
