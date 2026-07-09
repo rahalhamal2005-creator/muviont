@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Star, Play, Tv } from "lucide-react";
+import { ArrowLeft, Star, Play, Tv, Download } from "lucide-react";
 import StreamingPlayer from "@/components/cinematic/StreamingPlayer";
 import EpisodeSelector from "@/components/cinematic/EpisodeSelector";
 import MediaCard from "@/components/cinematic/MediaCard";
@@ -111,8 +111,8 @@ export default function WatchSeriesClient({
 
       <div className="pt-24 max-w-6xl mx-auto px-4 sm:px-6 relative z-10 space-y-8">
 
-        {/* Back Button */}
-        <div>
+        {/* Back Button & Download */}
+        <div className="flex items-center justify-between">
           <Link 
             href={`/series/${series.id}`} 
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-white transition-all duration-300"
@@ -120,6 +120,15 @@ export default function WatchSeriesClient({
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Details
           </Link>
+          <a
+            href={`https://vidlink.pro/download/tv/${rawId}/${season}/${episode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--red-dim)] hover:bg-[var(--red)]/20 border border-[var(--red)]/30 text-xs font-bold uppercase tracking-wider text-[var(--red)] hover:text-white transition-all duration-300 shadow-[0_0_15px_var(--red-glow)]"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download S{season}E{episode}
+          </a>
         </div>
 
         {/* 1. Large Hero Video Player (Netflix/Disney style) */}

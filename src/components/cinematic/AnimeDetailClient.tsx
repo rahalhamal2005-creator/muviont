@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Plus, Check, Star, Tv, ArrowLeft, Clock, MessageSquare, Loader2, Sparkles, Calendar } from "lucide-react";
+import { Play, Plus, Check, Star, Tv, ArrowLeft, Clock, MessageSquare, Loader2, Sparkles, Calendar, Download } from "lucide-react";
 import Navbar from "./Navbar";
 import TrailerModal from "./TrailerModal";
 import AISearchInput from "./AISearchInput";
@@ -221,6 +221,16 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
               <Play className="w-4 h-4 fill-current" />
               Watch Now
             </Link>
+
+            <a
+              href={`https://vidlink.pro/download/tv/${anime.tmdbId ? anime.tmdbId.substring(2) : anime.id.substring(2)}/1/1`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"
+            >
+              <Download className="w-4 h-4" />
+              Download Ep 1
+            </a>
 
             <button
               onClick={toggleWatchlist}
