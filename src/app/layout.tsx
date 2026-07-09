@@ -10,17 +10,43 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "MUVIONT | Premium Streaming Platform",
-  description: "Watch movies, series, and anime in cinematic quality. Powered by AI search, personalized recommendations, and premium streaming.",
-  metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
+  title: "MUVIONT | Premium Cinematic Streaming Platform",
+  description: "Stream movies, TV shows, and anime in pristine 4K quality. Discover personalized recommendations powered by Gemini AI. Fast, ad-free player experience.",
+  metadataBase: new URL(
+    process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.includes("localhost")
+      ? process.env.BETTER_AUTH_URL
+      : "https://muviont.com"
+  ),
+  keywords: [
+    "muviont",
+    "muviont.com",
+    "watch movies online",
+    "stream series free",
+    "watch anime english sub",
+    "gemini ai recommendations",
+    "4k movies streaming",
+    "ad-free video player",
+  ],
+  authors: [{ name: "Muviont team", url: "https://muviont.com" }],
   icons: {
     icon: "/logo-icon.svg",
     apple: "/logo-icon.svg",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    title: "MUVIONT | Premium Streaming Platform",
-    description: "Watch movies, series, and anime in cinematic quality on MUVIONT.",
-    url: "/",
+    title: "MUVIONT | Premium Cinematic Streaming Platform",
+    description: "Stream movies, TV shows, and anime in pristine 4K quality on MUVIONT.",
+    url: "https://muviont.com",
     siteName: "MUVIONT",
     images: [{ url: "/logo-icon.svg", width: 512, height: 512, alt: "MUVIONT" }],
     locale: "en_US",

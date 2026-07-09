@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  Play, RefreshCw, ExternalLink, Maximize2, AlertCircle,
+  Play, RefreshCw, ExternalLink, Maximize2, AlertCircle, Moon, Sun
 } from "lucide-react";
 import { STREAMING_SOURCES } from "@/lib/streaming";
 import HLSPlayer from "./HLSPlayer";
@@ -30,6 +30,7 @@ export default function StreamingPlayer({
   const [directStreamUrl, setDirectStreamUrl] = useState<string | null>(null);
   const [directStreamSubtitles, setDirectStreamSubtitles] = useState<any[]>([]);
   const [directStreamError, setDirectStreamError] = useState<string | null>(null);
+  const [theaterMode, setTheaterMode] = useState(false);
   const iframeRef  = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -206,10 +207,34 @@ export default function StreamingPlayer({
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
+      {/* Theater Mode Overlay */}
+      {theaterMode && (
+        <div
+          className="fixed inset-0 bg-black/95 z-30 transition-opacity duration-500 cursor-pointer pointer-events-auto"
+          onClick={() => setTheaterMode(false)}
+        />
+      )}
+
+      {/* Ambient Glow Backdrop Effect */}
+      {backdropUrl && unlocked && !theaterMode && (
+        <div
+          className="absolute -inset-12 z-0 opacity-30 blur-3xl pointer-events-none transition-all duration-1000 hidden md:block"
+          style={{
+            backgroundImage: `url(${backdropUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+      )}
+
       {/* Player Container */}
       <div
         ref={wrapperRef}
-        className={`player-container rounded-xl overflow-hidden border border-[var(--border)] shadow-[0_8px_40px_rgba(0,0,0,0.6)] ${
+        className={`player-container rounded-xl overflow-hidden border shadow-[0_12px_50px_rgba(0,0,0,0.8)] transition-all duration-500 group ${
+          theaterMode 
+            ? "relative z-35 border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.15)]" 
+            : "relative z-10 border-[var(--border)]"
+        } ${
           !unlocked ? "min-h-[460px]" : ""
         }`}
         style={{ position: "relative" }}
@@ -316,15 +341,28 @@ export default function StreamingPlayer({
           />
         )}
 
-        {/* Fullscreen button overlay */}
-        {activeSourceKey !== "direct-stream" && unlocked && (
-          <button
-            onClick={handleFullscreen}
-            className="absolute bottom-3 right-3 z-10 p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm transition-all opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
-            title="Fullscreen"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
+        {/* Theater mode and Fullscreen overlay controls */}
+        {unlocked && (
+          <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2 opacity-0 focus-within:opacity-100 group-hover:opacity-100 transition-opacity duration-300">
+            <button
+              onClick={() => setTheaterMode(!theaterMode)}
+              className={`p-2 rounded-lg bg-black/60 hover:bg-black/85 border text-white backdrop-blur-md transition-all shadow-md active:scale-95 ${
+                theaterMode ? "border-red-500/40 text-red-400" : "border-white/10"
+              }`}
+              title={theaterMode ? "Turn Lights On" : "Turn Lights Off (Theater Mode)"}
+            >
+              {theaterMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            </button>
+            {activeSourceKey !== "direct-stream" && (
+              <button
+                onClick={handleFullscreen}
+                className="p-2 rounded-lg bg-black/60 hover:bg-black/85 border border-white/10 text-white backdrop-blur-md transition-all shadow-md active:scale-95"
+                title="Fullscreen"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 

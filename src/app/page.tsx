@@ -10,7 +10,7 @@ export default async function Page() {
   const tmdb    = new TMDBProvider();
   const anilist = new AniListProvider();
 
-  // Fetch all 10 sections in parallel
+  // Fetch all sections in parallel
   const [
     trendingMovies,
     trendingSeries,
@@ -19,6 +19,7 @@ export default async function Page() {
     topRatedSeries,
     nowPlaying,
     popularMovies,
+    upcomingMovies,
     newsArticles,
   ] = await Promise.all([
     tmdb.getTrending("movie").catch(() => []),
@@ -28,6 +29,7 @@ export default async function Page() {
     tmdb.getTopRated("series").catch(() => []),
     tmdb.getNowPlaying().catch(() => []),
     tmdb.getPopular("movie").catch(() => []),
+    tmdb.getUpcoming().catch(() => []),
     newsService.getLatestNews().catch(() => []),
   ]);
 
@@ -40,6 +42,7 @@ export default async function Page() {
       topRatedSeries={topRatedSeries}
       nowPlaying={nowPlaying}
       popularMovies={popularMovies}
+      upcomingMovies={upcomingMovies}
       newsArticles={newsArticles}
     />
   );

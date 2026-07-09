@@ -13,7 +13,7 @@ import { AniListMedia } from "@/lib/providers/anilist.provider";
 import { NormalizedArticle } from "@/lib/news/news.types";
 import {
   Flame, Star, Tv, Clock, Sparkles,
-  Film, BookOpen, Zap, TrendingUp,
+  Film, BookOpen, Zap, TrendingUp, Calendar,
 } from "lucide-react";
 
 interface HomeClientProps {
@@ -24,6 +24,7 @@ interface HomeClientProps {
   topRatedSeries?: TMDBMedia[];
   nowPlaying?:     TMDBMedia[];
   popularMovies?:  TMDBMedia[];
+  upcomingMovies?: TMDBMedia[];
   newsArticles:    NormalizedArticle[];
 }
 
@@ -39,7 +40,7 @@ function SkeletonRail() {
 
 export default function HomeClient({
   trendingMovies, trendingSeries, trendingAnime,
-  topRatedMovies = [], topRatedSeries = [], nowPlaying = [], popularMovies = [],
+  topRatedMovies = [], topRatedSeries = [], nowPlaying = [], popularMovies = [], upcomingMovies = [],
   newsArticles,
 }: HomeClientProps) {
   const [showSearch,       setShowSearch]       = useState(false);
@@ -292,6 +293,27 @@ export default function HomeClient({
             seeAllHref="/movies?sort=popularity.desc"
           >
             {nowPlaying.map((item) => (
+              <div key={item.id} className={CARD_W}>
+                <MediaCard
+                  id={item.id}
+                  title={item.title}
+                  posterPath={item.posterPath}
+                  rating={item.rating}
+                  type="movie"
+                  releaseDate={item.releaseDate}
+                />
+              </div>
+            ))}
+          </ContentRail>
+        )}
+        {/* Upcoming Movies (Coming Soon) */}
+        {upcomingMovies.length > 0 && (
+          <ContentRail
+            title="Coming Soon (Upcoming)"
+            icon={<Calendar className="w-3.5 h-3.5 text-red-500" />}
+            seeAllHref="/movies?sort=primary_release_date.asc"
+          >
+            {upcomingMovies.map((item) => (
               <div key={item.id} className={CARD_W}>
                 <MediaCard
                   id={item.id}

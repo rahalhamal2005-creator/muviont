@@ -1,7 +1,9 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+  const baseUrl = process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.includes("localhost") 
+    ? process.env.BETTER_AUTH_URL 
+    : "https://muviont.com";
 
   // Base pages
   const routes = ["", "/anime", "/watchlist"].map((route) => ({

@@ -338,6 +338,26 @@ export class TMDBProvider {
     }
   }
 
+  async getUpcoming(): Promise<TMDBMedia[]> {
+    this.checkApiKey();
+    const endpoint = `/movie/upcoming`;
+    const startTime = Date.now();
+    try {
+      const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
+        next: { revalidate: 7200 },
+        signal: AbortSignal.timeout(10000)
+      });
+      if (!res.ok) throw new Error(`TMDB API Error: HTTP ${res.status}`);
+      const data = await res.json();
+      const mapped = (data.results || []).slice(0, 12).map((item: any) => this.mapMedia(item, "movie"));
+      await this.logMetric(endpoint, Date.now() - startTime, true);
+      return mapped;
+    } catch (err: any) {
+      await this.logMetric(endpoint, Date.now() - startTime, false, err.message);
+      return [];
+    }
+  }
+
   async getPopular(type: "movie" | "series"): Promise<TMDBMedia[]> {
     this.checkApiKey();
     const endpoint = type === "movie" ? `/movie/popular` : `/tv/popular`;

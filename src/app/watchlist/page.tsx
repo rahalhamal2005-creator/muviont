@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/cinematic/Navbar";
 import MediaCard from "@/components/cinematic/MediaCard";
 import AISearchInput from "@/components/cinematic/AISearchInput";
+import BottomNav from "@/components/cinematic/BottomNav";
 import { Heart, HelpCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -74,6 +75,7 @@ export default function WatchlistPage() {
           </div>
         )}
       </main>
+      <BottomNav />
     </div>
   );
 }

@@ -48,11 +48,12 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
 
   return (
     <>
+      {/* Desktop Header */}
       <motion.header
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 hidden md:block ${
+        className={`fixed top-0 left-0 right-0 z-45 transition-all duration-300 hidden md:block ${
           scrolled
             ? "bg-[var(--bg)]/95 backdrop-blur-xl border-b border-[var(--border)] shadow-[0_4px_30px_rgba(0,0,0,0.6)]"
             : "bg-gradient-to-b from-[var(--bg)]/90 via-[var(--bg)]/30 to-transparent"
@@ -114,7 +115,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
                 <button className="flex items-center gap-2 p-1 rounded-full border border-[var(--border)] bg-[var(--bg3)] hover:border-[var(--border2)] transition-all duration-150">
                   {user.image ? (
                     <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                      <Image src={user.image} alt={user.name || "User"} fill className="object-cover" />
+                      <Image src={user.image} alt={user.name || "User"} fill className="object-cover" unoptimized />
                     </div>
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-[var(--red)] flex items-center justify-center font-bold text-sm shadow-[0_0_10px_var(--red-glow)]">
@@ -161,6 +162,51 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
           </div>
         </div>
       </motion.header>
+
+      {/* Mobile Top Header (Fixed with Logo, Search, and profile button) */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-neutral-900 h-[var(--navbar-h)] flex items-center justify-between px-4 md:hidden">
+        {/* Logo */}
+        <Link href="/" className="relative w-28 h-8 flex-shrink-0">
+          <Image src="/logo.svg" alt="MUVIONT" fill priority className="object-contain" />
+        </Link>
+
+        {/* Action icons */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onSearchClick}
+            className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition-all"
+            aria-label="Search"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
+          {!loading && user ? (
+            <Link
+              href="/profile"
+              className="flex items-center p-0.5 rounded-full border border-neutral-800 bg-neutral-900 hover:border-neutral-700 transition-all"
+            >
+              {user.image ? (
+                <div className="relative w-7 h-7 rounded-full overflow-hidden">
+                  <Image src={user.image} alt={user.name || "User"} fill className="object-cover" unoptimized />
+                </div>
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-[var(--red)] flex items-center justify-center font-bold text-[10px] text-white">
+                  {(user.name || user.email || "U").substring(0, 1).toUpperCase()}
+                </div>
+              )}
+            </Link>
+          ) : !loading ? (
+            <Link
+              href="/login"
+              className="px-3 py-1.5 rounded-full bg-[var(--red)] text-white text-xs font-extrabold uppercase tracking-wider transition-all"
+            >
+              Sign In
+            </Link>
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-neutral-900 animate-pulse border border-neutral-800" />
+          )}
+        </div>
+      </header>
     </>
   );
 }
