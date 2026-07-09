@@ -25,7 +25,21 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
 
-  // 1. Fetch offers from our API
+  // 1. Register locker view/impression in AdBlueMedia dashboard on mount
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://d1cdbd1x576ga0.cloudfront.net/public/external/check.php?pub_key=64ddf7cdfac75ce75979";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, []);
+
+  // 2. Fetch offers from our API
   useEffect(() => {
     fetch("/api/offers")
       .then((res) => (res.ok ? res.json() : []))
@@ -39,7 +53,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
       });
   }, []);
 
-  // 2. Poll lead completion (JSONP to AdBlueMedia)
+  // 3. Poll lead completion (JSONP to AdBlueMedia)
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -200,15 +214,32 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
           </div>
         )}
 
-        {/* Verification Status */}
-        {verifying && (
-          <div className="flex items-center justify-center gap-1.5 animate-pulse">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-            <span className="text-[8px] sm:text-[9px] font-black text-emerald-400 uppercase tracking-widest">
-              Awaiting completion... keep open
+        {/* Permanent Real-Time Verification Status Panel with pulse animation */}
+        <div className="w-full p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
+            <div>
+              <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest leading-none">
+                System Status: Listening
+              </div>
+              <div className="text-[8px] text-neutral-450 font-bold mt-1.5">
+                {verifying 
+                  ? "Detecting offer completion... keep this window open." 
+                  : "Click any offer above to start verification process."}
+              </div>
+            </div>
           </div>
-        )}
+          
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">
+              {verifying ? "Verifying" : "Ready"}
+            </span>
+            <Loader2 className={`w-3.5 h-3.5 text-emerald-400 ${verifying ? "animate-spin" : "opacity-40"}`} />
+          </div>
+        </div>
       </div>
     </div>
   );
