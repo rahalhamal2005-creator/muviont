@@ -118,6 +118,20 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         </div>
       )}
 
+      {/* Styles for the sweeping scanner animation */}
+      <style jsx>{`
+        @keyframes scan {
+          0% { left: -35%; }
+          100% { left: 105%; }
+        }
+        .scanner-bar {
+          animation: scan 3s infinite linear;
+        }
+        .scanner-bar-fast {
+          animation: scan 1.5s infinite linear;
+        }
+      `}</style>
+
       {/* Content Container (Glassmorphic panel matching site style) */}
       <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/85 border border-white/[0.06] rounded-2xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
         
@@ -215,32 +229,31 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
           </div>
         )}
 
-        {/* Dynamic real-time connection status bar matching the site's dark/crimson design */}
-        <div className="w-full p-3 rounded-xl border border-white/[0.06] bg-white/[0.01] flex items-center justify-between gap-3 text-left">
-          <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--red)] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--red)]"></span>
-            </span>
-            <div>
-              <div className="text-[9px] font-black text-neutral-300 uppercase tracking-widest leading-none">
-                System: Listening
-              </div>
-              <div className="text-[8px] text-neutral-500 font-semibold mt-1">
-                {verifying 
-                  ? "Detecting offer completion... keep this window open." 
-                  : "Click any offer above to start verification."}
-              </div>
-            </div>
+        {/* Dynamic sweeping scanner and clean centered status text */}
+        <div className="w-full mt-2 space-y-2.5">
+          {/* Sweeping Scanner line */}
+          <div className="w-full h-0.5 bg-white/[0.04] rounded-full overflow-hidden relative">
+            <div 
+              className={`absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-[var(--red)] to-transparent rounded-full ${
+                verifying ? "scanner-bar-fast" : "scanner-bar"
+              }`} 
+            />
           </div>
-          
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[8px] font-black text-neutral-400 uppercase tracking-wider">
-              {verifying ? "Verifying" : "Ready"}
+
+          {/* Centered status line with pulsing indicator */}
+          <div className="flex items-center justify-center gap-2">
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--red)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--red)]"></span>
             </span>
-            <Loader2 className={`w-3 h-3 text-[var(--red)] ${verifying ? "animate-spin" : "opacity-30"}`} />
+            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest leading-none">
+              {verifying 
+                ? "Verifying completion... do not close this window" 
+                : "System: Listening for offer completion"}
+            </span>
           </div>
         </div>
+
       </div>
     </div>
   );
