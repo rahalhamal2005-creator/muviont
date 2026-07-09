@@ -105,20 +105,21 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
       className="w-full relative rounded-2xl flex flex-col items-center justify-center p-4 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950" 
       style={{ aspectRatio: "16/9", minHeight: "360px" }}
     >
-      {/* Blurred Backdrop Image */}
+      {/* Blurred Backdrop Image - Adjusted opacity and overlay to be highly visible */}
       {backdropUrl && (
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <img 
             src={backdropUrl} 
             alt="" 
-            className="w-full h-full object-cover blur-[8px] scale-105 opacity-30" 
+            className="w-full h-full object-cover blur-[5px] scale-105 opacity-50 animate-pulse" 
+            style={{ animationDuration: '6s' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#07070f]/90 via-[#07070f]/80 to-[#07070f]/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#07070f]/60 via-[#07070f]/50 to-[#07070f]/70" />
         </div>
       )}
 
       {/* Content Container (Glassmorphic panel matching site style) */}
-      <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/80 border border-white/[0.06] rounded-2xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
+      <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/85 border border-white/[0.06] rounded-2xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
         
         {/* Header: Transparent MUVIONT Logo */}
         <div className="flex items-center gap-2 select-none">
@@ -214,30 +215,30 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
           </div>
         )}
 
-        {/* Permanent Real-Time Verification Status Panel with pulse animation */}
-        <div className="w-full p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+        {/* Dynamic real-time connection status bar matching the site's dark/crimson design */}
+        <div className="w-full p-3 rounded-xl border border-white/[0.06] bg-white/[0.01] flex items-center justify-between gap-3 text-left">
           <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2.5 w-2.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--red)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--red)]"></span>
             </span>
             <div>
-              <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest leading-none">
-                System Status: Listening
+              <div className="text-[9px] font-black text-neutral-300 uppercase tracking-widest leading-none">
+                System: Listening
               </div>
-              <div className="text-[8px] text-neutral-450 font-bold mt-1.5">
+              <div className="text-[8px] text-neutral-500 font-semibold mt-1">
                 {verifying 
                   ? "Detecting offer completion... keep this window open." 
-                  : "Click any offer above to start verification process."}
+                  : "Click any offer above to start verification."}
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">
+            <span className="text-[8px] font-black text-neutral-400 uppercase tracking-wider">
               {verifying ? "Verifying" : "Ready"}
             </span>
-            <Loader2 className={`w-3.5 h-3.5 text-emerald-400 ${verifying ? "animate-spin" : "opacity-40"}`} />
+            <Loader2 className={`w-3 h-3 text-[var(--red)] ${verifying ? "animate-spin" : "opacity-30"}`} />
           </div>
         </div>
       </div>
