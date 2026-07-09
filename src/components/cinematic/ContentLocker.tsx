@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 
 interface Offer {
   id: string;
@@ -136,7 +136,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
       `}</style>
 
       {/* Content Container (Glassmorphic panel matching site style) */}
-      <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/85 border border-white/[0.06] rounded-2xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
+      <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/85 border border-white/[0.06] rounded-2xl p-5 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
         
         {/* Header: Transparent MUVIONT Logo */}
         <div className="flex items-center gap-2 select-none">
@@ -177,9 +177,36 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
           )}
         </div>
 
-        {/* Custom description requested by user */}
-        <p className="text-[10px] sm:text-xs text-neutral-400 font-medium leading-relaxed max-w-sm">
-          Due to extreme server traffic, unverified streaming is locked. Complete just 1 quick 60-second option below to permanently unlock the player. Once verified, your movie will play instantly in Ultra-HD quality, and your direct download link will be fully activated.
+        {/* 3-Step Visual Conversion Timeline (Marketing Hook) */}
+        <div className="w-full grid grid-cols-3 gap-1.5 border-y border-white/[0.04] py-3 text-center select-none">
+          <div className="space-y-1">
+            <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+              1
+            </div>
+            <div className="text-[9px] font-black text-white uppercase tracking-wider">Choose Offer</div>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Click an option below</p>
+          </div>
+          
+          <div className="space-y-1 border-x border-white/[0.04]">
+            <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+              2
+            </div>
+            <div className="text-[9px] font-black text-white uppercase tracking-wider">Verify Free</div>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Complete in 60 seconds</p>
+          </div>
+
+          <div className="space-y-1">
+            <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+              3
+            </div>
+            <div className="text-[9px] font-black text-white uppercase tracking-wider">Play Movie</div>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Unlocks instantly in 4K</p>
+          </div>
+        </div>
+
+        {/* Custom description with bold highlighted marketing hooks */}
+        <p className="text-[10px] sm:text-xs text-neutral-400 font-medium leading-relaxed max-w-md">
+          Due to extreme server traffic, unverified streaming is locked. Complete just <span className="text-[var(--red)] font-black">1 quick 60-second option</span> below to <span className="text-white font-black underline">permanently unlock</span> the player. Once verified, your movie will play <span className="text-emerald-400 font-black">instantly in Ultra-HD quality</span>, and your direct download link will be fully activated.
         </p>
 
         {/* Exactly 2 Offers */}
@@ -224,8 +251,8 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
                   </div>
                 </div>
 
-                <span className="text-[9px] font-black uppercase text-[var(--red)] tracking-wider shrink-0 ml-2">
-                  ⚡ Unlock
+                <span className="text-[9px] font-black uppercase text-[var(--red)] tracking-wider shrink-0 ml-2 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 fill-[var(--red)]" /> Unlock
                 </span>
               </button>
             ))}
@@ -233,7 +260,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         )}
 
         {/* Centered Sonar Radar Verification Pulse Status */}
-        <div className="w-full mt-4 flex flex-col items-center justify-center gap-3 border-t border-white/[0.04] pt-4">
+        <div className="w-full mt-2 flex flex-col items-center justify-center gap-3 border-t border-white/[0.04] pt-4">
           <div className="flex items-center gap-3 justify-center">
             
             {/* Dynamic Concentric Sonar Waves */}
