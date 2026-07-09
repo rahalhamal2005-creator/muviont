@@ -183,9 +183,9 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
 
             {/* Badges metadata row */}
             <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-neutral-400 font-medium">
-              <div className="flex items-center gap-1 bg-purple-650/15 border border-purple-500/30 px-2.5 py-0.5 rounded-md backdrop-blur-sm">
-                <Star className="w-3.5 h-3.5 text-purple-500 fill-current" />
-                <span className="font-extrabold text-purple-400">{anime.rating.toFixed(1)}</span>
+              <div className="flex items-center gap-1 bg-[var(--red-dim)] border border-[var(--red)]/20 px-2.5 py-0.5 rounded-md backdrop-blur-sm">
+                <Star className="w-3.5 h-3.5 text-[var(--red)] fill-current" />
+                <span className="font-extrabold text-[var(--red)]">{anime.rating.toFixed(1)}</span>
               </div>
               <span className="text-neutral-700">•</span>
               <span className="flex items-center gap-1 font-semibold text-neutral-300">
@@ -216,7 +216,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
             {/* PRIMARY: Watch Now — streaming-first */}
             <Link
               href={`/watch/anime/${anime.id}`}
-              className="flex items-center gap-2.5 px-8 py-4 bg-purple-650 hover:bg-purple-600 text-white font-black rounded-full transition-all duration-300 shadow-[0_0_25px_rgba(139,92,246,0.4)] hover:shadow-[0_0_35px_rgba(139,92,246,0.6)] hover:scale-[1.03] active:scale-95 text-sm uppercase tracking-wider"
+              className="flex items-center gap-2.5 px-8 py-4 bg-[var(--red)] hover:bg-red-600 text-white font-black rounded-full transition-all duration-300 shadow-[0_0_25px_var(--red-glow)] hover:shadow-[0_0_35px_var(--red-glow)] hover:scale-[1.03] active:scale-95 text-sm uppercase tracking-wider"
             >
               <Play className="w-4 h-4 fill-current" />
               Watch Now
@@ -226,7 +226,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
               onClick={toggleWatchlist}
               className={`flex items-center gap-2 px-6 py-4 font-bold rounded-full border text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03] active:scale-95 ${
                 inWatchlist
-                  ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-400"
+                  ? "bg-red-950/20 border-red-500/40 text-red-400"
                   : "bg-neutral-900/80 border-neutral-855 text-white hover:bg-neutral-800"
               }`}
             >
@@ -246,12 +246,12 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
 
           {/* TVMaze Next Episode Airing Banner */}
           {nextEpisodeData && (
-            <div className="flex items-center gap-3 p-4 rounded-2xl border border-purple-500/20 bg-purple-950/10 shadow-lg select-none">
-              <div className="p-2.5 rounded-xl bg-purple-650/10 border border-purple-900/30 text-purple-500 shrink-0">
+            <div className="flex items-center gap-3 p-4 rounded-2xl border border-[var(--red)]/20 bg-[var(--red-dim)] shadow-lg select-none">
+              <div className="p-2.5 rounded-xl bg-[var(--red-dim)] border border-[var(--red)]/35 text-[var(--red)] shrink-0">
                 <Clock className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <div className="text-[10px] font-black text-purple-500 uppercase tracking-widest leading-none">
+                <div className="text-[10px] font-black text-[var(--red)] uppercase tracking-widest leading-none">
                   Airing Live via TVMaze
                 </div>
                 <div className="text-sm font-bold text-white mt-1">
@@ -267,7 +267,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
 
           {/* Storyline */}
           <div className="space-y-3">
-            <h2 className="text-xs font-black uppercase tracking-widest text-purple-500">
+            <h2 className="text-xs font-black uppercase tracking-widest text-[var(--red)]">
               Synopsis
             </h2>
             <p className="text-neutral-300 text-base leading-relaxed font-normal">
@@ -277,9 +277,9 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
 
           {/* Airing Information Calendar Widget if Airing Now */}
           {anime.nextAiringEpisode && (
-            <div className="p-5 rounded-2xl border border-purple-550/20 bg-purple-950/5 flex items-center justify-between backdrop-blur-sm shadow-md">
+            <div className="p-5 rounded-2xl border border-[var(--red)]/20 bg-[var(--red-dim)] flex items-center justify-between backdrop-blur-sm shadow-md">
               <div>
-                <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest block mb-1">
+                <span className="text-[10px] font-black text-[var(--red)] uppercase tracking-widest block mb-1">
                   Next Airing Episode
                 </span>
                 <span className="text-sm font-bold text-white">
@@ -302,13 +302,13 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
           {/* Character Roster */}
           {anime.characters && anime.characters.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xs font-black uppercase tracking-widest text-purple-500">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[var(--red)]">
                 Featured Characters
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {anime.characters.slice(0, 8).map((char: any) => (
                   <div key={char.name} className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 hover:bg-neutral-900/30 hover:border-neutral-800 transition-all duration-300 text-center flex flex-col items-center group">
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden border border-neutral-800 group-hover:border-purple-500/40 mb-3 transition-colors duration-300">
+                    <div className="relative w-20 h-20 rounded-full overflow-hidden border border-neutral-800 group-hover:border-[var(--red)]/40 mb-3 transition-colors duration-300">
                       <Image
                         src={char.image}
                         alt={char.name}
@@ -330,7 +330,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
         {/* Right Sidebar Columns */}
         <div className="space-y-8">
           <div className="p-6 rounded-2xl border border-white/5 bg-neutral-950/40 backdrop-blur-md space-y-5 shadow-xl">
-            <h3 className="text-xs font-black uppercase tracking-widest text-purple-500">
+            <h3 className="text-xs font-black uppercase tracking-widest text-[var(--red)]">
               Anime Metadata
             </h3>
 
@@ -371,7 +371,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
 
               <div className="flex justify-between pb-2.5 border-b border-neutral-900">
                 <span className="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Rating</span>
-                <span className="text-purple-400 font-bold flex items-center gap-0.5">
+                <span className="text-[var(--red)] font-bold flex items-center gap-0.5">
                   <span>★</span>
                   <span>{anime.rating.toFixed(1)}</span>
                 </span>
@@ -395,7 +395,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
           {/* Watch Providers Card (Streaming info from JustWatch / TMDB) */}
           {anime.tmdbId && watchProviders.length > 0 && (
             <div className="p-6 rounded-2xl border border-white/5 bg-neutral-950/40 backdrop-blur-md space-y-4 shadow-xl">
-              <h3 className="text-xs font-black uppercase tracking-widest text-purple-500 flex items-center gap-1.5">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[var(--red)] flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />
                 Where to Stream
               </h3>
@@ -420,13 +420,13 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
           {anime.tmdbId && (
             <div className="space-y-4">
               <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-purple-500" />
+                <MessageSquare className="w-4 h-4 text-[var(--red)]" />
                 Community Reviews
               </h3>
 
               {reviewsLoading ? (
                 <div className="flex items-center justify-center py-6">
-                  <Loader2 className="w-5 h-5 text-purple-500 animate-spin" />
+                  <Loader2 className="w-5 h-5 text-[var(--red)] animate-spin" />
                 </div>
               ) : reviews.length === 0 ? (
                 <div className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 text-center text-xs text-neutral-500 italic">
@@ -439,7 +439,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-neutral-200">{rev.author}</span>
                         {rev.rating && (
-                          <div className="flex items-center gap-0.5 text-purple-500 text-[10px] font-black uppercase">
+                          <div className="flex items-center gap-0.5 text-[var(--red)] text-[10px] font-black uppercase">
                             <span>★</span>
                             <span>{rev.rating.toFixed(1)}</span>
                           </div>

@@ -343,7 +343,7 @@ export default function StreamingPlayer({
 
         {/* Theater mode and Fullscreen overlay controls */}
         {unlocked && (
-          <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2 opacity-0 focus-within:opacity-100 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2 opacity-90 hover:opacity-100 transition-opacity duration-300">
             <button
               onClick={() => setTheaterMode(!theaterMode)}
               className={`p-2 rounded-lg bg-black/60 hover:bg-black/85 border text-white backdrop-blur-md transition-all shadow-md active:scale-95 ${

@@ -136,9 +136,9 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
           <div className="flex-grow pb-2 z-20">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white mb-4 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">{series.title}</h1>
             <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-neutral-400 font-medium">
-              <div className="flex items-center gap-1 bg-red-650/15 border border-red-500/30 px-2.5 py-0.5 rounded-md backdrop-blur-sm">
-                <Star className="w-3.5 h-3.5 text-red-500 fill-current" />
-                <span className="font-extrabold text-red-400">{series.rating.toFixed(1)}</span>
+              <div className="flex items-center gap-1 bg-[var(--red-dim)] border border-[var(--red)]/20 px-2.5 py-0.5 rounded-md backdrop-blur-sm">
+                <Star className="w-3.5 h-3.5 text-[var(--red)] fill-current" />
+                <span className="font-extrabold text-[var(--red)]">{series.rating.toFixed(1)}</span>
               </div>
               {series.releaseDate && (
                 <>
@@ -185,7 +185,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
             {/* PRIMARY: Watch Now */}
             <Link
               href={`/watch/series/${series.id}`}
-              className="flex items-center gap-2.5 px-8 py-4 bg-red-650 hover:bg-red-600 text-white font-black rounded-full transition-all duration-300 shadow-[0_0_25px_rgba(229,9,20,0.4)] hover:shadow-[0_0_35px_rgba(229,9,20,0.6)] hover:scale-[1.03] active:scale-95 text-sm uppercase tracking-wider"
+              className="flex items-center gap-2.5 px-8 py-4 bg-[var(--red)] hover:bg-red-600 text-white font-black rounded-full transition-all duration-300 shadow-[0_0_25px_var(--red-glow)] hover:shadow-[0_0_35px_var(--red-glow)] hover:scale-[1.03] active:scale-95 text-sm uppercase tracking-wider"
             >
               <Play className="w-4 h-4 fill-current" />
               Watch Now
@@ -196,7 +196,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
               onClick={toggleWatchlist}
               className={`flex items-center gap-2 px-6 py-4 font-bold rounded-full border text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03] active:scale-95 ${
                 inWatchlist
-                  ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-400"
+                  ? "bg-red-950/20 border-red-500/40 text-red-400"
                   : "bg-neutral-900/80 border-neutral-850 text-white hover:bg-neutral-800"
               }`}
             >
@@ -207,12 +207,12 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
 
           {/* TVMaze Next Episode Airing Banner */}
           {nextEpisodeData && (
-            <div className="flex items-center gap-3 p-4 rounded-2xl border border-red-500/20 bg-red-950/10 shadow-lg select-none">
-              <div className="p-2.5 rounded-xl bg-red-650/10 border border-red-900/30 text-red-500 shrink-0">
+            <div className="flex items-center gap-3 p-4 rounded-2xl border border-[var(--red)]/20 bg-[var(--red-dim)] shadow-lg select-none">
+              <div className="p-2.5 rounded-xl bg-[var(--red-dim)] border border-[var(--red)]/35 text-[var(--red)] shrink-0">
                 <Clock className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <div className="text-[10px] font-black text-red-500 uppercase tracking-widest leading-none">
+                <div className="text-[10px] font-black text-[var(--red)] uppercase tracking-widest leading-none">
                   Airing Live via TVMaze
                 </div>
                 <div className="text-sm font-bold text-white mt-1">
@@ -229,7 +229,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
           {/* Overview */}
           {series.overview && (
             <div className="space-y-3">
-              <h2 className="text-xs font-black uppercase tracking-widest text-red-500">Overview</h2>
+              <h2 className="text-xs font-black uppercase tracking-widest text-[var(--red)]">Overview</h2>
               <p className="text-neutral-355 text-base leading-relaxed font-normal">{series.overview}</p>
             </div>
           )}
@@ -359,7 +359,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
               )}
               <div className="flex justify-between pb-2.5 border-b border-neutral-900">
                 <span className="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Rating</span>
-                <span className="text-red-400 font-bold flex items-center gap-0.5">
+                <span className="text-[var(--red)] font-bold flex items-center gap-0.5">
                   <span>★</span>
                   <span>{series.rating.toFixed(1)}</span>
                 </span>
@@ -412,7 +412,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
           {/* Watch Providers Card (Streaming info from JustWatch / TMDB) */}
           {watchProviders.length > 0 && (
             <div className="p-6 rounded-2xl border border-white/5 bg-neutral-950/40 backdrop-blur-md space-y-4 shadow-xl">
-              <h3 className="text-xs font-black uppercase tracking-widest text-red-500 flex items-center gap-1.5">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[var(--red)] flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />
                 Where to Stream
               </h3>
@@ -436,13 +436,13 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
           {/* Reviews Row Panel */}
           <div className="space-y-4">
             <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-red-500" />
+              <MessageSquare className="w-4 h-4 text-[var(--red)]" />
               Community Reviews
             </h3>
 
             {reviewsLoading ? (
               <div className="flex items-center justify-center py-6">
-                <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
+                <Loader2 className="w-5 h-5 text-[var(--red)] animate-spin" />
               </div>
             ) : reviews.length === 0 ? (
               <div className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 text-center text-xs text-neutral-500 italic">
@@ -455,7 +455,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-neutral-200">{rev.author}</span>
                       {rev.rating && (
-                        <div className="flex items-center gap-0.5 text-red-500 text-[10px] font-black uppercase">
+                        <div className="flex items-center gap-0.5 text-[var(--red)] text-[10px] font-black uppercase">
                           <span>★</span>
                           <span>{rev.rating.toFixed(1)}</span>
                         </div>
@@ -475,7 +475,7 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
       {/* Recommendations rail */}
       {recommendations.length > 0 && (
         <div className="mt-16 max-w-7xl mx-auto px-6">
-          <h2 className="text-xs font-black uppercase tracking-widest text-red-500 mb-6 flex items-center gap-2">
+          <h2 className="text-xs font-black uppercase tracking-widest text-[var(--red)] mb-6 flex items-center gap-2">
             <Play className="w-3.5 h-3.5 fill-current" />
             More Like This
           </h2>

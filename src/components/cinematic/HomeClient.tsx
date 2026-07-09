@@ -145,7 +145,7 @@ export default function HomeClient({
         {/* 2. 🔥 Trending Movies */}
         <ContentRail
           title="Trending Movies"
-          icon={<Flame className="w-3.5 h-3.5 text-orange-500" />}
+          icon={<Flame className="w-3.5 h-3.5 text-[var(--red)]" />}
           seeAllHref="/movies"
         >
           {trendingMovies.map((item, i) => (
@@ -167,7 +167,7 @@ export default function HomeClient({
         {topRatedMovies.length > 0 && (
           <ContentRail
             title="Top Rated Movies"
-            icon={<Star className="w-3.5 h-3.5 text-[var(--gold)]" />}
+            icon={<Star className="w-3.5 h-3.5 text-[var(--red)]" />}
             seeAllHref="/movies?sort=vote_average.desc"
           >
             {topRatedMovies.map((item) => (
@@ -188,7 +188,7 @@ export default function HomeClient({
         {/* 4. 📺 Trending Series */}
         <ContentRail
           title="Trending Series"
-          icon={<Tv className="w-3.5 h-3.5 text-blue-400" />}
+          icon={<Tv className="w-3.5 h-3.5 text-[var(--red)]" />}
           seeAllHref="/series"
         >
           {trendingSeries.map((item, i) => (
@@ -210,7 +210,7 @@ export default function HomeClient({
         {topRatedSeries.length > 0 && (
           <ContentRail
             title="Top Rated Series"
-            icon={<Star className="w-3.5 h-3.5 text-[var(--gold)]" />}
+            icon={<Star className="w-3.5 h-3.5 text-[var(--red)]" />}
             seeAllHref="/series?sort=vote_average.desc"
           >
             {topRatedSeries.map((item) => (
@@ -231,7 +231,7 @@ export default function HomeClient({
         {/* 6. 🎌 Trending Anime */}
         <ContentRail
           title="Trending Anime"
-          icon={<Zap className="w-3.5 h-3.5 text-purple-400" />}
+          icon={<Zap className="w-3.5 h-3.5 text-[var(--red)]" />}
           seeAllHref="/anime"
         >
           {trendingAnime.map((item, i) => (
@@ -252,7 +252,7 @@ export default function HomeClient({
         {/* 7. 🤖 AI Recommendations */}
         <ContentRail
           title="Recommended For You"
-          icon={<Sparkles className="w-3.5 h-3.5 text-cyan-400" />}
+          icon={<Sparkles className="w-3.5 h-3.5 text-[var(--red)]" />}
         >
           {loadingRecs ? (
             <SkeletonRail />
@@ -310,7 +310,7 @@ export default function HomeClient({
         {upcomingMovies.length > 0 && (
           <ContentRail
             title="Coming Soon (Upcoming)"
-            icon={<Calendar className="w-3.5 h-3.5 text-red-500" />}
+            icon={<Calendar className="w-3.5 h-3.5 text-[var(--red)]" />}
             seeAllHref="/movies?sort=primary_release_date.asc"
           >
             {upcomingMovies.map((item) => (
@@ -332,7 +332,7 @@ export default function HomeClient({
         {popularMovies.length > 0 && (
           <ContentRail
             title="Popular This Week"
-            icon={<TrendingUp className="w-3.5 h-3.5 text-green-400" />}
+            icon={<TrendingUp className="w-3.5 h-3.5 text-[var(--red)]" />}
             seeAllHref="/movies"
           >
             {popularMovies.map((item) => (
@@ -355,7 +355,7 @@ export default function HomeClient({
           <section className="max-w-[1400px] mx-auto px-4 sm:px-6">
             <div className="section-header">
               <h2 className="section-title">
-                <BookOpen className="w-3.5 h-3.5 text-yellow-400" />
+                <BookOpen className="w-3.5 h-3.5 text-[var(--red)]" />
                 Entertainment News
               </h2>
             </div>

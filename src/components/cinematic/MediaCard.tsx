@@ -89,7 +89,7 @@ export default function MediaCard({
         {/* Rating badge */}
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
-            <Star className="w-2.5 h-2.5 text-[var(--gold)] fill-current" />
+            <Star className="w-2.5 h-2.5 text-[var(--red)] fill-current" />
             <span className="text-[10px] font-bold text-white">{rating.toFixed(1)}</span>
           </div>
           <span className="text-[8px] font-extrabold uppercase tracking-widest text-[var(--text-dim)] bg-black/60 px-1.5 py-0.5 rounded">

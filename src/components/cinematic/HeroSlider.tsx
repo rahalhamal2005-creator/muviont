@@ -69,11 +69,7 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
               transition={{ delay: 0.15 }}
               className="flex flex-wrap items-center gap-2 mb-3"
             >
-              <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-md border ${
-                current.type === "movie"
-                  ? "text-[var(--red)] bg-[var(--red-dim)] border-[var(--red)]/20"
-                  : "text-blue-400 bg-blue-500/10 border-blue-500/20"
-              }`}>
+              <span className="px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-md border text-[var(--red)] bg-[var(--red-dim)] border-[var(--red)]/20">
                 {current.type === "movie" ? "Movie" : "Series"}
               </span>
               {current.genres.slice(0, 3).map(g => (
@@ -102,7 +98,7 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
               transition={{ delay: 0.3 }}
               className="flex items-center gap-4 mb-3 text-sm"
             >
-              <span className="flex items-center gap-1.5 text-[var(--gold)] font-bold">
+              <span className="flex items-center gap-1.5 text-[var(--red)] font-bold">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 {current.rating.toFixed(1)}
               </span>
