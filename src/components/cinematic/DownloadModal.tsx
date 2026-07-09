@@ -1,19 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { X, Download, Server, ExternalLink, ShieldAlert, Loader2, Copy, Check, Sparkles, AlertCircle, ShieldCheck } from "lucide-react";
+import { X, Download, Server, ExternalLink, ShieldAlert, Loader2, Copy, Check, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface Offer {
-  id: string;
-  name: string;
-  anchor: string;
-  conversion: string;
-  url: string;
-  payout: string;
-  network_icon?: string;
-  boosted?: boolean;
-}
+import ContentLocker from "./ContentLocker";
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -41,9 +31,6 @@ export default function DownloadModal({
   // Locker-specific states
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [loadingOffers, setLoadingOffers] = useState(false);
-  const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   // 1. Check for Admin status or previous unlock
@@ -92,76 +79,6 @@ export default function DownloadModal({
       });
   }, [isOpen, mediaId, mediaType, season, episode]);
 
-  // 3. Register AdBlueMedia view when locker is shown (pendingUrl is set)
-  useEffect(() => {
-    if (!pendingUrl) return;
-
-    const script = document.createElement("script");
-    script.src = "https://d1cdbd1x576ga0.cloudfront.net/public/external/check.php?pub_key=64ddf7cdfac75ce75979";
-    script.async = true;
-    document.body.appendChild(script);
-
-    // Fetch offers
-    setLoadingOffers(true);
-    fetch("/api/offers")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: Offer[]) => {
-        // Only keep top 2 offers for clean professional UI
-        setOffers(data.slice(0, 2));
-        setLoadingOffers(false);
-      })
-      .catch(() => {
-        setLoadingOffers(false);
-      });
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, [pendingUrl]);
-
-  // 4. Poll lead completion when locker is active
-  useEffect(() => {
-    if (!pendingUrl || isUnlocked) return;
-
-    const checkLeads = () => {
-      const callbackName = `cb_download_leads_${Date.now()}`;
-      const url = "https://d1cdbd1x576ga0.cloudfront.net/public/external/check2.php?testing=0";
-
-      const script = document.createElement("script");
-      script.src = `${url}&callback=${callbackName}`;
-      script.async = true;
-
-      (window as any)[callbackName] = (leads: any[]) => {
-        if (leads && leads.length > 0) {
-          setIsUnlocked(true);
-          setVerifying(false);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("muviont_unlocked_download", "true");
-          }
-          // Redirect to the pending download link
-          window.open(pendingUrl, "_blank");
-          setPendingUrl(null);
-        }
-        cleanup();
-      };
-
-      script.onerror = () => cleanup();
-      document.body.appendChild(script);
-
-      function cleanup() {
-        if (script.parentNode) {
-          script.parentNode.removeChild(script);
-        }
-        delete (window as any)[callbackName];
-      }
-    };
-
-    const interval = setInterval(checkLeads, 8000);
-    return () => clearInterval(interval);
-  }, [pendingUrl, isUnlocked]);
-
   // Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -197,10 +114,16 @@ export default function DownloadModal({
     }
   };
 
-  const handleOfferClick = (offerUrl: string) => {
-    setVerifying(true);
-    window.open(offerUrl, "_blank");
-  };
+  const handleUnlock = useCallback(() => {
+    setIsUnlocked(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("muviont_unlocked_download", "true");
+    }
+    if (pendingUrl) {
+      window.open(pendingUrl, "_blank");
+      setPendingUrl(null);
+    }
+  }, [pendingUrl]);
 
   if (!isOpen) return null;
 
@@ -347,9 +270,9 @@ export default function DownloadModal({
 
               {/* Status bar */}
               {isUnlocked && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                  <ShieldCheck className="w-4 h-4 shrink-0" />
-                  <span>{isAdmin ? "Admin Locker Bypass Active" : "Unlocks Purchased / Completed"}</span>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-450 text-xs font-bold uppercase tracking-wider">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <span>{isAdmin ? "Admin Locker Bypass Active" : "Verification Complete"}</span>
                 </div>
               )}
 
@@ -369,13 +292,13 @@ export default function DownloadModal({
                   <button
                     key={idx}
                     onClick={() => handleServerClick(srv.url)}
-                    className="w-full flex items-center justify-between p-3.5 rounded-xl border border-neutral-900 bg-neutral-900/20 hover:bg-neutral-900/60 hover:border-neutral-800 transition-all duration-300 group"
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl border border-neutral-900 bg-neutral-900/20 hover:bg-neutral-900/60 hover:border-neutral-800 transition-all duration-300 group text-left"
                   >
                     <div className="flex items-start gap-3">
                       <div className="p-2 rounded-lg bg-neutral-900 border border-white/[0.04] text-neutral-400 group-hover:text-[var(--red)] group-hover:border-[var(--red)]/20 transition-colors duration-300">
                         <Server className="w-3.5 h-3.5" />
                       </div>
-                      <div className="space-y-0.5 text-left">
+                      <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-white group-hover:text-[var(--red)] transition-colors duration-300">
                             {srv.name}
@@ -399,81 +322,24 @@ export default function DownloadModal({
               </div>
             </>
           ) : (
-            /* VIEW 2: Content Locker */
-            <div className="space-y-6 text-center py-4 relative">
-              {/* Back to server list */}
+            /* VIEW 2: Content Locker (Reused ContentLocker.tsx Component) */
+            <div className="relative pt-6">
               <button
-                onClick={() => {
-                  setPendingUrl(null);
-                  setVerifying(false);
-                }}
-                className="absolute top-0 left-0 text-[10px] font-black uppercase tracking-wider text-neutral-500 hover:text-[var(--red)] transition-colors"
+                onClick={() => setPendingUrl(null)}
+                className="absolute top-0 left-0 text-[10px] font-black uppercase tracking-wider text-neutral-500 hover:text-[var(--red)] transition-colors z-20"
               >
                 ← Back
               </button>
-
-              <div className="space-y-2">
-                <div className="w-12 h-12 rounded-full bg-[var(--red)]/10 border border-[var(--red)]/20 flex items-center justify-center mx-auto text-[var(--red)] animate-pulse shadow-[0_0_20px_var(--red-glow)]">
-                  🔒
-                </div>
-                <h3 className="text-base font-black text-white uppercase tracking-wider">Locker Verification Required</h3>
-                <p className="text-xs text-neutral-400 max-w-sm mx-auto font-light leading-relaxed">
-                  Complete one of the free offers below to verify you are not a bot and unlock your download server.
-                </p>
-              </div>
-
-              {/* Offers list */}
-              <div className="space-y-3 max-w-sm mx-auto">
-                {loadingOffers ? (
-                  <div className="flex flex-col items-center justify-center gap-2 p-8 text-neutral-500 text-xs">
-                    <Loader2 className="w-5 h-5 animate-spin text-[var(--red)]" />
-                    <span>Loading verified offers...</span>
-                  </div>
-                ) : offers.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-neutral-900/20 border border-neutral-900 text-xs text-neutral-550">
-                    No offers available for your location. Please try again.
-                  </div>
-                ) : (
-                  offers.map((offer) => (
-                    <button
-                      key={offer.id}
-                      onClick={() => handleOfferClick(offer.url)}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-neutral-900 bg-neutral-900/10 hover:bg-neutral-900/40 hover:border-neutral-800 transition-all duration-300 group text-left relative overflow-hidden"
-                    >
-                      {offer.boosted && (
-                        <div className="absolute top-0 right-0 px-2 py-0.5 bg-[var(--red)] text-[7px] font-extrabold uppercase tracking-widest text-white rounded-bl">
-                          Boosted
-                        </div>
-                      )}
-                      <div className="space-y-1">
-                        <span className="text-xs font-black text-white group-hover:text-[var(--red)] transition-colors duration-300 flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-[var(--red)]" />
-                          {offer.name}
-                        </span>
-                        <p className="text-[10px] text-neutral-400 font-light leading-normal">{offer.anchor}</p>
-                      </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-neutral-600 group-hover:text-white transition-colors shrink-0 ml-4" />
-                    </button>
-                  ))
-                )}
-              </div>
-
-              {/* Status Verification Loader */}
-              {verifying && (
-                <div className="flex items-center justify-center gap-2.5 p-3 rounded-xl bg-red-950/10 border border-red-500/15 max-w-xs mx-auto text-xs text-neutral-350">
-                  <Loader2 className="w-4 h-4 animate-spin text-[var(--red)]" />
-                  <span className="font-medium animate-pulse">Waiting for offer completion...</span>
-                </div>
-              )}
-
-              <div className="text-[9px] text-neutral-650 font-light max-w-xs mx-auto">
-                Keep this window open. Once you complete the offer, your download link will open automatically.
-              </div>
+              <ContentLocker
+                mode="download"
+                title={title}
+                onUnlock={handleUnlock}
+              />
             </div>
           )}
 
           {/* Footer */}
-          <div className="text-[9px] text-neutral-600 text-center font-light pt-2 border-t border-white/[0.04]">
+          <div className="text-[9px] text-neutral-650 text-center font-light pt-2 border-t border-white/[0.04]">
             Muviont does not host any media files directly. Content is indexed via third-party providers.
           </div>
         </motion.div>

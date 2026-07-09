@@ -18,9 +18,10 @@ interface ContentLockerProps {
   onUnlock: () => void;
   title: string;
   backdropUrl?: string;
+  mode?: "stream" | "download";
 }
 
-export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentLockerProps) {
+export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "stream" }: ContentLockerProps) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
@@ -167,7 +168,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         {/* Locked Title & Movie Name Centered */}
         <div className="space-y-1 w-full text-center flex flex-col items-center justify-center">
           <div className="text-[10px] sm:text-xs text-[var(--red)] font-black uppercase tracking-[0.2em] animate-pulse text-center">
-            🔒 Link Verification Required
+            🔒 {mode === "download" ? "Download Verification Required" : "Link Verification Required"}
           </div>
           {title && (
             <h4 className="text-xs sm:text-sm font-bold text-neutral-350 line-clamp-1 italic px-2 text-center">
@@ -198,14 +199,26 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
             <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
               3
             </div>
-            <div className="text-[9px] font-black text-white uppercase tracking-wider">Play Movie</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Instant 4K</p>
+            <div className="text-[9px] font-black text-white uppercase tracking-wider">
+              {mode === "download" ? "Download File" : "Play Movie"}
+            </div>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">
+              {mode === "download" ? "Save Offline" : "Instant 4K"}
+            </p>
           </div>
         </div>
 
-        {/* Custom description with bold highlighted marketing hooks - Changed font visibility to bold and larger on mobile */}
+        {/* Custom description with bold highlighted marketing hooks */}
         <p className="text-xs sm:text-sm text-neutral-200 font-extrabold leading-relaxed text-center px-1 sm:px-2 tracking-wide font-sans w-full">
-          Due to extreme server traffic, unverified streaming is locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the player. Once verified, your movie will play <span className="text-emerald-400 font-black">instantly f Ultra-HD quality</span>, and your direct download link will be fully activated.
+          {mode === "download" ? (
+            <>
+              Due to extreme server traffic, download links are locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the download. Once verified, your movie will download <span className="text-emerald-450 font-black">instantly f Ultra-HD quality</span>.
+            </>
+          ) : (
+            <>
+              Due to extreme server traffic, unverified streaming is locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the player. Once verified, your movie will play <span className="text-emerald-400 font-black">instantly f Ultra-HD quality</span>, and your direct download link will be fully activated.
+            </>
+          )}
         </p>
 
         {/* Exactly 2 Offers */}
@@ -221,7 +234,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
               onClick={onUnlock}
               className="mt-2 block w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors"
             >
-              Skip and Play
+              {mode === "download" ? "Skip and Download" : "Skip and Play"}
             </button>
           </div>
         ) : (
