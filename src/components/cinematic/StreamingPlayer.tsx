@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { STREAMING_SOURCES } from "@/lib/streaming";
 import HLSPlayer from "./HLSPlayer";
+import ContentLocker from "./ContentLocker";
 
 interface StreamingPlayerProps {
   embedUrl: string;
@@ -23,6 +24,7 @@ export default function StreamingPlayer({
   const [currentUrl, setCurrentUrl]       = useState(embedUrl);
   const [loading, setLoading]             = useState(true);
   const [error, setError]                 = useState(false);
+  const [unlocked, setUnlocked]           = useState(false);
   const [healthMap, setHealthMap]         = useState<Record<string, "ONLINE" | "OFFLINE">>({});
   const [directStreamUrl, setDirectStreamUrl] = useState<string | null>(null);
   const [directStreamSubtitles, setDirectStreamSubtitles] = useState<any[]>([]);
@@ -76,6 +78,25 @@ export default function StreamingPlayer({
       setShowSources(true);
     }
   }, [directStreamError, error]);
+
+  // Load and check unlock state from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isUnlocked = localStorage.getItem(`muviont_unlocked_${embedUrl}`);
+      if (isUnlocked === "true") {
+        setUnlocked(true);
+      } else {
+        setUnlocked(false);
+      }
+    }
+  }, [embedUrl]);
+
+  const handleUnlock = useCallback(() => {
+    setUnlocked(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`muviont_unlocked_${embedUrl}`, "true");
+    }
+  }, [embedUrl]);
 
   // Load stream URL if direct-stream is active
   useEffect(() => {
@@ -218,8 +239,10 @@ export default function StreamingPlayer({
           </div>
         )}
 
-        {/* Iframe or Native HLS Player */}
-        {activeSourceKey === "direct-stream" ? (
+        {/* Iframe, Native HLS Player, or Content Locker */}
+        {!unlocked ? (
+          <ContentLocker onUnlock={handleUnlock} title={title} />
+        ) : activeSourceKey === "direct-stream" ? (
           directStreamUrl ? (
             <HLSPlayer
               src={directStreamUrl}
@@ -279,7 +302,7 @@ export default function StreamingPlayer({
         )}
 
         {/* Fullscreen button overlay */}
-        {activeSourceKey !== "direct-stream" && (
+        {activeSourceKey !== "direct-stream" && unlocked && (
           <button
             onClick={handleFullscreen}
             className="absolute bottom-3 right-3 z-10 p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm transition-all opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
