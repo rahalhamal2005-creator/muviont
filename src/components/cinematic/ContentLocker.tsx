@@ -102,8 +102,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
 
   return (
     <div 
-      className="w-full relative rounded-2xl flex flex-col items-center justify-center p-4 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950" 
-      style={{ aspectRatio: "16/9", minHeight: "360px" }}
+      className="w-full relative rounded-2xl flex flex-col items-center justify-center p-3 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950 min-h-[480px] sm:min-h-0 sm:aspect-video"
     >
       {/* Blurred Backdrop Image - Adjusted opacity and overlay to be highly visible */}
       {backdropUrl && (
@@ -136,11 +135,11 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
       `}</style>
 
       {/* Content Container (Glassmorphic panel matching site style) */}
-      <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/85 border border-white/[0.06] rounded-2xl p-5 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
+      <div className="relative z-10 max-w-lg w-full bg-[#0c0c18]/85 border border-white/[0.06] rounded-2xl p-4 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-3 sm:gap-4">
         
         {/* Header: Transparent MUVIONT Logo */}
         <div className="flex items-center gap-2 select-none">
-          <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="lockerCrimson" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#FF2E3B" />
@@ -162,45 +161,45 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
               filter="url(#lockerGlow)"
             />
           </svg>
-          <span className="text-lg font-black tracking-[0.25em] text-white">MUVIONT</span>
+          <span className="text-base sm:text-lg font-black tracking-[0.25em] text-white">MUVIONT</span>
         </div>
 
         {/* Locked Title & Movie Name */}
         <div className="space-y-1">
-          <div className="text-[10px] sm:text-xs text-[var(--red)] font-black uppercase tracking-[0.2em] animate-pulse">
+          <div className="text-[9px] sm:text-xs text-[var(--red)] font-black uppercase tracking-[0.2em] animate-pulse">
             🔒 Link Verification Required
           </div>
           {title && (
-            <h4 className="text-xs sm:text-sm font-bold text-neutral-300 line-clamp-1 italic px-2">
+            <h4 className="text-[11px] sm:text-sm font-bold text-neutral-300 line-clamp-1 italic px-2">
               &ldquo;{title}&rdquo;
             </h4>
           )}
         </div>
 
         {/* 3-Step Visual Conversion Timeline (Marketing Hook) */}
-        <div className="w-full grid grid-cols-3 gap-1.5 border-y border-white/[0.04] py-3 text-center select-none">
-          <div className="space-y-1">
-            <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+        <div className="w-full grid grid-cols-3 gap-1 border-y border-white/[0.04] py-2 sm:py-3 text-center select-none">
+          <div className="space-y-0.5 sm:space-y-1">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] sm:text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
               1
             </div>
-            <div className="text-[9px] font-black text-white uppercase tracking-wider">Choose Offer</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Click an option below</p>
+            <div className="text-[8px] sm:text-[9px] font-black text-white uppercase tracking-wider">Choose Offer</div>
+            <p className="text-[7px] sm:text-[8px] text-neutral-500 font-semibold leading-tight">Click any option below</p>
           </div>
           
-          <div className="space-y-1 border-x border-white/[0.04]">
-            <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+          <div className="space-y-0.5 sm:space-y-1 border-x border-white/[0.04]">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] sm:text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
               2
             </div>
-            <div className="text-[9px] font-black text-white uppercase tracking-wider">Verify Free</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Complete in 60 seconds</p>
+            <div className="text-[8px] sm:text-[9px] font-black text-white uppercase tracking-wider">Verify Free</div>
+            <p className="text-[7px] sm:text-[8px] text-neutral-500 font-semibold leading-tight">Complete in 60 seconds</p>
           </div>
 
-          <div className="space-y-1">
-            <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+          <div className="space-y-0.5 sm:space-y-1">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] sm:text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
               3
             </div>
-            <div className="text-[9px] font-black text-white uppercase tracking-wider">Play Movie</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Unlocks instantly in 4K</p>
+            <div className="text-[8px] sm:text-[9px] font-black text-white uppercase tracking-wider">Play Movie</div>
+            <p className="text-[7px] sm:text-[8px] text-neutral-500 font-semibold leading-tight">Unlocks instantly in 4K</p>
           </div>
         </div>
 
@@ -226,33 +225,33 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
             </button>
           </div>
         ) : (
-          <div className="w-full space-y-2">
+          <div className="w-full space-y-1.5 sm:space-y-2">
             {offers.map((offer) => (
               <button
                 key={offer.id}
                 onClick={() => handleOfferClick(offer.url)}
-                className="w-full p-2.5 text-left rounded-xl transition-all duration-300 flex items-center justify-between border bg-red-950/15 border-[var(--red)]/35 hover:border-[var(--red)] hover:bg-red-950/25 shadow-[0_0_8px_rgba(229,56,59,0.04)] group"
+                className="w-full p-2 sm:p-2.5 text-left rounded-xl transition-all duration-300 flex items-center justify-between border bg-red-950/15 border-[var(--red)]/35 hover:border-[var(--red)] hover:bg-red-950/25 shadow-[0_0_8px_rgba(229,56,59,0.04)] group"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   {offer.network_icon && (
                     <img 
                       src={offer.network_icon} 
                       alt="" 
-                      className="w-6 h-6 rounded-lg object-contain bg-white/5 p-0.5 border border-white/10" 
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg object-contain bg-white/5 p-0.5 border border-white/10" 
                     />
                   )}
                   <div>
-                    <div className="text-[10px] sm:text-[11px] font-black text-white group-hover:text-[var(--red)] transition-colors leading-tight">
+                    <div className="text-[9px] sm:text-[11px] font-black text-white group-hover:text-[var(--red)] transition-colors leading-tight">
                       {offer.anchor}
                     </div>
-                    <div className="text-[8px] sm:text-[9px] text-neutral-400 font-semibold mt-0.5">
+                    <div className="text-[7.5px] sm:text-[9px] text-neutral-455 font-semibold mt-0.5">
                       {offer.conversion}
                     </div>
                   </div>
                 </div>
 
-                <span className="text-[9px] font-black uppercase text-[var(--red)] tracking-wider shrink-0 ml-2 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 fill-[var(--red)]" /> Unlock
+                <span className="text-[8.5px] sm:text-[9px] font-black uppercase text-[var(--red)] tracking-wider shrink-0 ml-2 flex items-center gap-1">
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-[var(--red)]" /> Unlock
                 </span>
               </button>
             ))}
@@ -260,21 +259,21 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         )}
 
         {/* Centered Sonar Radar Verification Pulse Status */}
-        <div className="w-full mt-2 flex flex-col items-center justify-center gap-3 border-t border-white/[0.04] pt-4">
-          <div className="flex items-center gap-3 justify-center">
+        <div className="w-full mt-1.5 flex flex-col items-center justify-center gap-3 border-t border-white/[0.04] pt-3 sm:pt-4">
+          <div className="flex items-center gap-2.5 justify-center">
             
             {/* Dynamic Concentric Sonar Waves */}
-            <div className="relative flex items-center justify-center w-5 h-5">
+            <div className="relative flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5">
               <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/30 sonar-wave" style={{ animationDelay: '0s' }} />
               <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/20 sonar-wave" style={{ animationDelay: '0.6s' }} />
               <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/10 sonar-wave" style={{ animationDelay: '1.2s' }} />
               
               {/* Solid Core Dot */}
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--red)] shadow-[0_0_6px_var(--red)]" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[var(--red)] shadow-[0_0_6px_var(--red)]" />
             </div>
             
             {/* Centered Status Label */}
-            <span className="text-[9px] sm:text-[10px] font-black text-neutral-300 uppercase tracking-widest leading-none">
+            <span className="text-[8.5px] sm:text-[10px] font-black text-neutral-300 uppercase tracking-widest leading-none">
               {verifying 
                 ? "Verifying completion... keep window open" 
                 : "System: Listening for offer completion"}
@@ -282,7 +281,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
 
             {/* Verification active loading spinner */}
             {verifying && (
-              <Loader2 className="w-3.5 h-3.5 text-[var(--red)] animate-spin" />
+              <Loader2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--red)] animate-spin" />
             )}
           </div>
         </div>
