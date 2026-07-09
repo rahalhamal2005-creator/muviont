@@ -102,7 +102,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
 
   return (
     <div 
-      className="w-full relative rounded-2xl flex flex-col items-center justify-center p-3 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950 min-h-[460px] sm:min-h-0 sm:aspect-video"
+      className="w-full relative rounded-2xl flex flex-col items-center justify-center p-4 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950 min-h-[460px]"
     >
       {/* Blurred Backdrop Image - Adjusted opacity and overlay to be highly visible */}
       {backdropUrl && (
@@ -135,10 +135,10 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
       `}</style>
 
       {/* Content Container (Glassmorphic panel matching site style) */}
-      <div className="relative z-10 max-w-md w-full bg-[#0c0c18]/90 border border-white/[0.06] rounded-2xl p-4 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-3 sm:gap-4">
+      <div className="relative z-10 max-w-md w-full bg-[#0c0c18]/90 border border-white/[0.06] rounded-2xl p-5 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
         
         {/* Header: Transparent MUVIONT Logo */}
-        <div className="flex items-center gap-2 select-none">
+        <div className="flex items-center gap-2 select-none justify-center w-full">
           <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="lockerCrimson" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -164,13 +164,13 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
           <span className="text-lg font-black tracking-[0.25em] text-white">MUVIONT</span>
         </div>
 
-        {/* Locked Title & Movie Name */}
-        <div className="space-y-1">
-          <div className="text-[10px] sm:text-xs text-[var(--red)] font-black uppercase tracking-[0.2em] animate-pulse">
+        {/* Locked Title & Movie Name Centered */}
+        <div className="space-y-1 w-full text-center flex flex-col items-center justify-center">
+          <div className="text-[10px] sm:text-xs text-[var(--red)] font-black uppercase tracking-[0.2em] animate-pulse text-center">
             🔒 Link Verification Required
           </div>
           {title && (
-            <h4 className="text-xs sm:text-sm font-bold text-neutral-350 line-clamp-1 italic px-2">
+            <h4 className="text-xs sm:text-sm font-bold text-neutral-350 line-clamp-1 italic px-2 text-center">
               &ldquo;{title}&rdquo;
             </h4>
           )}
@@ -204,7 +204,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         </div>
 
         {/* Custom description with bold highlighted marketing hooks - Changed font visibility to bold and larger on mobile */}
-        <p className="text-xs sm:text-sm text-neutral-200 font-extrabold leading-relaxed text-center px-1 sm:px-2 tracking-wide font-sans">
+        <p className="text-xs sm:text-sm text-neutral-200 font-extrabold leading-relaxed text-center px-1 sm:px-2 tracking-wide font-sans w-full">
           Due to extreme server traffic, unverified streaming is locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the player. Once verified, your movie will play <span className="text-emerald-400 font-black">instantly f Ultra-HD quality</span>, and your direct download link will be fully activated.
         </p>
 
