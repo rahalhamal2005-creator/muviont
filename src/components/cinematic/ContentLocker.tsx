@@ -118,17 +118,20 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         </div>
       )}
 
-      {/* Styles for the sweeping scanner animation */}
+      {/* Custom Keyframe animations for sonar/radar pulse */}
       <style jsx>{`
-        @keyframes scan {
-          0% { left: -35%; }
-          100% { left: 105%; }
+        @keyframes sonar {
+          0% {
+            transform: scale(0.6);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(2.4);
+            opacity: 0;
+          }
         }
-        .scanner-bar {
-          animation: scan 3s infinite linear;
-        }
-        .scanner-bar-fast {
-          animation: scan 1.5s infinite linear;
+        .sonar-wave {
+          animation: sonar 2s infinite cubic-bezier(0.16, 1, 0.3, 1);
         }
       `}</style>
 
@@ -229,28 +232,31 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
           </div>
         )}
 
-        {/* Dynamic sweeping scanner and clean centered status text */}
-        <div className="w-full mt-2 space-y-2.5">
-          {/* Sweeping Scanner line */}
-          <div className="w-full h-0.5 bg-white/[0.04] rounded-full overflow-hidden relative">
-            <div 
-              className={`absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-[var(--red)] to-transparent rounded-full ${
-                verifying ? "scanner-bar-fast" : "scanner-bar"
-              }`} 
-            />
-          </div>
-
-          {/* Centered status line with pulsing indicator */}
-          <div className="flex items-center justify-center gap-2">
-            <span className="relative flex h-1.5 w-1.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--red)] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--red)]"></span>
-            </span>
-            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest leading-none">
+        {/* Centered Sonar Radar Verification Pulse Status */}
+        <div className="w-full mt-4 flex flex-col items-center justify-center gap-3 border-t border-white/[0.04] pt-4">
+          <div className="flex items-center gap-3 justify-center">
+            
+            {/* Dynamic Concentric Sonar Waves */}
+            <div className="relative flex items-center justify-center w-5 h-5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/30 sonar-wave" style={{ animationDelay: '0s' }} />
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/20 sonar-wave" style={{ animationDelay: '0.6s' }} />
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/10 sonar-wave" style={{ animationDelay: '1.2s' }} />
+              
+              {/* Solid Core Dot */}
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--red)] shadow-[0_0_6px_var(--red)]" />
+            </div>
+            
+            {/* Centered Status Label */}
+            <span className="text-[9px] sm:text-[10px] font-black text-neutral-300 uppercase tracking-widest leading-none">
               {verifying 
-                ? "Verifying completion... do not close this window" 
+                ? "Verifying completion... keep window open" 
                 : "System: Listening for offer completion"}
             </span>
+
+            {/* Verification active loading spinner */}
+            {verifying && (
+              <Loader2 className="w-3.5 h-3.5 text-[var(--red)] animate-spin" />
+            )}
           </div>
         </div>
 
