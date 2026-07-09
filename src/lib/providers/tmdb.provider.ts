@@ -428,11 +428,32 @@ export class TMDBProvider {
       if (!res.ok) return {};
       const data = await res.json();
       const pr = data.results || {};
+
+      const extractCountryProviders = (countryData: any) => {
+        if (!countryData) return [];
+        const providers = [
+          ...(countryData.flatrate || []),
+          ...(countryData.rent || []),
+          ...(countryData.buy || []),
+          ...(countryData.ads || []),
+          ...(countryData.free || []),
+        ];
+        const unique: any[] = [];
+        const seen = new Set();
+        for (const p of providers) {
+          if (!seen.has(p.provider_id)) {
+            seen.add(p.provider_id);
+            unique.push(p);
+          }
+        }
+        return unique;
+      };
+
       return {
-        US: pr.US?.flatrate || [],
-        GB: pr.GB?.flatrate || [],
-        CA: pr.CA?.flatrate || [],
-        AU: pr.AU?.flatrate || [],
+        US: extractCountryProviders(pr.US),
+        GB: extractCountryProviders(pr.GB),
+        CA: extractCountryProviders(pr.CA),
+        AU: extractCountryProviders(pr.AU),
       };
     } catch {
       return {};
