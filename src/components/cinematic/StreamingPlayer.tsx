@@ -87,7 +87,19 @@ export default function StreamingPlayer({
       if (isUnlocked === "true") {
         setUnlocked(true);
       } else {
-        setUnlocked(false);
+        // Fetch session to check if user is SUPER_ADMIN
+        fetch("/api/auth/session")
+          .then((res) => (res.ok ? res.json() : {}))
+          .then((data: any) => {
+            if (data.user && data.user.role === "SUPER_ADMIN") {
+              setUnlocked(true);
+            } else {
+              setUnlocked(false);
+            }
+          })
+          .catch(() => {
+            setUnlocked(false);
+          });
       }
     }
   }, [embedUrl]);
