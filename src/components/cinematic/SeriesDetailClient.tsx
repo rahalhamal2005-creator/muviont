@@ -9,6 +9,7 @@ import {
 import Navbar from "./Navbar";
 import MediaCard from "./MediaCard";
 import AISearchInput from "./AISearchInput";
+import DownloadModal from "./DownloadModal";
 import BottomNav from "./BottomNav";
 import { TMDBMedia, TMDBSeason } from "@/lib/providers/tmdb.provider";
 
@@ -21,6 +22,7 @@ interface SeriesDetailClientProps {
 export default function SeriesDetailClient({ series, seasons, recommendations }: SeriesDetailClientProps) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [showSearch,  setShowSearch]  = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [watchProviders, setWatchProviders] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
@@ -191,15 +193,13 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
               Watch Now
             </Link>
 
-            <a
-              href={`/api/download?id=${series.id}&type=series&season=1&episode=1`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsDownloadOpen(true)}
               className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"
             >
               <Download className="w-4 h-4" />
               Download S1 E1
-            </a>
+            </button>
 
             {/* Watchlist */}
             <button
@@ -506,6 +506,17 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
       )}
 
       <BottomNav />
+
+      {/* Download Options Modal */}
+      <DownloadModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        title={series.title}
+        mediaId={series.id}
+        mediaType="series"
+        season={1}
+        episode={1}
+      />
     </div>
   );
 }

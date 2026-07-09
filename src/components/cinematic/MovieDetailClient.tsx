@@ -7,6 +7,7 @@ import { Play, Plus, Check, Star, Calendar, ArrowLeft, MessageSquare, Sparkles, 
 import Navbar from "./Navbar";
 import MediaCard from "./MediaCard";
 import TrailerModal from "./TrailerModal";
+import DownloadModal from "./DownloadModal";
 import AISearchInput from "./AISearchInput";
 import BottomNav from "./BottomNav";
 import { TMDBMedia } from "@/lib/providers/tmdb.provider";
@@ -19,6 +20,7 @@ interface MovieDetailClientProps {
 export default function MovieDetailClient({ movie, recommendations }: MovieDetailClientProps) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [trailerId, setTrailerId] = useState<string>(movie.trailerUrl || "");
   const [watchProviders, setWatchProviders] = useState<any[]>([]);
@@ -214,15 +216,13 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
               Watch Now
             </Link>
 
-            <a
-              href={`/api/download?id=${movie.id}&type=movie`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsDownloadOpen(true)}
               className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"
             >
               <Download className="w-4 h-4" />
               Download
-            </a>
+            </button>
 
             <button
               onClick={toggleWatchlist}
@@ -463,6 +463,15 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
         videoId={movie.trailerUrl || trailerId || ""}
         isOpen={isTrailerOpen}
         onClose={() => setIsTrailerOpen(false)}
+      />
+
+      {/* Download Options Modal */}
+      <DownloadModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        title={movie.title}
+        mediaId={movie.id}
+        mediaType="movie"
       />
 
       <BottomNav />

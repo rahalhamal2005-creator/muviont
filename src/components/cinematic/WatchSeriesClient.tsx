@@ -9,6 +9,7 @@ import EpisodeSelector from "@/components/cinematic/EpisodeSelector";
 import MediaCard from "@/components/cinematic/MediaCard";
 import Navbar from "@/components/cinematic/Navbar";
 import BottomNav from "@/components/cinematic/BottomNav";
+import DownloadModal from "@/components/cinematic/DownloadModal";
 import AISearchInput from "@/components/cinematic/AISearchInput";
 import { TMDBMedia, TMDBSeason } from "@/lib/providers/tmdb.provider";
 import { buildSeriesEmbedUrl, getRawTmdbId } from "@/lib/streaming";
@@ -29,6 +30,7 @@ export default function WatchSeriesClient({
   const [episode,     setEpisode]     = useState(initialEpisode);
   const [sourceIndex, setSourceIndex] = useState(0);
   const [showSearch,  setShowSearch]  = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   useEffect(() => {
     const saveProgress = async (prog: number) => {
@@ -120,15 +122,13 @@ export default function WatchSeriesClient({
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Details
           </Link>
-          <a
-            href={`/api/download?id=${series.id}&type=series&season=${season}&episode=${episode}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setIsDownloadOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--red-dim)] hover:bg-[var(--red)]/20 border border-[var(--red)]/30 text-xs font-bold uppercase tracking-wider text-[var(--red)] hover:text-white transition-all duration-300 shadow-[0_0_15px_var(--red-glow)]"
           >
             <Download className="w-3.5 h-3.5" />
             Download S{season}E{episode}
-          </a>
+          </button>
         </div>
 
         {/* 1. Large Hero Video Player (Netflix/Disney style) */}
@@ -269,6 +269,17 @@ export default function WatchSeriesClient({
       </div>
 
       <BottomNav />
+
+      {/* Download Options Modal */}
+      <DownloadModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        title={series.title}
+        mediaId={series.id}
+        mediaType="series"
+        season={season}
+        episode={episode}
+      />
     </div>
   );
 }

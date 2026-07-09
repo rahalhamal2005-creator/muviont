@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Play, Plus, Check, Star, Tv, ArrowLeft, Clock, MessageSquare, Loader2, Sparkles, Calendar, Download } from "lucide-react";
 import Navbar from "./Navbar";
 import TrailerModal from "./TrailerModal";
+import DownloadModal from "./DownloadModal";
 import AISearchInput from "./AISearchInput";
 import BottomNav from "./BottomNav";
 import { AniListMedia } from "@/lib/providers/anilist.provider";
@@ -17,6 +18,7 @@ interface AnimeDetailClientProps {
 export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [watchProviders, setWatchProviders] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -222,15 +224,13 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
               Watch Now
             </Link>
 
-            <a
-              href={`/api/download?id=${anime.id}&type=anime&episode=1`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsDownloadOpen(true)}
               className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"
             >
               <Download className="w-4 h-4" />
               Download Ep 1
-            </a>
+            </button>
 
             <button
               onClick={toggleWatchlist}
@@ -473,6 +473,17 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
         videoId={anime.trailerUrl || ""}
         isOpen={isTrailerOpen}
         onClose={() => setIsTrailerOpen(false)}
+      />
+
+      {/* Download Options Modal */}
+      <DownloadModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        title={anime.title}
+        mediaId={anime.id}
+        mediaType="anime"
+        season={1}
+        episode={1}
       />
 
       <BottomNav />

@@ -8,6 +8,7 @@ import StreamingPlayer from "@/components/cinematic/StreamingPlayer";
 import MediaCard from "@/components/cinematic/MediaCard";
 import Navbar from "@/components/cinematic/Navbar";
 import BottomNav from "@/components/cinematic/BottomNav";
+import DownloadModal from "@/components/cinematic/DownloadModal";
 import AISearchInput from "@/components/cinematic/AISearchInput";
 import { TMDBMedia } from "@/lib/providers/tmdb.provider";
 import { buildMovieEmbedUrl, getRawTmdbId } from "@/lib/streaming";
@@ -20,6 +21,7 @@ interface WatchMovieClientProps {
 export default function WatchMovieClient({ movie, recommendations }: WatchMovieClientProps) {
   const [sourceIndex, setSourceIndex] = useState(0);
   const [showSearch,  setShowSearch]  = useState(false);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   useEffect(() => {
     const saveProgress = async (prog: number) => {
@@ -102,15 +104,13 @@ export default function WatchMovieClient({ movie, recommendations }: WatchMovieC
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Details
           </Link>
-          <a
-            href={`/api/download?id=${movie.id}&type=movie`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setIsDownloadOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--red-dim)] hover:bg-[var(--red)]/20 border border-[var(--red)]/30 text-xs font-bold uppercase tracking-wider text-[var(--red)] hover:text-white transition-all duration-300 shadow-[0_0_15px_var(--red-glow)]"
           >
             <Download className="w-3.5 h-3.5" />
             Download Movie
-          </a>
+          </button>
         </div>
 
         {/* 1. Large Hero Video Player (Netflix/Disney style) */}
@@ -244,6 +244,15 @@ export default function WatchMovieClient({ movie, recommendations }: WatchMovieC
       </div>
 
       <BottomNav />
+
+      {/* Download Options Modal */}
+      <DownloadModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        title={movie.title}
+        mediaId={movie.id}
+        mediaType="movie"
+      />
     </div>
   );
 }

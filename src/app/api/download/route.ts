@@ -57,7 +57,17 @@ export async function GET(req: Request) {
     const bestSource = sources.find((s: any) => s.url && s.url.trim() !== "");
 
     if (!bestSource || !bestSource.url) {
-      // Fallback on missing streams
+      return NextResponse.redirect(
+        type === "movie"
+          ? `https://vidsrc.to/embed/movie/${rawId}`
+          : `https://vidsrc.to/embed/tv/${rawId}/${season}/${episode}`
+      );
+    }
+
+    const isDirectMp4 = bestSource.url.toLowerCase().includes(".mp4") && !bestSource.url.includes("proxy");
+
+    if (!isDirectMp4) {
+      // Fallback to public player page if it's HLS/m3u8 or proxied stream
       return NextResponse.redirect(
         type === "movie"
           ? `https://vidsrc.to/embed/movie/${rawId}`

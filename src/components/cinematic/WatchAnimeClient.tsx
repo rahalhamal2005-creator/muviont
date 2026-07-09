@@ -8,6 +8,7 @@ import StreamingPlayer from "@/components/cinematic/StreamingPlayer";
 import MediaCard from "@/components/cinematic/MediaCard";
 import Navbar from "@/components/cinematic/Navbar";
 import BottomNav from "@/components/cinematic/BottomNav";
+import DownloadModal from "@/components/cinematic/DownloadModal";
 import AISearchInput from "@/components/cinematic/AISearchInput";
 import { AniListMedia } from "@/lib/providers/anilist.provider";
 import { STREAMING_SOURCES, getRawAniListId, getRawTmdbId } from "@/lib/streaming";
@@ -22,6 +23,7 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
   const [sourceIndex, setSourceIndex] = useState(0);
   const [showSearch,  setShowSearch]  = useState(false);
   const [batchIndex,  setBatchIndex]  = useState(0);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   useEffect(() => {
     const saveProgress = async (prog: number) => {
@@ -110,15 +112,13 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Details
           </Link>
-          <a
-            href={`/api/download?id=${anime.id}&type=anime&episode=${episode}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setIsDownloadOpen(true)}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--red-dim)] hover:bg-[var(--red)]/20 border border-[var(--red)]/30 text-xs font-bold uppercase tracking-wider text-[var(--red)] hover:text-white transition-all duration-300 shadow-[0_0_15px_var(--red-glow)]"
           >
             <Download className="w-3.5 h-3.5" />
             Download Episode {episode}
-          </a>
+          </button>
         </div>
 
         {/* 1. Large Hero Video Player (Netflix/Disney style) */}
@@ -294,6 +294,17 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
       </div>
 
       <BottomNav />
+
+      {/* Download Options Modal */}
+      <DownloadModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+        title={anime.title}
+        mediaId={anime.id}
+        mediaType="anime"
+        season={1}
+        episode={episode}
+      />
     </div>
   );
 }
