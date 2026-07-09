@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, Plus, Check, Star, Calendar, ArrowLeft, MessageSquare } from "lucide-react";
+import { Play, Plus, Check, Star, Calendar, ArrowLeft, MessageSquare, Sparkles, Loader2 } from "lucide-react";
 import Navbar from "./Navbar";
 import MediaCard from "./MediaCard";
 import TrailerModal from "./TrailerModal";
@@ -21,6 +21,9 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [trailerId, setTrailerId] = useState<string>(movie.trailerUrl || "");
+  const [watchProviders, setWatchProviders] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   useEffect(() => {
     // 1. Check if movie exists in local storage watchlist
@@ -33,6 +36,43 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
     const updated = [movie, ...filtered].slice(0, 10);
     localStorage.setItem("muviont_viewed", JSON.stringify(updated));
   }, [movie]);
+
+  useEffect(() => {
+    // Fetch Watch Providers
+    fetch(`/api/watch-providers?id=${movie.id}`)
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: any) => {
+        const providers = data.providers || {};
+        const combined = [
+          ...(providers.US || []),
+          ...(providers.GB || []),
+          ...(providers.CA || []),
+          ...(providers.AU || []),
+        ];
+        const unique: any[] = [];
+        const seen = new Set();
+        for (const p of combined) {
+          if (!seen.has(p.provider_id)) {
+            seen.add(p.provider_id);
+            unique.push(p);
+          }
+        }
+        setWatchProviders(unique.slice(0, 6)); // show top 6 streaming providers
+      })
+      .catch(() => {});
+
+    // Fetch TMDB Reviews
+    setReviewsLoading(true);
+    fetch(`/api/reviews?id=${movie.id}`)
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: any) => {
+        setReviews(data.reviews || []);
+        setReviewsLoading(false);
+      })
+      .catch(() => {
+        setReviewsLoading(false);
+      });
+  }, [movie.id]);
 
   const toggleWatchlist = () => {
     const watchlist = JSON.parse(localStorage.getItem("muviont_watchlist") || "[]");
@@ -345,6 +385,30 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
             )}
           </div>
 
+          {/* Watch Providers Card (Streaming info from JustWatch / TMDB) */}
+          {watchProviders.length > 0 && (
+            <div className="p-6 rounded-2xl border border-white/5 bg-neutral-950/40 backdrop-blur-md space-y-4 shadow-xl">
+              <h3 className="text-xs font-black uppercase tracking-widest text-red-500 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Where to Stream
+              </h3>
+              <div className="grid grid-cols-3 gap-3">
+                {watchProviders.map((provider) => (
+                  <div key={provider.provider_id} className="flex flex-col items-center gap-1 text-center bg-black/35 p-2 rounded-xl border border-neutral-900 hover:border-neutral-800 transition-colors">
+                    <img
+                      src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
+                      alt={provider.provider_name}
+                      className="w-8 h-8 rounded-lg object-contain shadow-md"
+                    />
+                    <span className="text-[8px] font-black text-neutral-400 truncate max-w-[65px] uppercase mt-1 leading-none">
+                      {provider.provider_name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Reviews Row Panel */}
           <div className="space-y-4">
             <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
@@ -352,32 +416,34 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
               Community Reviews
             </h3>
 
-            {/* Static review mockups */}
-            <div className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 space-y-3 shadow-md hover:border-neutral-800 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-200">Cinephile_99</span>
-                <div className="flex items-center gap-0.5 text-red-500 text-[10px] font-black uppercase">
-                  <span>★</span>
-                  <span>9.0</span>
-                </div>
+            {reviewsLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
               </div>
-              <p className="text-xs text-neutral-400 leading-relaxed font-light">
-                "Absolute masterpiece of cinematic storytelling. The visuals and sound design deserve all possible awards. Villeneuve never misses."
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 space-y-3 shadow-md hover:border-neutral-800 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-200">ScreenWatcher</span>
-                <div className="flex items-center gap-0.5 text-red-500 text-[10px] font-black uppercase">
-                  <span>★</span>
-                  <span>8.0</span>
-                </div>
+            ) : reviews.length === 0 ? (
+              <div className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 text-center text-xs text-neutral-500 italic">
+                No reviews found for this title.
               </div>
-              <p className="text-xs text-neutral-400 leading-relaxed font-light">
-                "Incredible pacing, solid cast, and gorgeous cinematography. Definitely worth a watch on the biggest screen possible."
-              </p>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                {reviews.map((rev) => (
+                  <div key={rev.id} className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 space-y-2.5 shadow-md hover:border-neutral-800 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-neutral-200">{rev.author}</span>
+                      {rev.rating && (
+                        <div className="flex items-center gap-0.5 text-red-500 text-[10px] font-black uppercase">
+                          <span>★</span>
+                          <span>{rev.rating.toFixed(1)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-400 leading-relaxed font-light line-clamp-4">
+                      "{rev.content.replace(/<\/?[^>]+(>|$)/g, "")}"
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

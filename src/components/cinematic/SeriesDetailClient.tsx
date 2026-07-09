@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Play, Plus, Check, Star, Calendar, ArrowLeft, Tv, Clock,
+  Play, Plus, Check, Star, Calendar, ArrowLeft, Tv, Clock, MessageSquare, Loader2, Sparkles, AlertCircle
 } from "lucide-react";
 import Navbar from "./Navbar";
 import MediaCard from "./MediaCard";
@@ -21,6 +21,10 @@ interface SeriesDetailClientProps {
 export default function SeriesDetailClient({ series, seasons, recommendations }: SeriesDetailClientProps) {
   const [inWatchlist, setInWatchlist] = useState(false);
   const [showSearch,  setShowSearch]  = useState(false);
+  const [watchProviders, setWatchProviders] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [nextEpisodeData, setNextEpisodeData] = useState<any | null>(null);
 
   useEffect(() => {
     const wl = JSON.parse(localStorage.getItem("muviont_watchlist") || "[]");
@@ -30,6 +34,60 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
     const updated = [series, ...viewed.filter((i: any) => i.id !== series.id)].slice(0, 10);
     localStorage.setItem("muviont_viewed", JSON.stringify(updated));
   }, [series]);
+
+  useEffect(() => {
+    // Fetch Watch Providers
+    fetch(`/api/watch-providers?id=${series.id}`)
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: any) => {
+        const providers = data.providers || {};
+        const combined = [
+          ...(providers.US || []),
+          ...(providers.GB || []),
+          ...(providers.CA || []),
+          ...(providers.AU || []),
+        ];
+        const unique: any[] = [];
+        const seen = new Set();
+        for (const p of combined) {
+          if (!seen.has(p.provider_id)) {
+            seen.add(p.provider_id);
+            unique.push(p);
+          }
+        }
+        setWatchProviders(unique.slice(0, 6)); // show top 6 streaming providers
+      })
+      .catch(() => {});
+
+    // Fetch TMDB Reviews
+    setReviewsLoading(true);
+    fetch(`/api/reviews?id=${series.id}`)
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: any) => {
+        setReviews(data.reviews || []);
+        setReviewsLoading(false);
+      })
+      .catch(() => {
+        setReviewsLoading(false);
+      });
+
+    // Fetch TVMaze Next Episode
+    fetch(`https://api.tvmaze.com/singlesearch/shows?q=${encodeURIComponent(series.title)}&embed=nextepisode`)
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((data: any) => {
+        const nextEp = data._embedded?.nextepisode;
+        if (nextEp) {
+          setNextEpisodeData({
+            name: nextEp.name,
+            season: nextEp.season,
+            number: nextEp.number,
+            airdate: nextEp.airdate,
+            airtime: nextEp.airtime
+          });
+        }
+      })
+      .catch(() => {});
+  }, [series.id, series.title]);
 
   const toggleWatchlist = () => {
     const wl = JSON.parse(localStorage.getItem("muviont_watchlist") || "[]");
@@ -146,6 +204,27 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
               {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
             </button>
           </div>
+
+          {/* TVMaze Next Episode Airing Banner */}
+          {nextEpisodeData && (
+            <div className="flex items-center gap-3 p-4 rounded-2xl border border-red-500/20 bg-red-950/10 shadow-lg select-none">
+              <div className="p-2.5 rounded-xl bg-red-650/10 border border-red-900/30 text-red-500 shrink-0">
+                <Clock className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="text-[10px] font-black text-red-500 uppercase tracking-widest leading-none">
+                  Airing Live via TVMaze
+                </div>
+                <div className="text-sm font-bold text-white mt-1">
+                  Next Episode: Season {nextEpisodeData.season} Episode {nextEpisodeData.number}
+                  {nextEpisodeData.name && ` - "${nextEpisodeData.name}"`}
+                </div>
+                <div className="text-xs text-neutral-400 font-semibold mt-0.5">
+                  Scheduled for: {new Date(nextEpisodeData.airdate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {nextEpisodeData.airtime}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Overview */}
           {series.overview && (
@@ -326,6 +405,67 @@ export default function SeriesDetailClient({ series, seasons, recommendations }:
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Watch Providers Card (Streaming info from JustWatch / TMDB) */}
+          {watchProviders.length > 0 && (
+            <div className="p-6 rounded-2xl border border-white/5 bg-neutral-950/40 backdrop-blur-md space-y-4 shadow-xl">
+              <h3 className="text-xs font-black uppercase tracking-widest text-red-500 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Where to Stream
+              </h3>
+              <div className="grid grid-cols-3 gap-3">
+                {watchProviders.map((provider) => (
+                  <div key={provider.provider_id} className="flex flex-col items-center gap-1 text-center bg-black/35 p-2 rounded-xl border border-neutral-900 hover:border-neutral-800 transition-colors">
+                    <img
+                      src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
+                      alt={provider.provider_name}
+                      className="w-8 h-8 rounded-lg object-contain shadow-md"
+                    />
+                    <span className="text-[8px] font-black text-neutral-400 truncate max-w-[65px] uppercase mt-1 leading-none">
+                      {provider.provider_name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reviews Row Panel */}
+          <div className="space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-red-500" />
+              Community Reviews
+            </h3>
+
+            {reviewsLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 text-red-500 animate-spin" />
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 text-center text-xs text-neutral-500 italic">
+                No reviews found for this title.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {reviews.map((rev) => (
+                  <div key={rev.id} className="p-4 rounded-2xl border border-neutral-900 bg-neutral-950/40 space-y-2.5 shadow-md hover:border-neutral-800 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-neutral-200">{rev.author}</span>
+                      {rev.rating && (
+                        <div className="flex items-center gap-0.5 text-red-500 text-[10px] font-black uppercase">
+                          <span>★</span>
+                          <span>{rev.rating.toFixed(1)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-400 leading-relaxed font-light line-clamp-4">
+                      "{rev.content.replace(/<\/?[^>]+(>|$)/g, "")}"
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
           </div>
