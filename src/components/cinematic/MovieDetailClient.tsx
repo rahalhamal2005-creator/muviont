@@ -215,7 +215,7 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
             </Link>
 
             <a
-              href={`https://vidlink.pro/download/movie/${movie.id.substring(2)}`}
+              href={`/api/download?id=${movie.id}&type=movie`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"

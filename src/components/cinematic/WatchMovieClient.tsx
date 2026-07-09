@@ -103,7 +103,7 @@ export default function WatchMovieClient({ movie, recommendations }: WatchMovieC
             Back to Details
           </Link>
           <a
-            href={`https://vidlink.pro/download/movie/${rawId}`}
+            href={`/api/download?id=${movie.id}&type=movie`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--red-dim)] hover:bg-[var(--red)]/20 border border-[var(--red)]/30 text-xs font-bold uppercase tracking-wider text-[var(--red)] hover:text-white transition-all duration-300 shadow-[0_0_15px_var(--red-glow)]"

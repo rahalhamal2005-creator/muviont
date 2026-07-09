@@ -111,7 +111,7 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
             Back to Details
           </Link>
           <a
-            href={`https://vidlink.pro/download/tv/${rawId}/1/${episode}`}
+            href={`/api/download?id=${anime.id}&type=anime&episode=${episode}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--red-dim)] hover:bg-[var(--red)]/20 border border-[var(--red)]/30 text-xs font-bold uppercase tracking-wider text-[var(--red)] hover:text-white transition-all duration-300 shadow-[0_0_15px_var(--red-glow)]"
