@@ -147,34 +147,32 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
           : "relative z-10 max-w-md w-full bg-[#0c0c18]/90 border border-white/[0.06] rounded-2xl p-5 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4"
         }
       >
-        {/* Header: Transparent MUVIONT Logo - Only for stream mode */}
-        {!isDownload && (
-          <div className="flex items-center gap-2 select-none justify-center w-full">
-            <svg className="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="lockerCrimson" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FF2E3B" />
-                  <stop offset="40%" stop-color="#E50914" />
-                  <stop offset="100%" stop-color="#7A000A" />
-                </linearGradient>
-                <filter id="lockerGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3.5" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-              <path
-                d="M 12,85 L 12,15 L 34,15 L 50,34 L 66,15 L 88,15 L 88,85 L 70,85 L 70,38 L 50,58 L 30,38 L 30,85 Z M 38,34 L 64,50 L 38,66 Z"
-                fill="url(#lockerCrimson)"
-                fill-rule="evenodd"
-                filter="url(#lockerGlow)"
-              />
-            </svg>
-            <span className="text-lg font-black tracking-[0.25em] text-white">MUVIONT</span>
-          </div>
-        )}
+        {/* Header: Transparent MUVIONT Logo */}
+        <div className="flex items-center gap-2 select-none justify-center w-full">
+          <svg className={isDownload ? "w-5 h-5" : "w-8 h-8"} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lockerCrimson" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF2E3B" />
+                <stop offset="40%" stop-color="#E50914" />
+                <stop offset="100%" stop-color="#7A000A" />
+              </linearGradient>
+              <filter id="lockerGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path
+              d="M 12,85 L 12,15 L 34,15 L 50,34 L 66,15 L 88,15 L 88,85 L 70,85 L 70,38 L 50,58 L 30,38 L 30,85 Z M 38,34 L 64,50 L 38,66 Z"
+              fill="url(#lockerCrimson)"
+              fill-rule="evenodd"
+              filter="url(#lockerGlow)"
+            />
+          </svg>
+          <span className={isDownload ? "text-xs font-black tracking-[0.25em] text-white" : "text-lg font-black tracking-[0.25em] text-white"}>MUVIONT</span>
+        </div>
 
         {/* Locked Title & Movie Name Centered */}
         <div className="space-y-1 w-full text-center flex flex-col items-center justify-center">
