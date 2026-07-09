@@ -197,7 +197,9 @@ export default function StreamingPlayer({
       {/* Player Container */}
       <div
         ref={wrapperRef}
-        className="player-container rounded-xl overflow-hidden border border-[var(--border)] shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
+        className={`player-container rounded-xl overflow-hidden border border-[var(--border)] shadow-[0_8px_40px_rgba(0,0,0,0.6)] ${
+          !unlocked ? "min-h-[460px] sm:min-h-0" : ""
+        }`}
         style={{ position: "relative" }}
       >
         {/* Loading overlay */}

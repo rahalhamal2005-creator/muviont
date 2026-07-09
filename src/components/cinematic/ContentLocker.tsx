@@ -102,7 +102,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
 
   return (
     <div 
-      className="fixed inset-0 z-[9999] bg-[#040405] flex flex-col items-center justify-center p-4 overflow-y-auto sm:relative sm:inset-auto sm:z-auto sm:aspect-video sm:min-h-[360px] sm:p-8 md:p-12 sm:overflow-hidden sm:bg-neutral-950 sm:border sm:border-white/[0.06] sm:rounded-2xl"
+      className="w-full relative rounded-2xl flex flex-col items-center justify-center p-3 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950 min-h-[460px] sm:min-h-0 sm:aspect-video"
     >
       {/* Blurred Backdrop Image - Adjusted opacity and overlay to be highly visible */}
       {backdropUrl && (
@@ -135,7 +135,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
       `}</style>
 
       {/* Content Container (Glassmorphic panel matching site style) */}
-      <div className="relative z-10 max-w-md w-full bg-[#0c0c18]/90 border border-white/[0.06] rounded-2xl p-5 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4">
+      <div className="relative z-10 max-w-md w-full bg-[#0c0c18]/90 border border-white/[0.06] rounded-2xl p-4 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-3 sm:gap-4">
         
         {/* Header: Transparent MUVIONT Logo */}
         <div className="flex items-center gap-2 select-none">
@@ -177,13 +177,13 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
         </div>
 
         {/* 3-Step Visual Conversion Timeline (Marketing Hook) */}
-        <div className="w-full grid grid-cols-3 gap-1.5 border-y border-white/[0.04] py-3 text-center select-none">
+        <div className="w-full grid grid-cols-3 gap-1.5 border-y border-white/[0.04] py-2.5 sm:py-3 text-center select-none">
           <div className="space-y-1">
             <div className="w-5 h-5 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[9px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
               1
             </div>
             <div className="text-[9px] font-black text-white uppercase tracking-wider">Choose Offer</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Click an option below</p>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Click below</p>
           </div>
           
           <div className="space-y-1 border-x border-white/[0.04]">
@@ -191,7 +191,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
               2
             </div>
             <div className="text-[9px] font-black text-white uppercase tracking-wider">Verify Free</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Complete f 60s</p>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Fill f 60s</p>
           </div>
 
           <div className="space-y-1">
@@ -199,7 +199,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl }: ContentL
               3
             </div>
             <div className="text-[9px] font-black text-white uppercase tracking-wider">Play Movie</div>
-            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Unlocks f 4K</p>
+            <p className="text-[8px] text-neutral-500 font-semibold leading-tight">Instant 4K</p>
           </div>
         </div>
 
