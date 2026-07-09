@@ -109,6 +109,7 @@ export default function WatchMovieClient({ movie, recommendations }: WatchMovieC
           <StreamingPlayer
             embedUrl={embedUrl}
             title={movie.title}
+            backdropUrl={movie.backdropPath || undefined}
             sourceIndex={sourceIndex}
             onSourceChange={setSourceIndex}
           />

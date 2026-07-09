@@ -11,13 +11,14 @@ import ContentLocker from "./ContentLocker";
 interface StreamingPlayerProps {
   embedUrl: string;
   title: string;
+  backdropUrl?: string;
   sourceIndex?: number;
   onSourceChange?: (index: number) => void;
   className?: string;
 }
 
 export default function StreamingPlayer({
-  embedUrl, title, sourceIndex = 0, onSourceChange, className = "",
+  embedUrl, title, backdropUrl, sourceIndex = 0, onSourceChange, className = "",
 }: StreamingPlayerProps) {
   const [activeSource, setActiveSource]   = useState(sourceIndex);
   const [showSources, setShowSources]     = useState(false);
@@ -241,7 +242,7 @@ export default function StreamingPlayer({
 
         {/* Iframe, Native HLS Player, or Content Locker */}
         {!unlocked ? (
-          <ContentLocker onUnlock={handleUnlock} title={title} />
+          <ContentLocker onUnlock={handleUnlock} title={title} backdropUrl={backdropUrl} />
         ) : activeSourceKey === "direct-stream" ? (
           directStreamUrl ? (
             <HLSPlayer

@@ -117,6 +117,7 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
           <StreamingPlayer
             embedUrl={embedUrl}
             title={`${anime.title} Episode ${episode}`}
+            backdropUrl={anime.backdropPath || undefined}
             sourceIndex={sourceIndex}
             onSourceChange={setSourceIndex}
           />

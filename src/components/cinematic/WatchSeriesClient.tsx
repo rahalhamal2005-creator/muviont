@@ -127,6 +127,7 @@ export default function WatchSeriesClient({
           <StreamingPlayer
             embedUrl={embedUrl}
             title={`${series.title} S${season}E${episode}`}
+            backdropUrl={series.backdropPath || undefined}
             sourceIndex={sourceIndex}
             onSourceChange={setSourceIndex}
           />
