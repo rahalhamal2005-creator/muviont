@@ -106,7 +106,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
   return (
     <div 
       className={isDownload 
-        ? "w-full flex flex-col items-center justify-center text-center space-y-4" 
+        ? "w-full flex flex-col items-center justify-center text-center space-y-3" 
         : "w-full relative rounded-2xl flex flex-col items-center justify-center p-4 sm:p-8 md:p-12 text-center overflow-hidden border border-white/[0.06] bg-neutral-950 min-h-[460px]"
       }
     >
@@ -143,7 +143,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
       {/* Content Container (Glassmorphic panel for stream, simple div for download) */}
       <div 
         className={isDownload 
-          ? "relative z-10 w-full flex flex-col items-center gap-3.5" 
+          ? "relative z-10 w-full flex flex-col items-center gap-3" 
           : "relative z-10 max-w-md w-full bg-[#0c0c18]/90 border border-white/[0.06] rounded-2xl p-5 sm:p-7 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-between gap-4"
         }
       >
@@ -188,42 +188,40 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
           )}
         </div>
 
-        {/* 3-Step Visual Conversion Timeline (Marketing Hook) */}
-        <div className="w-full grid grid-cols-3 gap-1.5 border-y border-white/[0.04] py-2 text-center select-none">
-          <div className="space-y-1">
-            <div className="w-4 h-4 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
-              1
+        {/* 3-Step Visual Conversion Timeline (Marketing Hook) - Hide in download mode */}
+        {!isDownload && (
+          <div className="w-full grid grid-cols-3 gap-1.5 border-y border-white/[0.04] py-2 text-center select-none">
+            <div className="space-y-1">
+              <div className="w-4 h-4 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+                1
+              </div>
+              <div className="text-[8px] font-black text-white uppercase tracking-wider">Choose Offer</div>
+              <p className="text-[7px] text-neutral-500 font-semibold leading-tight">Click below</p>
             </div>
-            <div className="text-[8px] font-black text-white uppercase tracking-wider">Choose Offer</div>
-            <p className="text-[7px] text-neutral-500 font-semibold leading-tight">Click below</p>
-          </div>
-          
-          <div className="space-y-1 border-x border-white/[0.04]">
-            <div className="w-4 h-4 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
-              2
+            
+            <div className="space-y-1 border-x border-white/[0.04]">
+              <div className="w-4 h-4 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+                2
+              </div>
+              <div className="text-[8px] font-black text-white uppercase tracking-wider">Verify Free</div>
+              <p className="text-[7px] text-neutral-500 font-semibold leading-tight">Fill f 60s</p>
             </div>
-            <div className="text-[8px] font-black text-white uppercase tracking-wider">Verify Free</div>
-            <p className="text-[7px] text-neutral-500 font-semibold leading-tight">Fill f 60s</p>
-          </div>
 
-          <div className="space-y-1">
-            <div className="w-4 h-4 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
-              3
+            <div className="space-y-1">
+              <div className="w-4 h-4 rounded-full bg-[var(--red)]/15 border border-[var(--red)]/35 text-[8px] font-black text-[var(--red)] flex items-center justify-center mx-auto shadow-[0_0_6px_rgba(229,56,59,0.15)]">
+                3
+              </div>
+              <div className="text-[8px] font-black text-white uppercase tracking-wider">Play Movie</div>
+              <p className="text-[7px] text-neutral-500 font-semibold leading-tight">Instant 4K</p>
             </div>
-            <div className="text-[8px] font-black text-white uppercase tracking-wider">
-              {isDownload ? "Save File" : "Play Movie"}
-            </div>
-            <p className="text-[7px] text-neutral-500 font-semibold leading-tight">
-              {isDownload ? "Save Offline" : "Instant 4K"}
-            </p>
           </div>
-        </div>
+        )}
 
         {/* Custom description with bold highlighted marketing hooks */}
         <p className="text-[10px] sm:text-xs text-neutral-300 font-bold leading-relaxed text-center px-1 tracking-wide font-sans w-full">
           {isDownload ? (
             <>
-              Due to extreme server traffic, download links are locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the download. Once verified, your movie will download <span className="text-emerald-450 font-black">instantly f Ultra-HD quality</span>.
+              Complete 1 quick free offer below to <span className="text-[var(--red)] font-black">permanently unlock</span> your high-speed download link.
             </>
           ) : (
             <>
@@ -283,17 +281,19 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
         )}
 
         {/* Centered Sonar Radar Verification Pulse Status */}
-        <div className="w-full flex flex-col items-center justify-center gap-2 border-t border-white/[0.04] pt-3.5">
-          <div className="flex items-center gap-2.5 justify-center">
-            {/* Dynamic Concentric Sonar Waves */}
-            <div className="relative flex items-center justify-center w-4 h-4">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/30 sonar-wave" style={{ animationDelay: '0s' }} />
-              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/20 sonar-wave" style={{ animationDelay: '0.6s' }} />
-              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/10 sonar-wave" style={{ animationDelay: '1.2s' }} />
-              
-              {/* Solid Core Dot */}
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--red)] shadow-[0_0_6px_var(--red)]" />
-            </div>
+        <div className="w-full flex flex-col items-center justify-center gap-2 border-t border-white/[0.04] pt-3">
+          <div className="flex items-center gap-2 justify-center">
+            {/* Dynamic Concentric Sonar Waves - Only for stream mode */}
+            {!isDownload ? (
+              <div className="relative flex items-center justify-center w-4 h-4">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/30 sonar-wave" style={{ animationDelay: '0s' }} />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/20 sonar-wave" style={{ animationDelay: '0.6s' }} />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--red)]/10 sonar-wave" style={{ animationDelay: '1.2s' }} />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--red)] shadow-[0_0_6px_var(--red)]" />
+              </div>
+            ) : (
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0" />
+            )}
             
             {/* Centered Status Label */}
             <span className="text-[8px] sm:text-[9px] font-black text-neutral-450 uppercase tracking-widest leading-none">
