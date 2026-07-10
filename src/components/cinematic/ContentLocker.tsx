@@ -232,7 +232,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
         {loading ? (
           <div className="flex flex-col items-center justify-center py-4 gap-2">
             <Loader2 className="w-4 h-4 text-[var(--red)] animate-spin" />
-            <span className="text-[8px] text-neutral-500 uppercase tracking-widest font-extrabold">Loading Offers...</span>
+            <span className="text-[8px] text-neutral-500 uppercase tracking-widest font-extrabold">Loading Offers…</span>
           </div>
         ) : offers.length === 0 ? (
           <div className="w-full p-3 border border-white/[0.04] rounded-xl bg-white/[0.01]">
@@ -296,7 +296,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
             {/* Centered Status Label */}
             <span className="text-[8px] sm:text-[9px] font-black text-neutral-450 uppercase tracking-widest leading-none">
               {verifying 
-                ? "Verifying completion... keep window open" 
+                ? "Verifying completion… keep window open" 
                 : "System: Listening for offer completion"}
             </span>
 

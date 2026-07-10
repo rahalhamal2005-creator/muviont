@@ -96,7 +96,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
               aria-label="Search"
             >
               <Search className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Search...</span>
+              <span className="hidden sm:inline text-xs">Search…</span>
             </button>
 
             {/* Auth */}

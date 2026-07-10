@@ -74,7 +74,7 @@ export default function TrailerModal({ videoId, isOpen, onClose }: TrailerModalP
             <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-950 text-neutral-400 p-6">
               <RefreshCw className="w-12 h-12 text-red-500 animate-spin mb-4" />
               <p className="text-sm font-bold uppercase tracking-wider text-neutral-300">Searching Official Trailer</p>
-              <p className="text-xs text-neutral-500 mt-2 text-center">Invoking YouTube scraper indexes...</p>
+              <p className="text-xs text-neutral-500 mt-2 text-center">Invoking YouTube scraper indexes…</p>
             </div>
           ) : !embedId ? (
             <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-950 text-neutral-400 p-6">

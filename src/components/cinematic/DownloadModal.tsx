@@ -227,7 +227,7 @@ export default function DownloadModal({
                 {isLoadingUrl ? (
                   <div className="flex items-center justify-center gap-2 p-4 rounded-xl border border-neutral-900 bg-neutral-900/10 text-xs text-neutral-400">
                     <Loader2 className="w-4 h-4 animate-spin text-[var(--red)]" />
-                    <span>Resolving direct stream URL...</span>
+                    <span>Resolving direct stream URL…</span>
                   </div>
                 ) : resolvedUrl ? (
                   <div className="bg-neutral-900/30 border border-neutral-900 p-4 rounded-xl space-y-3 shadow-inner">

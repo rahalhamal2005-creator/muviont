@@ -157,12 +157,13 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask MUVIONT AI or type a title (e.g. 'anime like Solo Leveling' or 'One Piece')..."
+              placeholder="Ask MUVIONT AI or type a title (e.g. 'anime like Solo Leveling' or 'One Piece')…"
               className="w-full bg-transparent border-0 outline-none text-white text-base sm:text-lg px-4 py-3 placeholder-neutral-500"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
+                aria-label="Clear search query"
                 className="p-1.5 rounded-full bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-850 transition-colors mr-2 cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -257,7 +258,7 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
           {loading && (
             <div className="flex flex-col items-center justify-center mt-20 gap-3">
               <RefreshCw className="w-8 h-8 text-[var(--red)] animate-spin" />
-              <p className="text-sm text-neutral-400">Searching catalogs...</p>
+              <p className="text-sm text-neutral-400">Searching catalogs…</p>
             </div>
           )}
 

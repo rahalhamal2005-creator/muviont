@@ -243,7 +243,7 @@ export default function StreamingPlayer({
         {loading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[var(--bg2)] gap-3">
             <div className="w-10 h-10 rounded-full border-2 border-[var(--red)] border-t-transparent animate-spin" />
-            <p className="text-sm text-[var(--text-muted)]">Loading stream...</p>
+            <p className="text-sm text-[var(--text-muted)]">Loading stream…</p>
           </div>
         )}
 
@@ -254,7 +254,7 @@ export default function StreamingPlayer({
             <div className="text-center">
               <p className="text-white font-bold mb-1">Stream failed to load</p>
               <p className="text-xs text-[var(--red)] font-semibold uppercase tracking-wider animate-pulse mb-1">
-                Auto-switching to next working source...
+                Auto-switching to next working source…
               </p>
               <p className="text-sm text-[var(--text-muted)]">Try switching to a different source below manually if it persists</p>
             </div>
@@ -321,7 +321,7 @@ export default function StreamingPlayer({
           ) : (
             <div className="w-full bg-neutral-950 flex flex-col items-center justify-center gap-3" style={{ aspectRatio: "16/9" }}>
               <div className="w-8 h-8 border-2 border-[var(--red)] border-t-transparent rounded-full animate-spin" />
-              <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-widest">Resolving Direct HLS Stream...</p>
+              <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-widest">Resolving Direct HLS Stream…</p>
             </div>
           )
         ) : (
