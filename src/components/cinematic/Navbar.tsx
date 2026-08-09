@@ -62,26 +62,44 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-[var(--navbar-h)] flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 flex items-center h-9" aria-label="MUVIONT Home">
-            <img
-              src="/logo.svg"
-              alt="MUVIONT"
-              height="36"
-              width="130"
-              className="h-9 w-auto max-w-[130px] object-contain"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                target.style.display = "none";
-                const fallback = target.nextElementSibling as HTMLElement | null;
-                if (fallback) fallback.style.display = "flex";
-              }}
-            />
-            <span
-              className="hidden items-center gap-1.5 font-black text-lg tracking-widest text-white"
-              style={{ display: "none" }}
-            >
-              <span className="text-[var(--red)]">M</span>UVIONT
-            </span>
+          <Link href="/" className="flex-shrink-0 flex items-center h-9 text-white" aria-label="MUVIONT Home">
+            <svg viewBox="0 0 220 50" className="h-9 w-auto object-contain" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="logoCrimsonD" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FF2E3B" />
+                  <stop offset="40%" stopColor="#E50914" />
+                  <stop offset="100%" stopColor="#7A000A" />
+                </linearGradient>
+                <linearGradient id="textSilverD" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="100%" stopColor="#D9D9D9" />
+                </linearGradient>
+                <filter id="logoGlowD" x="-10%" y="-10%" width="120%" height="120%">
+                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <g transform="translate(6, 6) scale(0.42)" filter="url(#logoGlowD)">
+                <path
+                  d="M 12,85 L 12,15 L 34,15 L 50,34 L 66,15 L 88,15 L 88,85 L 70,85 L 70,38 L 50,58 L 30,38 L 30,85 Z M 38,34 L 64,50 L 38,66 Z"
+                  fill="url(#logoCrimsonD)"
+                  fillRule="evenodd"
+                />
+              </g>
+              <text
+                x="54"
+                y="32"
+                fill="url(#textSilverD)"
+                fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Outfit', 'Inter', sans-serif"
+                fontSize="20"
+                fontWeight="900"
+                letterSpacing="5"
+              >MUVIONT</text>
+              <circle cx="196" cy="29" r="2.5" fill="#E50914" filter="url(#logoGlowD)" />
+            </svg>
           </Link>
 
           {/* Desktop Nav */}
@@ -183,28 +201,45 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
 
       {/* Mobile Top Header (Fixed with Logo, Search, and profile button) */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-black/92 backdrop-blur-2xl border-b border-white/8 h-[var(--navbar-h)] flex items-center justify-between px-4 md:hidden">
-        {/* Logo — explicit width/height prevents layout collapse */}
-        <Link href="/" className="flex-shrink-0 flex items-center h-8" aria-label="MUVIONT Home">
-          <img
-            src="/logo.svg"
-            alt="MUVIONT"
-            height="32"
-            width="120"
-            className="h-8 w-auto max-w-[120px] object-contain"
-            onError={(e) => {
-              const target = e.currentTarget as HTMLImageElement;
-              target.style.display = "none";
-              const fallback = target.nextElementSibling as HTMLElement | null;
-              if (fallback) fallback.style.display = "flex";
-            }}
-          />
-          {/* SVG text fallback shown only if logo.svg fails to load */}
-          <span
-            className="hidden items-center gap-1.5 font-black text-base tracking-widest text-white"
-            style={{ display: "none" }}
-          >
-            <span className="text-[var(--red)]">M</span>UVIONT
-          </span>
+        {/* Logo — explicit inline SVG avoids external gradient reference bugs */}
+        <Link href="/" className="flex-shrink-0 flex items-center h-8 text-white" aria-label="MUVIONT Home">
+          <svg viewBox="0 0 220 50" className="h-8 w-auto object-contain animate-fade-in" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoCrimsonM" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FF2E3B" />
+                <stop offset="40%" stopColor="#E50914" />
+                <stop offset="100%" stopColor="#7A000A" />
+              </linearGradient>
+              <linearGradient id="textSilverM" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#FFFFFF" />
+                <stop offset="100%" stopColor="#D9D9D9" />
+              </linearGradient>
+              <filter id="logoGlowM" x="-10%" y="-10%" width="120%" height="120%">
+                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <g transform="translate(6, 6) scale(0.42)" filter="url(#logoGlowM)">
+              <path
+                d="M 12,85 L 12,15 L 34,15 L 50,34 L 66,15 L 88,15 L 88,85 L 70,85 L 70,38 L 50,58 L 30,38 L 30,85 Z M 38,34 L 64,50 L 38,66 Z"
+                fill="url(#logoCrimsonM)"
+                fillRule="evenodd"
+              />
+            </g>
+            <text
+              x="54"
+              y="32"
+              fill="url(#textSilverM)"
+              fontFamily="system-ui, -apple-system, BlinkMacSystemFont, 'Outfit', 'Inter', sans-serif"
+              fontSize="20"
+              fontWeight="900"
+              letterSpacing="5"
+            >MUVIONT</text>
+            <circle cx="196" cy="29" r="2.5" fill="#E50914" filter="url(#logoGlowM)" />
+          </svg>
         </Link>
 
         {/* Action icons */}
