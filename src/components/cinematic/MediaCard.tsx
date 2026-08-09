@@ -55,7 +55,7 @@ export default function MediaCard({
       {/* Top Overlay Badges */}
       <div className="absolute top-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between pointer-events-none">
         {/* Rating Badge */}
-        <div className="flex items-center gap-1 bg-black/75 border border-white/15 px-2 py-0.5 rounded-md backdrop-blur-md shadow-md">
+        <div className={`flex items-center gap-1 bg-black/75 border border-white/15 px-2 py-0.5 rounded-md backdrop-blur-md shadow-md ${rank && rank <= 10 ? 'ml-[34px]' : ''}`}>
           <Star className="w-3 h-3 text-[var(--red)] fill-current" />
           <span className="text-[10px] font-extrabold text-white">{rating.toFixed(1)}</span>
         </div>
@@ -80,7 +80,7 @@ export default function MediaCard({
         fill
         sizes="(max-width: 640px) 42vw, (max-width: 1024px) 22vw, 13vw"
         className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-        unoptimized={posterPath?.includes("unsplash") || posterPath?.includes("tmdb")}
+        unoptimized
       />
 
       {/* Dark gradient overlay */}
