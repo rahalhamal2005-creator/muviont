@@ -239,11 +239,30 @@ export default function StreamingPlayer({
         }`}
         style={{ position: "relative" }}
       >
-        {/* Loading overlay */}
+        {/* Loading overlay with blurred backdrop poster skeleton */}
         {loading && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[var(--bg2)] gap-3">
-            <div className="w-10 h-10 rounded-full border-2 border-[var(--red)] border-t-transparent animate-spin" />
-            <p className="text-sm text-[var(--text-muted)]">Loading stream…</p>
+          <div className="absolute inset-0 z-20 flex items-center justify-center overflow-hidden bg-neutral-950">
+            {backdropUrl && (
+              <div className="absolute inset-0 pointer-events-none select-none">
+                <img
+                  src={backdropUrl}
+                  alt=""
+                  className="w-full h-full object-cover filter blur-lg scale-110 opacity-35 animate-pulse"
+                  style={{ animationDuration: "4s" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-black/60 to-[#0f0f0f]/80" />
+              </div>
+            )}
+            <div className="relative z-10 flex flex-col items-center gap-3.5 bg-black/65 border border-white/15 p-6 sm:p-8 rounded-2xl backdrop-blur-xl shadow-2xl max-w-sm text-center">
+              <div className="relative flex items-center justify-center w-12 h-12">
+                <div className="absolute inset-0 rounded-full border-2 border-[var(--red)] border-t-transparent animate-spin" />
+                <Play className="w-5 h-5 text-[var(--red)] fill-current animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-xs font-black text-white uppercase tracking-wider line-clamp-1">{title}</h4>
+                <p className="text-[11px] text-neutral-400 font-medium">Resolving high-speed stream server…</p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -319,9 +338,25 @@ export default function StreamingPlayer({
               </div>
             </div>
           ) : (
-            <div className="w-full bg-neutral-950 flex flex-col items-center justify-center gap-3" style={{ aspectRatio: "16/9" }}>
-              <div className="w-8 h-8 border-2 border-[var(--red)] border-t-transparent rounded-full animate-spin" />
-              <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-widest">Resolving Direct HLS Stream…</p>
+            <div className="relative w-full bg-neutral-950 flex items-center justify-center overflow-hidden" style={{ aspectRatio: "16/9" }}>
+              {backdropUrl && (
+                <div className="absolute inset-0 pointer-events-none select-none">
+                  <img
+                    src={backdropUrl}
+                    alt=""
+                    className="w-full h-full object-cover filter blur-lg scale-110 opacity-35 animate-pulse"
+                    style={{ animationDuration: "4s" }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-black/60 to-[#0f0f0f]/80" />
+                </div>
+              )}
+              <div className="relative z-10 flex flex-col items-center gap-3 bg-black/65 border border-white/15 p-6 rounded-2xl backdrop-blur-xl shadow-2xl max-w-xs text-center">
+                <div className="relative flex items-center justify-center w-10 h-10">
+                  <div className="absolute inset-0 rounded-full border-2 border-[var(--red)] border-t-transparent animate-spin" />
+                  <Play className="w-4 h-4 text-[var(--red)] fill-current" />
+                </div>
+                <p className="text-[11px] text-white font-bold uppercase tracking-wider">Resolving Direct HLS Stream…</p>
+              </div>
             </div>
           )
         ) : (

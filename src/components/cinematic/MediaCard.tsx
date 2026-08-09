@@ -52,6 +52,27 @@ export default function MediaCard({
       className="relative block rounded-xl overflow-hidden bg-[var(--card)] border border-[var(--border)] select-none group cursor-pointer flex-shrink-0 card-glow-hover transition-all duration-300"
       style={{ aspectRatio: "2/3" }}
     >
+      {/* Top Overlay Badges */}
+      <div className="absolute top-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between pointer-events-none">
+        {/* Rating Badge */}
+        <div className="flex items-center gap-1 bg-black/75 border border-white/15 px-2 py-0.5 rounded-md backdrop-blur-md shadow-md">
+          <Star className="w-3 h-3 text-[var(--red)] fill-current" />
+          <span className="text-[10px] font-extrabold text-white">{rating.toFixed(1)}</span>
+        </div>
+
+        {/* Type Badge */}
+        <span className="text-[9px] font-black uppercase tracking-wider text-neutral-200 bg-black/75 border border-white/15 px-1.5 py-0.5 rounded-md backdrop-blur-md">
+          {type}
+        </span>
+      </div>
+
+      {/* Rank badge overlay */}
+      {rank && rank <= 10 && (
+        <div className="absolute top-2.5 left-2.5 z-25 w-7 h-7 rounded-md bg-[var(--red)] flex items-center justify-center text-white text-[11px] font-black shadow-xl border border-white/20">
+          {rank}
+        </div>
+      )}
+
       {/* Poster */}
       <Image
         src={posterPath || `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop`}
@@ -62,72 +83,54 @@ export default function MediaCard({
         unoptimized={posterPath?.includes("unsplash") || posterPath?.includes("tmdb")}
       />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent z-10 transition-opacity duration-300" />
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-10 transition-opacity duration-300" />
 
       {/* Hover Action Overlay */}
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/50">
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/65 backdrop-blur-[2px]">
         <Link
           href={watchHref}
           onClick={e => e.stopPropagation()}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[var(--red)] hover:bg-[var(--red)]/90 text-white text-sm font-bold rounded-full shadow-[0_0_20px_var(--red-glow)] transition-all hover:scale-105"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-neutral-200 text-black text-xs font-black rounded-md transition-all duration-200 hover:scale-105 shadow-xl"
         >
-          <Play className="w-4 h-4 fill-current" />
+          <Play className="w-3.5 h-3.5 fill-black text-black" />
           {progressPct !== null ? "Resume" : "Watch Now"}
         </Link>
         <button
           onClick={handleWatchlist}
-          className="flex items-center gap-1.5 px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-full border border-white/20 backdrop-blur-sm transition-all"
+          className="flex items-center gap-1.5 px-4 py-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-md border border-white/20 backdrop-blur-md transition-all active:scale-95"
         >
-          {inList ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-          {inList ? "In List" : "+ List"}
+          {inList ? <Check className="w-3 h-3 text-red-400" /> : <Plus className="w-3 h-3" />}
+          {inList ? "In List" : "+ Watchlist"}
         </button>
       </div>
 
-      {/* Bottom Info */}
+      {/* Bottom Title & Meta Info */}
       <div className="absolute inset-x-0 bottom-0 p-3 z-10 pointer-events-none">
-        {/* Rating badge */}
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-1 bg-black/70 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
-            <Star className="w-2.5 h-2.5 text-[var(--red)] fill-current" />
-            <span className="text-[10px] font-bold text-white">{rating.toFixed(1)}</span>
-          </div>
-          <span className="text-[8px] font-extrabold uppercase tracking-widest text-[var(--text-dim)] bg-black/60 px-1.5 py-0.5 rounded">
-            {type}
-          </span>
-        </div>
-
-        {/* Title */}
-        <p className="text-xs font-bold text-white leading-tight line-clamp-2 group-hover:text-[var(--red)] transition-colors duration-200">
+        {/* Title with clean multi-line truncation */}
+        <p className="text-xs font-extrabold text-white leading-snug line-clamp-2 break-words group-hover:text-[var(--red)] transition-colors duration-200 drop-shadow-md">
           {title}
         </p>
 
         {/* Year */}
         {releaseDate && (
-          <p className="text-[9px] text-[var(--text-dim)] mt-0.5">
+          <p className="text-[10px] text-neutral-400 font-medium mt-1">
             {releaseDate.substring(0, 4)}
           </p>
         )}
 
         {/* Continue Watching progress bar */}
         {progressPct !== null && (
-          <div className="mt-2 h-1 bg-white/15 rounded-full overflow-hidden">
+          <div className="mt-2 h-1 bg-white/20 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[var(--red)] rounded-full"
+              className="h-full bg-[var(--red)] rounded-full transition-all duration-300"
               style={{ width: `${progressPct}%` }}
             />
           </div>
         )}
       </div>
 
-      {/* Rank badge */}
-      {rank && rank <= 10 && (
-        <div className="absolute top-2 left-2 z-20 w-7 h-7 rounded-full bg-[var(--red)] flex items-center justify-center text-white text-[10px] font-black shadow-lg">
-          {rank}
-        </div>
-      )}
-
-      {/* Type color strip */}
+      {/* Top Type Accent Strip */}
       <div className={`absolute top-0 left-0 right-0 h-0.5 z-20 ${
         type === "anime" ? "bg-purple-500" : type === "series" ? "bg-blue-500" : "bg-[var(--red)]"
       }`} />

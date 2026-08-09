@@ -30,8 +30,7 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
 
   return (
     <div
-      className="relative w-full overflow-hidden select-none"
-      style={{ height: "88vh", minHeight: 500 }}
+      className="relative w-full overflow-hidden select-none min-h-[85vh] sm:min-h-[75vh] md:min-h-[80vh]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -49,16 +48,20 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
             className="absolute inset-0 bg-cover bg-top bg-no-repeat"
             style={{ backgroundImage: `url(${current.backdropPath || current.posterPath})` }}
           />
-          {/* Cinematic gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)] via-[var(--bg)]/40 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[var(--bg)] to-transparent" />
+          {/* Cinematic dark gradient overlay */}
+          <div
+            className="absolute inset-0 z-10"
+            style={{
+              background: "linear-gradient(180deg, rgba(15,15,15,0.2) 0%, rgba(15,15,15,0.65) 50%, #0f0f0f 100%)"
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent z-10" />
         </motion.div>
       </AnimatePresence>
 
       {/* Hero Content */}
       <div className="absolute inset-0 z-20 flex flex-col justify-end">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 w-full pb-20 sm:pb-28">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 w-full pb-16 sm:pb-24">
           <div className="max-w-2xl">
 
             {/* Badges */}
@@ -69,14 +72,20 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
               transition={{ delay: 0.15 }}
               className="flex flex-wrap items-center gap-2 mb-3"
             >
-              <span className="px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-md border text-[var(--red)] bg-[var(--red-dim)] border-[var(--red)]/20">
+              <span className="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-md border text-[var(--red)] bg-[var(--red-dim)] border-[var(--red)]/20">
                 {current.type === "movie" ? "Movie" : "Series"}
               </span>
               {current.genres.slice(0, 3).map(g => (
-                <span key={g} className="px-2.5 py-1 text-[10px] font-semibold text-[var(--text-muted)] bg-white/6 border border-[var(--border)] rounded-md uppercase tracking-wider">
+                <span key={g} className="px-2.5 py-1 text-[11px] font-semibold text-neutral-300 bg-white/10 border border-white/15 rounded-md uppercase tracking-wider backdrop-blur-md">
                   {g}
                 </span>
               ))}
+              <span className="px-2 py-0.5 rounded-md border border-white/20 text-[11px] font-bold text-neutral-400 uppercase tracking-wider backdrop-blur-sm">
+                4K UHD
+              </span>
+              <span className="px-2 py-0.5 rounded-md border border-white/20 text-[11px] font-bold text-neutral-400 uppercase tracking-wider backdrop-blur-sm">
+                5.1 AUDIO
+              </span>
             </motion.div>
 
             {/* Title */}
@@ -116,34 +125,32 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="text-sm sm:text-base text-[var(--text-muted)] leading-relaxed mb-6 max-w-lg"
+              className="text-sm sm:text-base text-neutral-300 leading-relaxed mb-6 max-w-lg line-clamp-3"
             >
-              {current.overview.length > 180
-                ? `${current.overview.substring(0, 180)}…`
-                : current.overview}
+              {current.overview}
             </motion.p>
 
-            {/* CTA Buttons — Watch Now is PRIMARY */}
+            {/* Action Row — Enterprise Netflix Style */}
             <motion.div
               key={`${current.id}-ctas`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45 }}
-              className="flex flex-wrap items-center gap-3"
+              className="flex items-center gap-3"
             >
-              {/* Primary: Watch Now */}
+              {/* Primary: Watch Now (Solid White, Black Bold Text, 6px Radius) */}
               <Link
                 href={`/watch/${routeType}/${current.id}`}
-                className="flex items-center gap-2.5 px-7 py-3.5 bg-[var(--red)] hover:bg-[var(--red)]/90 text-white font-black rounded-full transition-all duration-200 hover:scale-105 shadow-[0_0_30px_var(--red-glow)] text-sm"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm shadow-xl"
               >
-                <Play className="w-4 h-4 fill-current" />
+                <Play className="w-4 h-4 fill-black text-black" />
                 Watch Now
               </Link>
 
-              {/* Secondary: More Info */}
+              {/* Secondary: More Info (Frosted Glass 6px Radius) */}
               <Link
                 href={`/${routeType}/${current.id}`}
-                className="flex items-center gap-2 px-6 py-3.5 bg-white/8 border border-[var(--border2)] text-white font-bold rounded-full hover:bg-white/14 transition-all duration-200 hover:scale-105 backdrop-blur-md text-sm"
+                className="flex items-center justify-center gap-2 px-5 py-3 bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold rounded-md backdrop-blur-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm"
               >
                 <Info className="w-4 h-4" />
                 More Info

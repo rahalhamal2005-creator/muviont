@@ -126,22 +126,26 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
       {showSearch && <AISearchInput onClose={() => setShowSearch(false)} />}
 
       {/* Anime Banner */}
-      <div className="relative w-full h-[70vh] sm:h-[80vh] bg-neutral-950 overflow-hidden">
+      <div className="relative w-full min-h-[85vh] sm:min-h-[75vh] md:h-[80vh] bg-[#0f0f0f] overflow-hidden flex flex-col justify-end">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105 filter blur-[1px] md:blur-0 transition-transform duration-1000 ease-out"
+          className="absolute inset-0 bg-cover bg-top bg-no-repeat transform scale-105 filter blur-[1px] md:blur-0 transition-transform duration-1000 ease-out"
           style={{ backgroundImage: `url(${anime.backdropPath})` }}
         />
         
-        {/* Premium Cinematic Vignette Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/35 to-transparent z-10" />
-        <div className="absolute inset-0 bg-radial-at-b from-transparent via-black/20 to-black/90 z-10" />
+        {/* Premium Dark Gradient Overlays */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background: "linear-gradient(180deg, rgba(15,15,15,0.2) 0%, rgba(15,15,15,0.65) 50%, #0f0f0f 100%)"
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent z-10" />
 
         {/* Back navigation button */}
-        <div className="absolute top-24 left-6 z-35">
+        <div className="absolute top-20 sm:top-24 left-4 sm:left-6 z-35">
           <Link
             href="/anime"
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/60 border border-neutral-800 text-xs font-bold uppercase tracking-wider text-neutral-300 hover:text-white hover:bg-neutral-900/80 hover:border-neutral-700 backdrop-blur-md transition-all duration-300 active:scale-95 shadow-lg"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-black/60 border border-white/15 text-xs font-bold uppercase tracking-wider text-neutral-300 hover:text-white hover:bg-black/80 backdrop-blur-md transition-all duration-300 active:scale-95 shadow-lg"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Anime Hub
@@ -149,9 +153,9 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
         </div>
 
         {/* Header content overlay */}
-        <div className="absolute inset-x-0 bottom-0 z-20 max-w-7xl mx-auto px-6 pb-12 flex flex-col md:flex-row items-end gap-8">
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pb-8 sm:pb-12 w-full flex flex-col md:flex-row items-end gap-6 md:gap-8">
           {/* Poster image */}
-          <div className="relative w-40 md:w-56 aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.8)] flex-shrink-0 group hidden md:block">
+          <div className="relative w-40 md:w-56 aspect-[2/3] rounded-xl overflow-hidden border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.8)] flex-shrink-0 group hidden md:block">
             <Image
               src={anime.posterPath}
               alt={anime.title}
@@ -164,7 +168,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
                 <button 
                   onClick={() => setIsTrailerOpen(true)}
-                  className="px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-xs font-bold backdrop-blur-sm transition-all"
+                  className="px-4 py-1.5 bg-white/15 hover:bg-white/25 border border-white/20 rounded-md text-xs font-bold backdrop-blur-md transition-all"
                 >
                   Play Trailer
                 </button>
@@ -172,88 +176,91 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
             )}
           </div>
 
-          <div className="flex-grow pb-2 z-20">
+          <div className="flex-grow pb-2 z-20 w-full">
             {/* Romaji & English Titles */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white mb-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white mb-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]">
               {anime.title}
             </h1>
             {anime.englishTitle && anime.englishTitle !== anime.title && (
-              <p className="text-sm sm:text-base text-neutral-400 font-medium mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              <p className="text-sm sm:text-base text-neutral-400 font-medium mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
                 {anime.englishTitle}
               </p>
             )}
 
             {/* Badges metadata row */}
-            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-neutral-400 font-medium">
-              <div className="flex items-center gap-1 bg-[var(--red-dim)] border border-[var(--red)]/20 px-2.5 py-0.5 rounded-md backdrop-blur-sm">
+            <div className="flex flex-wrap items-center gap-2.5 text-xs text-neutral-300 font-medium mb-4">
+              <div className="flex items-center gap-1 bg-[var(--red-dim)] border border-[var(--red)]/20 px-2.5 py-1 rounded-md backdrop-blur-sm">
                 <Star className="w-3.5 h-3.5 text-[var(--red)] fill-current" />
-                <span className="font-extrabold text-[var(--red)]">{anime.rating.toFixed(1)}</span>
+                <span className="font-black text-[var(--red)]">{anime.rating.toFixed(1)}</span>
               </div>
-              <span className="text-neutral-700">•</span>
-              <span className="flex items-center gap-1 font-semibold text-neutral-300">
-                <Tv className="w-3.5 h-3.5 text-neutral-500" />
+              <span className="flex items-center gap-1 font-semibold text-neutral-300 bg-white/10 border border-white/15 px-2.5 py-1 rounded-md">
+                <Tv className="w-3.5 h-3.5 text-neutral-400" />
                 {anime.episodes} Episode{anime.episodes !== 1 ? "s" : ""}
               </span>
-              <span className="text-neutral-700">•</span>
-              <span className="px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-[10px] tracking-wider text-neutral-300 font-extrabold uppercase">
+              <span className="px-2.5 py-1 rounded-md bg-neutral-900 border border-neutral-700 text-[11px] tracking-wider text-neutral-300 font-extrabold uppercase">
                 Anime
               </span>
-              <span className="text-neutral-700">•</span>
-              <span className="px-1.5 py-0.5 rounded border border-neutral-850 text-[9px] font-bold text-neutral-500 uppercase tracking-widest">
+              <span className="px-2.5 py-1 rounded-md border border-white/20 text-[11px] font-bold text-neutral-400 uppercase tracking-wider backdrop-blur-sm">
                 SUB & DUB
               </span>
+              <span className="px-2.5 py-1 rounded-md border border-white/20 text-[11px] font-bold text-neutral-400 uppercase tracking-wider backdrop-blur-sm">
+                1080P HD
+              </span>
+            </div>
+
+            {/* Enterprise Horizontal Action Row */}
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
+              {/* PRIMARY: Watch Now */}
+              <Link
+                href={`/watch/anime/${anime.id}`}
+                className="flex items-center justify-center gap-2 px-6 sm:px-7 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm shadow-xl"
+              >
+                <Play className="w-4 h-4 fill-black text-black" />
+                Watch Now
+              </Link>
+
+              {/* Download Button */}
+              <button
+                onClick={() => setIsDownloadOpen(true)}
+                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-3 font-bold rounded-md bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs sm:text-sm backdrop-blur-md transition-all duration-200 hover:scale-[1.02] active:scale-95"
+              >
+                <Download className="w-4 h-4" />
+                Download E1
+              </button>
+
+              {/* Watchlist Button */}
+              <button
+                onClick={toggleWatchlist}
+                className={`flex items-center justify-center gap-2 px-4 sm:px-5 py-3 font-bold rounded-md border text-xs sm:text-sm backdrop-blur-md transition-all duration-200 hover:scale-[1.02] active:scale-95 ${
+                  inWatchlist
+                    ? "bg-red-950/40 border-red-500/50 text-red-400"
+                    : "bg-white/15 hover:bg-white/25 border-white/20 text-white"
+                }`}
+              >
+                {inWatchlist ? <Check className="w-4 h-4 text-red-400" /> : <Plus className="w-4 h-4" />}
+                {inWatchlist ? "In Watchlist" : "Watchlist"}
+              </button>
+
+              {/* Trailer Button */}
+              {anime.trailerUrl && (
+                <button
+                  onClick={() => setIsTrailerOpen(true)}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-5 py-3 font-bold rounded-md bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs sm:text-sm backdrop-blur-md transition-all duration-200 hover:scale-[1.02] active:scale-95"
+                >
+                  Trailer
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Details grid */}
-      <main className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12 mt-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mt-6 sm:mt-8">
         
         {/* Left Columns: Storyline, Roster */}
-        <div className="lg:col-span-2 space-y-12">
+        <div className="lg:col-span-2 space-y-8 md:space-y-12">
           
-          {/* Action buttons */}
-          <div className="flex flex-wrap items-center gap-4 bg-neutral-950/30 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
-            {/* PRIMARY: Watch Now — streaming-first */}
-            <Link
-              href={`/watch/anime/${anime.id}`}
-              className="flex items-center gap-2.5 px-8 py-4 bg-[var(--red)] hover:bg-red-600 text-white font-black rounded-full transition-all duration-300 shadow-[0_0_25px_var(--red-glow)] hover:shadow-[0_0_35px_var(--red-glow)] hover:scale-[1.03] active:scale-95 text-sm uppercase tracking-wider"
-            >
-              <Play className="w-4 h-4 fill-current" />
-              Watch Now
-            </Link>
-
-            <button
-              onClick={() => setIsDownloadOpen(true)}
-              className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-neutral-900/40 text-neutral-300 hover:text-white hover:bg-neutral-800 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"
-            >
-              <Download className="w-4 h-4" />
-              Download Ep 1
-            </button>
-
-            <button
-              onClick={toggleWatchlist}
-              className={`flex items-center gap-2 px-6 py-4 font-bold rounded-full border text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03] active:scale-95 ${
-                inWatchlist
-                  ? "bg-red-950/20 border-red-500/40 text-red-400"
-                  : "bg-neutral-900/80 border-neutral-855 text-white hover:bg-neutral-800"
-              }`}
-            >
-              {inWatchlist ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
-            </button>
-
-            {anime.trailerUrl && (
-              <button
-                onClick={() => setIsTrailerOpen(true)}
-                className="flex items-center gap-2 px-6 py-4 font-bold rounded-full border border-neutral-800 bg-transparent text-neutral-300 hover:text-white hover:bg-neutral-900/50 text-sm uppercase tracking-wider transition-all duration-300 hover:scale-[1.03]"
-              >
-                Trailer
-              </button>
-            )}
-          </div>
-
           {/* TVMaze Next Episode Airing Banner */}
           {nextEpisodeData && (
             <div className="flex items-center gap-3 p-4 rounded-2xl border border-[var(--red)]/20 bg-[var(--red-dim)] shadow-lg select-none">
