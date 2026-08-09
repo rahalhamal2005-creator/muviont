@@ -62,8 +62,26 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-[var(--navbar-h)] flex items-center justify-between gap-4">
 
           {/* Logo */}
-          <Link href="/" className="relative w-32 h-9 flex-shrink-0">
-            <Image src="/logo.svg" alt="MUVIONT" fill priority className="object-contain" />
+          <Link href="/" className="flex-shrink-0 flex items-center h-9" aria-label="MUVIONT Home">
+            <img
+              src="/logo.svg"
+              alt="MUVIONT"
+              height="36"
+              width="130"
+              className="h-9 w-auto max-w-[130px] object-contain"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                target.style.display = "none";
+                const fallback = target.nextElementSibling as HTMLElement | null;
+                if (fallback) fallback.style.display = "flex";
+              }}
+            />
+            <span
+              className="hidden items-center gap-1.5 font-black text-lg tracking-widest text-white"
+              style={{ display: "none" }}
+            >
+              <span className="text-[var(--red)]">M</span>UVIONT
+            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -164,33 +182,52 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
       </motion.header>
 
       {/* Mobile Top Header (Fixed with Logo, Search, and profile button) */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-black/90 backdrop-blur-xl border-b border-neutral-900 h-[var(--navbar-h)] flex items-center justify-between px-4 md:hidden">
-        {/* Logo */}
-        <Link href="/" className="relative w-28 h-8 flex-shrink-0">
-          <Image src="/logo.svg" alt="MUVIONT" fill priority className="object-contain" />
+      <header className="fixed top-0 left-0 right-0 z-40 bg-black/92 backdrop-blur-2xl border-b border-white/8 h-[var(--navbar-h)] flex items-center justify-between px-4 md:hidden">
+        {/* Logo — explicit width/height prevents layout collapse */}
+        <Link href="/" className="flex-shrink-0 flex items-center h-8" aria-label="MUVIONT Home">
+          <img
+            src="/logo.svg"
+            alt="MUVIONT"
+            height="32"
+            width="120"
+            className="h-8 w-auto max-w-[120px] object-contain"
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              target.style.display = "none";
+              const fallback = target.nextElementSibling as HTMLElement | null;
+              if (fallback) fallback.style.display = "flex";
+            }}
+          />
+          {/* SVG text fallback shown only if logo.svg fails to load */}
+          <span
+            className="hidden items-center gap-1.5 font-black text-base tracking-widest text-white"
+            style={{ display: "none" }}
+          >
+            <span className="text-[var(--red)]">M</span>UVIONT
+          </span>
         </Link>
 
         {/* Action icons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onSearchClick}
-            className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition-all"
+            className="p-2 rounded-md bg-white/8 border border-white/12 text-neutral-400 hover:text-white hover:bg-white/14 transition-all duration-150"
             aria-label="Search"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-4.5 h-4.5" />
           </button>
 
           {!loading && user ? (
             <Link
               href="/profile"
-              className="flex items-center p-0.5 rounded-full border border-neutral-800 bg-neutral-900 hover:border-neutral-700 transition-all"
+              className="flex items-center p-0.5 rounded-full border border-white/15 bg-neutral-900 hover:border-white/30 transition-all"
             >
               {user.image ? (
                 <div className="relative w-7 h-7 rounded-full overflow-hidden">
                   <Image src={user.image} alt={user.name || "User"} fill className="object-cover" unoptimized />
                 </div>
               ) : (
-                <div className="w-7 h-7 rounded-full bg-[var(--red)] flex items-center justify-center font-bold text-[10px] text-white">
+                <div className="w-7 h-7 rounded-full bg-[var(--red)] flex items-center justify-center font-black text-[10px] text-white shadow-[0_0_8px_var(--red-glow)]">
                   {(user.name || user.email || "U").substring(0, 1).toUpperCase()}
                 </div>
               )}
@@ -198,12 +235,12 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
           ) : !loading ? (
             <Link
               href="/login"
-              className="px-3 py-1.5 rounded-full bg-[var(--red)] text-white text-xs font-extrabold uppercase tracking-wider transition-all"
+              className="px-3 py-1.5 rounded-md bg-[var(--red)] hover:bg-[var(--red)]/90 text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-[0_0_12px_var(--red-glow)]"
             >
               Sign In
             </Link>
           ) : (
-            <div className="w-7 h-7 rounded-full bg-neutral-900 animate-pulse border border-neutral-800" />
+            <div className="w-7 h-7 rounded-full bg-white/8 animate-pulse border border-white/10" />
           )}
         </div>
       </header>

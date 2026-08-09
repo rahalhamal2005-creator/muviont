@@ -131,15 +131,15 @@ export default function TrendingClient({
         </div>
 
         {/* Cinematic Tab selector */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide mb-6 border-b border-[var(--border2)]" style={{ scrollbarWidth: "none" }}>
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-hide mb-6 border-b border-[var(--border2)]" style={{ scrollbarWidth: "none" }}>
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold border transition-all duration-200 cursor-pointer flex-shrink-0 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs font-bold border transition-all duration-200 cursor-pointer flex-shrink-0 ${
                 activeTab === tab.id
-                  ? "bg-[var(--red)] border-[var(--red)] text-white shadow-[0_0_16px_var(--red-glow)]"
-                  : "bg-[var(--bg3)] border-[var(--border2)] text-[var(--text-muted)] hover:text-white"
+                  ? "bg-[var(--red)]/15 border-[var(--red)]/40 text-[var(--red)]"
+                  : "bg-[var(--bg3)] border-[var(--border2)] text-[var(--text-muted)] hover:text-white hover:border-white/20"
               }`}
             >
               {getTabIcon(tab.id)}

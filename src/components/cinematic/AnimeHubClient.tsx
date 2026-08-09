@@ -157,38 +157,44 @@ export default function AnimeHubClient({
 
       {/* Featured Anime Banner */}
       {featured && (
-        <div className="relative w-full h-[60vh] sm:h-[70vh] bg-black overflow-hidden select-none">
+        <div className="relative w-full min-h-[65vh] sm:min-h-[70vh] bg-[#0f0f0f] overflow-hidden flex flex-col justify-end select-none">
           <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            className="absolute inset-0 bg-cover bg-top bg-no-repeat transform scale-105"
             style={{ backgroundImage: `url(${featured.backdropPath})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/30 to-[var(--bg)]/50 z-10" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg)] via-[var(--bg)]/30 to-transparent z-10" />
+          {/* Premium dark gradient overlays */}
+          <div
+            className="absolute inset-0 z-10"
+            style={{ background: "linear-gradient(180deg, rgba(15,15,15,0.15) 0%, rgba(15,15,15,0.6) 50%, #0f0f0f 100%)" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-[#0f0f0f]/55 to-transparent z-10" />
 
           {/* Featured Content Details */}
-          <div className="absolute inset-0 z-20 flex flex-col justify-end pb-12 max-w-[1400px] mx-auto px-4 sm:px-6 pointer-events-none">
+          <div className="relative z-20 pb-10 sm:pb-14 max-w-[1400px] mx-auto px-4 sm:px-6 w-full pointer-events-none">
             <div className="max-w-2xl pointer-events-auto">
-              <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--red)] bg-[var(--red)]/10 border border-[var(--red)]/20 rounded-full mb-3 inline-block">
+              <span className="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[var(--red)] bg-[var(--red)]/10 border border-[var(--red)]/25 rounded-md mb-3 inline-block">
                 Featured Anime
               </span>
-              <h1 className="text-3xl sm:text-5xl font-extrabold text-white mb-2 font-sans tracking-tight">
+              <h1 className="text-3xl sm:text-5xl font-black text-white mb-2 font-sans tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] line-clamp-2">
                 {featured.title}
               </h1>
-              <p className="text-xs sm:text-sm text-[var(--text-muted)] mb-6 max-w-xl line-clamp-3">
+              <p className="text-xs sm:text-sm text-neutral-300 mb-5 max-w-xl line-clamp-3 leading-relaxed">
                 {featured.overview}
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                {/* Primary CTA — solid white */}
                 <button
                   onClick={() => handlePlayTrailer(featured.trailerUrl ? featured.trailerUrl.split("v=")[1] : "KzZz1gP1z2I")}
                   disabled={!featured.trailerUrl}
-                  className="flex items-center gap-2 px-6 py-3 bg-[var(--red)] text-white font-bold rounded-full hover:bg-[var(--red-hover)] active:scale-95 transition-all duration-300 disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm shadow-xl disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <Play className="w-4 h-4 fill-current" />
+                  <Play className="w-4 h-4 fill-black text-black" />
                   Watch Trailer
                 </button>
+                {/* Secondary — frosted glass */}
                 <Link
                   href={`/anime/${featured.id}`}
-                  className="px-5 py-3 bg-neutral-900/80 text-white border border-neutral-800 font-bold rounded-full hover:bg-neutral-800 transition-all duration-300"
+                  className="px-5 py-3 bg-white/15 hover:bg-white/25 text-white border border-white/20 font-bold rounded-md backdrop-blur-md hover:scale-[1.02] active:scale-95 transition-all duration-200 text-sm"
                 >
                   View Details
                 </Link>
