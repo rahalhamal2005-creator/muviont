@@ -199,10 +199,6 @@ export default function StreamingPlayer({
     }
   };
 
-  const isVidSrc = activeSourceKey.includes("vidsrc");
-  const sandboxValue = isVidSrc 
-    ? undefined 
-    : "allow-scripts allow-same-origin allow-forms allow-presentation";
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
@@ -357,7 +353,6 @@ export default function StreamingPlayer({
             scrolling="no"
             className="w-full block"
             style={{ aspectRatio: "16/9", display: "block" }}
-            sandbox={sandboxValue}
             onLoad={handleLoad}
             onError={handleError}
           />
