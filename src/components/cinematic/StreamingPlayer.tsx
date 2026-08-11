@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  Play, RefreshCw, ExternalLink, Maximize2, AlertCircle
+  Play, RefreshCw, ExternalLink, AlertCircle
 } from "lucide-react";
 import { STREAMING_SOURCES } from "@/lib/streaming";
 import HLSPlayer from "./HLSPlayer";
@@ -31,7 +31,6 @@ export default function StreamingPlayer({
   const [directStreamSubtitles, setDirectStreamSubtitles] = useState<any[]>([]);
   const [directStreamError, setDirectStreamError] = useState<string | null>(null);
   const iframeRef  = useRef<HTMLIFrameElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const activeSourceKey = STREAMING_SOURCES[activeSource]?.key || "";
 
@@ -190,14 +189,7 @@ export default function StreamingPlayer({
     }
   };
 
-  const handleFullscreen = () => {
-    if (!wrapperRef.current) return;
-    if (!document.fullscreenElement) {
-      wrapperRef.current.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
-  };
+
 
 
   return (
@@ -216,7 +208,6 @@ export default function StreamingPlayer({
 
       {/* Player Container */}
       <div
-        ref={wrapperRef}
         className={`player-container rounded-xl overflow-hidden border shadow-[0_12px_50px_rgba(0,0,0,0.8)] transition-all duration-500 group relative z-10 border-[var(--border)] ${
           !unlocked ? "min-h-[460px]" : ""
         }`}
@@ -358,18 +349,7 @@ export default function StreamingPlayer({
           />
         )}
 
-        {/* Fullscreen overlay controls */}
-        {unlocked && activeSourceKey !== "direct-stream" && (
-          <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2 opacity-90 hover:opacity-100 transition-opacity duration-300">
-            <button
-              onClick={handleFullscreen}
-              className="p-2 rounded-lg bg-black/60 hover:bg-black/85 border border-white/10 text-white backdrop-blur-md transition-all shadow-md active:scale-95"
-              title="Fullscreen"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+
       </div>
 
       {/* Toggle Server Button */}
