@@ -48,3 +48,5 @@ clip muviont/
 *.mp4
 *.mp3
 *.mov
+
+.open-next/
