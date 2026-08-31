@@ -33,17 +33,11 @@ export async function GET(req: NextRequest) {
 
     const { recommendations, lastWatchedTitle } = await getPersonalizedRecommendations(userId);
 
-    // Track recommendation impressions in SystemMetric
-    db.systemMetric.create({
-      data: {
-        metricType: "REC_IMPRESSION",
-        value: 1
-      }
-    }).catch(() => {});
-
     return NextResponse.json({
       recommendations,
       lastWatchedTitle
+    }, {
+      headers: { "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=3600" }
     });
   } catch (err: any) {
     console.error("AI Recommendations Error:", err.message);

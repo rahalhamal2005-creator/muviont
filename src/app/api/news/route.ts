@@ -40,6 +40,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       activeProvider: newsService.getActiveProvider(),
       articles
+    }, {
+      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" }
     });
   } catch (err: any) {
     console.error("News API Router Error:", err.message);

@@ -48,6 +48,10 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
       localStorage.setItem("muviont_history", JSON.stringify([historyItem, ...filtered].slice(0, 20)));
 
       // 2. Update DB
+      // Always save progress locally first (0 network cost)
+      const localKey = `muviont_progress_anime_${anime.id}_e${episode}`;
+      localStorage.setItem(localKey, JSON.stringify({ episode, progress: prog, duration: 1440, updatedAt: Date.now() }));
+
       try {
         await fetch("/api/watch-progress", {
           method: "POST",
@@ -55,7 +59,6 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
           body: JSON.stringify({
             mediaId: anime.id,
             mediaType: "anime",
-            season: 1,
             episode,
             progress: prog,
             duration: 1440
@@ -66,13 +69,14 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
       }
     };
 
-    saveProgress(60); // Mock initial minute viewed
+    saveProgress(60); // Initial check
 
     let currentProgress = 60;
+    // Throttle server requests to every 120 seconds (2 mins) instead of 15 seconds to save CPU & invocations
     const interval = setInterval(() => {
-      currentProgress += 15;
+      currentProgress += 120;
       saveProgress(currentProgress);
-    }, 15000);
+    }, 120000);
 
     return () => clearInterval(interval);
   }, [anime, episode]);

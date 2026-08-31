@@ -44,6 +44,10 @@ export default function WatchMovieClient({ movie, recommendations }: WatchMovieC
       localStorage.setItem("muviont_history", JSON.stringify([historyItem, ...filtered].slice(0, 20)));
 
       // 2. Update DB
+      // Always save progress locally first (0 network cost)
+      const localKey = `muviont_progress_movie_${movie.id}`;
+      localStorage.setItem(localKey, JSON.stringify({ progress: prog, duration: 7200, updatedAt: Date.now() }));
+
       try {
         await fetch("/api/watch-progress", {
           method: "POST",
@@ -60,13 +64,14 @@ export default function WatchMovieClient({ movie, recommendations }: WatchMovieC
       }
     };
 
-    saveProgress(60); // Mock initial minute viewed
+    saveProgress(60); // Initial check
 
     let currentProgress = 60;
+    // Throttle server requests to every 120 seconds (2 mins) instead of 15 seconds to save CPU & invocations
     const interval = setInterval(() => {
-      currentProgress += 15;
+      currentProgress += 120;
       saveProgress(currentProgress);
-    }, 15000);
+    }, 120000);
 
     return () => clearInterval(interval);
   }, [movie]);

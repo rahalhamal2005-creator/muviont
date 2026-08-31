@@ -22,14 +22,16 @@ export async function GET(req: Request) {
     }
 
     console.log(`Fetching CPA offers for IP: ${clientIp}`);
-    const res = await fetch(feedUrl.toString(), { cache: "no-store" });
+    const res = await fetch(feedUrl.toString(), { next: { revalidate: 300 } });
     if (!res.ok) {
       return new Response(`Failed to fetch offers feed: ${res.statusText}`, { status: res.status });
     }
 
     const offers = await res.json();
     if (!Array.isArray(offers)) {
-      return NextResponse.json([]);
+      return NextResponse.json([], {
+        headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" }
+      });
     }
 
     // Sort by payout (descending) to get the highest earning/converting offers
@@ -45,7 +47,9 @@ export async function GET(req: Request) {
       boosted: index < 2,
     }));
 
-    return NextResponse.json(finalOffers);
+    return NextResponse.json(finalOffers, {
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" }
+    });
   } catch (err: any) {
     return new Response(err.message, { status: 500 });
   }

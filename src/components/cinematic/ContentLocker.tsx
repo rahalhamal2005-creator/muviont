@@ -90,8 +90,8 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
       }
     };
 
-    // Poll every 8 seconds for fast UX response
-    intervalId = setInterval(checkLeads, 8000);
+    // Poll every 30 seconds to conserve serverless CPU & function invocations
+    intervalId = setInterval(checkLeads, 30000);
 
     return () => {
       clearInterval(intervalId);

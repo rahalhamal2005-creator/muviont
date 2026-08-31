@@ -65,20 +65,8 @@ export async function GET() {
   // Run checks in parallel
   await Promise.all(
     PROVIDERS.map(async (p) => {
-      const start = Date.now();
       const status = await checkUrl(p.url);
       results[p.key] = status;
-
-      // Log status to ProviderMetric
-      await db.providerMetric.create({
-        data: {
-          provider: p.key,
-          endpoint: p.url,
-          latency: Date.now() - start,
-          success: status === "ONLINE",
-          errorMsg: status === "OFFLINE" ? "Provider OFFLINE" : null
-        }
-      }).catch(() => {});
     })
   );
 
@@ -86,6 +74,6 @@ export async function GET() {
   lastCheckTime = now;
 
   return NextResponse.json(results, {
-    headers: { "Cache-Control": "public, max-age=60" }
+    headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" }
   });
 }

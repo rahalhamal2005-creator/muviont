@@ -42,3 +42,9 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# media & local clip tools
+clip muviont/
+*.mp4
+*.mp3
+*.mov

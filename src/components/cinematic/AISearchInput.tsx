@@ -89,11 +89,11 @@ export default function AISearchInput({ onClose }: AISearchInputProps) {
     };
   }, []);
 
-  // Debouncing effect
+  // Debouncing effect (500ms to reduce serverless function invocations)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(query);
-    }, 350);
+    }, 500);
 
     return () => clearTimeout(handler);
   }, [query]);

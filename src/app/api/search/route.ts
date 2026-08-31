@@ -265,6 +265,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       isAI: false,
       results
+    }, {
+      headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" }
     });
   } catch (err: any) {
     console.error("Search API Error:", err);
