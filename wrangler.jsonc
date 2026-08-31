@@ -4,5 +4,8 @@
   "compatibility_date": "2026-08-31",
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  "assets": {
+    "directory": ".next"
+  }
 }
