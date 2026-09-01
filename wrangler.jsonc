@@ -6,6 +6,7 @@
     "nodejs_compat"
   ],
   "assets": {
-    "directory": ".next"
+    "directory": ".next",
+    "run_worker_first": true
   }
 }

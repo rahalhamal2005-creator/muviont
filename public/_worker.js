@@ -2,43 +2,48 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // 1. Try to serve exact static asset
-    let response = await env.ASSETS.fetch(request);
-    if (response.status !== 404) {
-      return response;
+    // 1. Try serving static file directly if path has an extension (js, css, png, etc.)
+    if (url.pathname.includes(".")) {
+      const directRes = await env.ASSETS.fetch(request);
+      if (directRes.status !== 404) return directRes;
     }
 
-    // 2. Map route paths to generated Next.js html files inside .next/server/app
-    let pathname = url.pathname;
-    if (pathname === "/" || pathname === "") {
-      pathname = "/server/app/index.html";
-    } else if (pathname === "/movies") {
-      pathname = "/server/app/movies.html";
-    } else if (pathname === "/series") {
-      pathname = "/server/app/series.html";
-    } else if (pathname === "/anime") {
-      pathname = "/server/app/anime.html";
-    } else if (pathname === "/trending") {
-      pathname = "/server/app/trending.html";
-    } else if (pathname === "/login") {
-      pathname = "/server/app/login.html";
-    } else if (pathname === "/profile") {
-      pathname = "/server/app/profile.html";
-    } else if (pathname === "/watchlist") {
-      pathname = "/server/app/watchlist.html";
-    } else if (pathname === "/admin") {
-      pathname = "/server/app/admin.html";
-    } else if (!pathname.includes(".")) {
-      pathname = `/server/app${pathname}.html`;
+    // 2. Map HTML pages
+    let pagePath = url.pathname;
+    if (pagePath === "/" || pagePath === "") {
+      pagePath = "/server/app/index.html";
+    } else if (pagePath === "/movies") {
+      pagePath = "/server/app/movies.html";
+    } else if (pagePath === "/series") {
+      pagePath = "/server/app/series.html";
+    } else if (pagePath === "/anime") {
+      pagePath = "/server/app/anime.html";
+    } else if (pagePath === "/trending") {
+      pagePath = "/server/app/trending.html";
+    } else if (pagePath === "/login") {
+      pagePath = "/server/app/login.html";
+    } else if (pagePath === "/profile") {
+      pagePath = "/server/app/profile.html";
+    } else if (pagePath === "/watchlist") {
+      pagePath = "/server/app/watchlist.html";
+    } else if (pagePath === "/admin") {
+      pagePath = "/server/app/admin.html";
+    } else if (!pagePath.includes(".")) {
+      pagePath = `/server/app${pagePath}.html`;
     }
 
-    const assetUrl = new URL(pathname, url.origin);
-    response = await env.ASSETS.fetch(new Request(assetUrl, request));
-    if (response.status !== 404) {
-      return response;
+    const pageUrl = new URL(pagePath, url.origin);
+    const pageRes = await env.ASSETS.fetch(new Request(pageUrl, request));
+    if (pageRes.status !== 404) {
+      return pageRes;
     }
 
-    // 3. Fallback to main index.html
-    return env.ASSETS.fetch(new Request(new URL("/server/app/index.html", url.origin), request));
+    // 3. Fallback to index.html or raw static asset
+    const indexRes = await env.ASSETS.fetch(new Request(new URL("/server/app/index.html", url.origin), request));
+    if (indexRes.status !== 404) {
+      return indexRes;
+    }
+
+    return env.ASSETS.fetch(request);
   }
 };
