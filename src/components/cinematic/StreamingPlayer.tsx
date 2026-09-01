@@ -291,22 +291,14 @@ export default function StreamingPlayer({
                   Had l-option dial <strong>Direct Stream</strong> khassha configuration dial <code>CINEPRO_API_URL</code> f Vercel environment variables.
                 </p>
                 <p className="text-[11px] text-neutral-500 leading-relaxed">
-                  Ila bghiti t-tferrj bla isharat db, khdem b source <strong>VidLink</strong> (li darna fiha block popups 9wi f sandbox).
+                  Ila bghiti t-tferrj db, khdem b <strong>Server 2</strong>.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3 pt-2">
-                  <a
-                    href="https://github.com/cinepro-org/core"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] text-[10px] font-extrabold uppercase tracking-widest rounded-lg transition-colors"
-                  >
-                    CinePro GitHub
-                  </a>
                   <button
                     onClick={() => switchSource(1)}
                     className="px-4 py-2 bg-[var(--red)] hover:bg-red-750 text-[10px] font-extrabold uppercase tracking-widest rounded-lg transition-colors text-white font-black"
                   >
-                    Switch to VidLink
+                    Switch to Server 2
                   </button>
                 </div>
               </div>

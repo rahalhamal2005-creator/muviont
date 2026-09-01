@@ -18,49 +18,49 @@ export interface StreamSource {
  */
 export const STREAMING_SOURCES: StreamSource[] = [
   {
-    name: "Direct HLS Stream",
+    name: "Server 1",
     key: "direct-stream",
     movieUrl:  (id) => `/api/stream?id=${id}&type=movie`,
     seriesUrl: (id, s, e) => `/api/stream?id=${id}&type=series&season=${s}&episode=${e}`,
   },
   {
-    name: "VidLink",
+    name: "Server 2",
     key: "vidlink",
     movieUrl:  (id) => `https://vidlink.pro/movie/${id}`,
     seriesUrl: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
   },
   {
-    name: "VidSrc Pro",
+    name: "Server 3",
     key: "vidsrc-pro",
     movieUrl:  (id) => `https://vidsrc.cc/v2/embed/movie/${id}`,
     seriesUrl: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`,
   },
   {
-    name: "VidSrc",
+    name: "Server 4",
     key: "vidsrc",
     movieUrl:  (id) => `https://vidsrc.to/embed/movie/${id}`,
     seriesUrl: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
   },
   {
-    name: "SuperEmbed",
+    name: "Server 5",
     key: "superembed",
     movieUrl:  (id) => `https://play.superembed.xyz/?video_id=${id}&tmdb=1`,
     seriesUrl: (id, s, e) => `https://play.superembed.xyz/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
   {
-    name: "MultiEmbed",
+    name: "Server 6",
     key: "multiembed",
     movieUrl:  (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     seriesUrl: (id, s, e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
   {
-    name: "2Embed",
+    name: "Server 7",
     key: "2embed",
     movieUrl:  (id) => `https://www.2embed.cc/embed/${id}`,
     seriesUrl: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
   },
   {
-    name: "MoviesAPI",
+    name: "Server 8",
     key: "moviesapi",
     movieUrl:  (id) => `https://moviesapi.club/movie/${id}`,
     seriesUrl: (id, s, e) => `https://moviesapi.club/tv/${id}-${s}-${e}`,
