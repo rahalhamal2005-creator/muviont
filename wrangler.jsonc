@@ -6,6 +6,7 @@
     "nodejs_compat"
   ],
   "assets": {
-    "directory": ".next"
+    "directory": ".next",
+    "not_found_handling": "single-page-application"
   }
 }
