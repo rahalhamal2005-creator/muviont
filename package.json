@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build && node -e \"const fs=require('fs'); fs.mkdirSync('.vercel/output/static', {recursive: true}); fs.cpSync('.next', '.vercel/output/static', {recursive: true}); fs.copyFileSync('public/_worker.js', '.next/_worker.js');\"",
+    "build": "prisma generate && next build && node -e \"const fs=require('fs'); fs.mkdirSync('.vercel/output/static', {recursive: true}); fs.cpSync('.next', '.vercel/output/static', {recursive: true}); fs.copyFileSync('public/_worker.js', '.next/_worker.js'); fs.copyFileSync('public/.assetsignore', '.next/.assetsignore');\"",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate"
