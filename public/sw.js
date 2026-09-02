@@ -1,9 +1,7 @@
 const CACHE_NAME = "muviont-cache-v2";
 const ASSETS_TO_CACHE = [
-  "/favicon.jpg",
-  "/logo.png",
-  "/next.svg",
-  "/vercel.svg"
+  "/logo.svg",
+  "/logo-icon.svg"
 ];
 
 self.addEventListener("install", (event) => {

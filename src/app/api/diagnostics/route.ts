@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
           success: false,
           errorMsg: errorMsg || "Stream playback or load failed"
         }
-      });
+      }).catch(() => {});
       return NextResponse.json({ success: true, message: "Stream failure recorded" });
     }
 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
           success: false,
           errorMsg: errorMsg || "Failed to fetch episode details"
         }
-      });
+      }).catch(() => {});
       return NextResponse.json({ success: true, message: "Episode fetch failure recorded" });
     }
 

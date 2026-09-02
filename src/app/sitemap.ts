@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     : "https://muviont.com";
 
   // Base pages
-  const routes = ["", "/anime", "/watchlist"].map((route) => ({
+  const routes = ["", "/movies", "/series", "/anime", "/trending", "/watchlist", "/login"].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
     changeFrequency: "daily" as const,
