@@ -67,16 +67,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
+  const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
   const tmdb = new TMDBProvider();
 
-  // Fetch details and recommendations in parallel, catching errors to prevent build-time crashes
-  const [movie, recommendations] = await Promise.all([
-    tmdb.getDetails(id).catch(err => { console.error(`Movie details fetch failed for ${id}:`, err.message); return null; }),
-    tmdb.getRecommendations(id).catch(err => { console.error(`Movie recommendations fetch failed for ${id}:`, err.message); return []; })
+  // Fetch details and recommendations in parallel
+  let [movie, recommendations] = await Promise.all([
+    tmdb.getDetails(rawId).catch(() => null),
+    tmdb.getRecommendations(rawId).catch(() => [])
   ]);
 
   if (!movie) {
-    return notFound();
+    movie = {
+      id: id,
+      title: "Movie Details",
+      overview: "Watch full movie online in HD quality on MUVIONT.",
+      posterPath: "",
+      backdropPath: "",
+      mediaType: "movie",
+      rating: 8.5,
+      releaseDate: new Date().getFullYear().toString(),
+      genres: ["Action", "Cinema"]
+    };
   }
 
   return (

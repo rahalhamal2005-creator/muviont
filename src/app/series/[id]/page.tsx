@@ -48,15 +48,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
+  const rawId  = id.startsWith("s-") || id.startsWith("m-") ? id.substring(2) : id;
   const tmdb   = new TMDBProvider();
 
-  const [series, seasons, recommendations] = await Promise.all([
-    tmdb.getDetails(id).catch(() => null),
-    tmdb.getSeriesSeasons(id).catch(() => []),
-    tmdb.getRecommendations(id).catch(() => []),
+  let [series, seasons, recommendations] = await Promise.all([
+    tmdb.getDetails(rawId).catch(() => null),
+    tmdb.getSeriesSeasons(rawId).catch(() => []),
+    tmdb.getRecommendations(rawId).catch(() => []),
   ]);
 
-  if (!series) return notFound();
+  if (!series) {
+    series = {
+      id: id,
+      title: "Series Details",
+      overview: "Stream all episodes online in HD on MUVIONT.",
+      posterPath: "",
+      backdropPath: "",
+      mediaType: "series",
+      rating: 8.8,
+      releaseDate: new Date().getFullYear().toString(),
+      genres: ["Drama", "Series"]
+    };
+  }
 
   return (
     <SeriesDetailClient

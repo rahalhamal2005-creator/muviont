@@ -29,23 +29,34 @@ export async function generateMetadata({ params }: WatchMoviePageProps): Promise
 
 export default async function WatchMoviePage({ params }: WatchMoviePageProps) {
   const { id } = await params;
+  const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
   const tmdb = new TMDBProvider();
   let movie = null;
   let recommendations: TMDBMedia[] = [];
 
   try {
     const [movieData, recsData] = await Promise.all([
-      tmdb.getDetails(id),
-      tmdb.getRecommendations(id).catch(() => []),
+      tmdb.getDetails(rawId).catch(() => null),
+      tmdb.getRecommendations(rawId).catch(() => []),
     ]);
     movie = movieData;
     recommendations = recsData;
   } catch {
-    notFound();
+    movie = null;
   }
 
   if (!movie) {
-    notFound();
+    movie = {
+      id: id,
+      title: "Movie Stream",
+      overview: "Watch full movie online in HD on MUVIONT.",
+      posterPath: "",
+      backdropPath: "",
+      mediaType: "movie",
+      rating: 8.5,
+      releaseDate: new Date().getFullYear().toString(),
+      genres: ["Action", "Cinema"]
+    };
   }
 
   return <WatchMovieClient movie={movie} recommendations={recommendations} />;

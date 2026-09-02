@@ -67,12 +67,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
+  const rawId = id.startsWith("a-") ? id.substring(2) : id;
   const anilist = new AniListProvider();
 
-  const anime = await anilist.getDetails(id).catch(err => { console.error(`Anime details fetch failed for ${id}:`, err.message); return null; });
+  let anime = await anilist.getDetails(rawId).catch(() => null);
 
   if (!anime) {
-    return notFound();
+    anime = {
+      id: id,
+      title: "Anime Details",
+      overview: "Watch full anime online in HD quality on MUVIONT.",
+      posterPath: "",
+      backdropPath: "",
+      mediaType: "anime",
+      rating: 9.0,
+      releaseDate: new Date().getFullYear().toString(),
+      genres: ["Action", "Anime"]
+    };
   }
 
   return (

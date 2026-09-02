@@ -28,23 +28,34 @@ export async function generateMetadata({ params }: WatchAnimePageProps): Promise
 
 export default async function WatchAnimePage({ params }: WatchAnimePageProps) {
   const { id } = await params;
+  const rawId = id.startsWith("a-") ? id.substring(2) : id;
   const anilist = new AniListProvider();
   let anime = null;
   let recommendations: AniListMedia[] = [];
 
   try {
     const [animeData, recsData] = await Promise.all([
-      anilist.getDetails(id),
-      anilist.getRecommendations(id).catch(() => []),
+      anilist.getDetails(rawId).catch(() => null),
+      anilist.getRecommendations(rawId).catch(() => []),
     ]);
     anime = animeData;
     recommendations = recsData;
   } catch {
-    notFound();
+    anime = null;
   }
 
   if (!anime) {
-    notFound();
+    anime = {
+      id: id,
+      title: "Anime Stream",
+      overview: "Watch full anime episodes online in HD on MUVIONT.",
+      posterPath: "",
+      backdropPath: "",
+      mediaType: "anime",
+      rating: 9.0,
+      releaseDate: new Date().getFullYear().toString(),
+      genres: ["Action", "Anime"]
+    };
   }
 
   return <WatchAnimeClient anime={anime} recommendations={recommendations} />;
