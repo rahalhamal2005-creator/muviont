@@ -67,13 +67,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-  const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
   const tmdb = new TMDBProvider();
 
   // Fetch details and recommendations in parallel
   let [movie, recommendations] = await Promise.all([
-    tmdb.getDetails(rawId).catch(() => null),
-    tmdb.getRecommendations(rawId).catch(() => [])
+    tmdb.getDetails(id, "movie").catch(() => null),
+    tmdb.getRecommendations(id, "movie").catch(() => [])
   ]);
 
   if (!movie) {

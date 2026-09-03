@@ -28,15 +28,14 @@ export async function generateMetadata({ params }: WatchAnimePageProps): Promise
 
 export default async function WatchAnimePage({ params }: WatchAnimePageProps) {
   const { id } = await params;
-  const rawId = id.startsWith("a-") ? id.substring(2) : id;
   const anilist = new AniListProvider();
   let anime = null;
   let recommendations: AniListMedia[] = [];
 
   try {
     const [animeData, recsData] = await Promise.all([
-      anilist.getDetails(rawId).catch(() => null),
-      anilist.getRecommendations(rawId).catch(() => []),
+      anilist.getDetails(id).catch(() => null),
+      anilist.getRecommendations(id).catch(() => []),
     ]);
     anime = animeData;
     recommendations = recsData;

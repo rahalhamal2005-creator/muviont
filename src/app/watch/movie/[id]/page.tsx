@@ -29,15 +29,14 @@ export async function generateMetadata({ params }: WatchMoviePageProps): Promise
 
 export default async function WatchMoviePage({ params }: WatchMoviePageProps) {
   const { id } = await params;
-  const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
   const tmdb = new TMDBProvider();
   let movie = null;
   let recommendations: TMDBMedia[] = [];
 
   try {
     const [movieData, recsData] = await Promise.all([
-      tmdb.getDetails(rawId).catch(() => null),
-      tmdb.getRecommendations(rawId).catch(() => []),
+      tmdb.getDetails(id, "movie").catch(() => null),
+      tmdb.getRecommendations(id, "movie").catch(() => []),
     ]);
     movie = movieData;
     recommendations = recsData;

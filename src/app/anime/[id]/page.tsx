@@ -67,10 +67,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
-  const rawId = id.startsWith("a-") ? id.substring(2) : id;
   const anilist = new AniListProvider();
 
-  let anime = await anilist.getDetails(rawId).catch(() => null);
+  let anime = await anilist.getDetails(id).catch(() => null);
 
   if (!anime) {
     anime = {

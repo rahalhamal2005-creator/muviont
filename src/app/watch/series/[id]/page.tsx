@@ -32,7 +32,6 @@ export default async function WatchSeriesPage({ params, searchParams }: WatchSer
   const { s, e }   = await searchParams;
   const season     = parseInt(s || "1", 10);
   const episode    = parseInt(e || "1", 10);
-  const rawId      = id.startsWith("s-") || id.startsWith("m-") ? id.substring(2) : id;
   const tmdb       = new TMDBProvider();
   let series = null;
   let seasons: TMDBSeason[] = [];
@@ -40,9 +39,9 @@ export default async function WatchSeriesPage({ params, searchParams }: WatchSer
 
   try {
     const [seriesData, seasonsData, recsData] = await Promise.all([
-      tmdb.getDetails(rawId).catch(() => null),
-      tmdb.getSeriesSeasons(rawId).catch(() => []),
-      tmdb.getRecommendations(rawId).catch(() => []),
+      tmdb.getDetails(id, "series").catch(() => null),
+      tmdb.getSeriesSeasons(id).catch(() => []),
+      tmdb.getRecommendations(id, "series").catch(() => []),
     ]);
     series = seriesData;
     seasons = seasonsData;

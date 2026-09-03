@@ -230,7 +230,7 @@ export class AniListProvider {
   }
 
   async getDetails(id: string): Promise<AniListMedia | null> {
-    const rawId = id.substring(2);
+    const rawId = id.startsWith("a-") ? id.substring(2) : id;
     const startTime = Date.now();
     const query = `
       query ($id: Int) {

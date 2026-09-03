@@ -187,14 +187,14 @@ export class TMDBProvider {
     }
   }
 
-  async getDetails(id: string): Promise<TMDBMedia | null> {
+  async getDetails(id: string, defaultType: "movie" | "series" = "movie"): Promise<TMDBMedia | null> {
     this.checkApiKey();
-    const type = id.startsWith("m-") ? "movie" : "series";
-    const rawId = id.substring(2);
+    const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "series" : defaultType;
+    const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
     const endpoint = type === "movie" ? `/movie/${rawId}` : `/tv/${rawId}`;
     const startTime = Date.now();
 
-    if (isNaN(Number(rawId))) {
+    if (!rawId || isNaN(Number(rawId))) {
       return null;
     }
 
@@ -264,14 +264,14 @@ export class TMDBProvider {
     }
   }
 
-  async getRecommendations(id: string): Promise<TMDBMedia[]> {
+  async getRecommendations(id: string, defaultType: "movie" | "series" = "movie"): Promise<TMDBMedia[]> {
     this.checkApiKey();
-    const type = id.startsWith("m-") ? "movie" : "series";
-    const rawId = id.substring(2);
+    const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "series" : defaultType;
+    const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
     const endpoint = type === "movie" ? `/movie/${rawId}/recommendations` : `/tv/${rawId}/recommendations`;
     const startTime = Date.now();
 
-    if (isNaN(Number(rawId))) {
+    if (!rawId || isNaN(Number(rawId))) {
       return [];
     }
 
@@ -291,14 +291,14 @@ export class TMDBProvider {
     }
   }
 
-  async getSimilar(id: string): Promise<TMDBMedia[]> {
+  async getSimilar(id: string, defaultType: "movie" | "series" = "movie"): Promise<TMDBMedia[]> {
     this.checkApiKey();
-    const type = id.startsWith("m-") ? "movie" : "series";
-    const rawId = id.substring(2);
+    const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "series" : defaultType;
+    const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
     const endpoint = type === "movie" ? `/movie/${rawId}/similar` : `/tv/${rawId}/similar`;
     const startTime = Date.now();
 
-    if (isNaN(Number(rawId))) {
+    if (!rawId || isNaN(Number(rawId))) {
       return [];
     }
 
@@ -435,10 +435,10 @@ export class TMDBProvider {
     }
   }
 
-  async getWatchProviders(id: string): Promise<TMDBWatchProviders> {
+  async getWatchProviders(id: string, defaultType: "movie" | "series" = "movie"): Promise<TMDBWatchProviders> {
     this.checkApiKey();
-    const type = id.startsWith("m-") ? "movie" : "tv";
-    const rawId = id.substring(2);
+    const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "tv" : (defaultType === "series" ? "tv" : "movie");
+    const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
     const endpoint = type === "movie" ? `/movie/${rawId}/watch/providers` : `/tv/${rawId}/watch/providers`;
     try {
       const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
