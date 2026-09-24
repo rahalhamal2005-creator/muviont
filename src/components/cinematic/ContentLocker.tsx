@@ -30,6 +30,9 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
 
   // 1. Register locker view/impression in AdBlueMedia dashboard on mount
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).xfCheckForLead = (window as any).xfCheckForLead || function() {};
+    }
     const script = document.createElement("script");
     script.src = "https://d1cdbd1x576ga0.cloudfront.net/public/external/check.php?pub_key=64ddf7cdfac75ce75979";
     script.async = true;
