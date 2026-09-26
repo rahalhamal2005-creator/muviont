@@ -121,30 +121,9 @@ export async function GET(req: NextRequest) {
       expires: expiresAt
     });
 
-    // Log successful OAuth operation
-    await db.providerMetric.create({
-      data: {
-        provider: "GoogleOAuth",
-        endpoint: "/api/auth/callback/google",
-        latency: 0,
-        success: true
-      }
-    }).catch(() => {});
-
     return NextResponse.redirect(new URL("/", req.url));
   } catch (err: any) {
     console.error("OAuth Callback Error:", err.message);
-    
-    // Log failed OAuth operation
-    await db.providerMetric.create({
-      data: {
-        provider: "GoogleOAuth",
-        endpoint: "/api/auth/callback/google",
-        latency: 0,
-        success: false,
-        errorMsg: err.message || "OAuth Callback Error"
-      }
-    }).catch(() => {});
 
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(err.message)}`, req.url));
   }

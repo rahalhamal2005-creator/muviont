@@ -12,30 +12,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields: type and provider" }, { status: 400 });
     }
 
+    // Metric logging disabled — providerMetric writes filled the Neon 512 MB limit
+    // Just acknowledge the diagnostic without writing to DB
     if (type === "stream_failure") {
-      await db.providerMetric.create({
-        data: {
-          provider,
-          endpoint: endpoint || "iframe_embed",
-          latency: latency || 0,
-          success: false,
-          errorMsg: errorMsg || "Stream playback or load failed"
-        }
-      }).catch(() => {});
-      return NextResponse.json({ success: true, message: "Stream failure recorded" });
+      return NextResponse.json({ success: true, message: "Stream failure acknowledged" });
     }
 
     if (type === "episode_fetch_failure") {
-      await db.providerMetric.create({
-        data: {
-          provider: `${provider}_Episode`,
-          endpoint: endpoint || "episode_api",
-          latency: latency || 0,
-          success: false,
-          errorMsg: errorMsg || "Failed to fetch episode details"
-        }
-      }).catch(() => {});
-      return NextResponse.json({ success: true, message: "Episode fetch failure recorded" });
+      return NextResponse.json({ success: true, message: "Episode fetch failure acknowledged" });
     }
 
     return NextResponse.json({ error: "Unsupported diagnostic type" }, { status: 400 });

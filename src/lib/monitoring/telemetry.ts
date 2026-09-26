@@ -16,36 +16,9 @@ export class TelemetryService {
     return this.cacheHits / this.cacheRequests;
   }
 
-  // Records current CPU and Memory usage into the database SystemMetric table
+  // DB metric recording disabled — Neon 512 MB storage limit was exceeded
   static async recordSystemMetrics() {
-    try {
-      const memoryUsage = process.memoryUsage();
-      const heapUsedMB = Math.round((memoryUsage.heapUsed / 1024 / 1024) * 100) / 100;
-
-      // Log Heap Memory Usage metric
-      await db.systemMetric.create({
-        data: {
-          metricType: "MEMORY",
-          value: heapUsedMB
-        }
-      });
-
-      // Log Cache Hit Ratio metric
-      await db.systemMetric.create({
-        data: {
-          metricType: "CACHE_HIT_RATIO",
-          value: Math.round(this.getCacheHitRatio() * 100)
-        }
-      });
-
-      // Clear memory counts periodically to track active ratio changes
-      if (this.cacheRequests > 100) {
-        this.cacheRequests = 0;
-        this.cacheHits = 0;
-      }
-    } catch (err) {
-      console.error("Telemetry failed to record system metrics:", err);
-    }
+    // no-op: telemetry writes exceeded database storage capacity
   }
 
   // Get aggregated stats for the Admin Dashboard telemetry widgets

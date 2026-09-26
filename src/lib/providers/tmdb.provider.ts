@@ -1,4 +1,4 @@
-import { db } from "../db";
+// db import removed — metric logging disabled
 
 export interface TMDBEpisode {
   episodeNumber: number;
@@ -83,16 +83,9 @@ export class TMDBProvider {
     }
   }
 
-  private async logMetric(endpoint: string, latency: number, success: boolean, errorMsg?: string) {
-    db.providerMetric.create({
-      data: {
-        provider: "TMDB",
-        endpoint,
-        latency,
-        success,
-        errorMsg: errorMsg || null,
-      }
-    }).catch(() => {});
+  // Metric logging disabled — was filling Neon 512 MB limit
+  private async logMetric(_endpoint: string, _latency: number, _success: boolean, _errorMsg?: string) {
+    // no-op: telemetry writes exceeded database storage capacity
   }
 
   private mapMedia(item: any, type: "movie" | "series"): TMDBMedia {
