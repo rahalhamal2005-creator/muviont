@@ -1,4 +1,11 @@
-import Redis from "ioredis";
+/**
+ * Edge-safe cache module.
+ *
+ * ioredis is Node-only and crashes at evaluation time inside edge runtimes.
+ * We use a lazy-init pattern similar to db.ts: the Redis client is only
+ * created on first access in a Node environment.  Inside edge runtimes
+ * (or when REDIS_URL is missing) an in-memory Map-based cache is used.
+ */
 
 interface ICache {
   get<T>(key: string): Promise<T | null>;
@@ -31,80 +38,104 @@ class MemoryCache implements ICache {
   }
 }
 
-// Redis cache wrapper — degrades to MemoryCache on connection failure
-class RedisCache implements ICache {
-  private client: Redis;
-  private fallback: MemoryCache = new MemoryCache();
-  private degraded = false;
+let _cache: ICache | null = null;
 
-  constructor(url: string) {
-    this.client = new Redis(url, {
-      maxRetriesPerRequest: 0,   // fail immediately, don't retry
-      connectTimeout: 1000,       // 1 second connection timeout
+function getCache(): ICache {
+  if (_cache) return _cache;
+
+  const isEdge =
+    typeof globalThis !== "undefined" &&
+    ((globalThis as any).__lagon !== undefined ||
+      (globalThis as any).EdgeRuntime !== undefined ||
+      (typeof (globalThis as any).caches !== "undefined" &&
+        typeof (globalThis as any).HTMLRewriter !== "undefined"));
+
+  if (isEdge || !process.env.REDIS_URL) {
+    _cache = new MemoryCache();
+    return _cache;
+  }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Redis = require("ioredis").default || require("ioredis");
+    const fallback = new MemoryCache();
+    let degraded = false;
+
+    const client = new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 0,
+      connectTimeout: 1000,
       lazyConnect: true,
-      enableOfflineQueue: false,  // reject commands instantly when disconnected
+      enableOfflineQueue: false,
     });
 
-    this.client.on("error", (err) => {
-      if (!this.degraded) {
+    client.on("error", (err: any) => {
+      if (!degraded) {
         console.warn("Redis unavailable, falling back to in-memory cache:", err.message);
-        this.degraded = true;
+        degraded = true;
       }
     });
 
-    this.client.on("connect", () => {
-      this.degraded = false;
+    client.on("connect", () => {
+      degraded = false;
       console.info("Redis connected.");
     });
+
+    _cache = {
+      async get<T>(key: string): Promise<T | null> {
+        if (degraded) return fallback.get<T>(key);
+        try {
+          const data = await client.get(key);
+          if (!data) return null;
+          return JSON.parse(data) as T;
+        } catch {
+          degraded = true;
+          return fallback.get<T>(key);
+        }
+      },
+
+      async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
+        if (degraded) return fallback.set(key, value, ttlSeconds);
+        try {
+          const serialized = JSON.stringify(value);
+          if (ttlSeconds) {
+            await client.set(key, serialized, "EX", ttlSeconds);
+          } else {
+            await client.set(key, serialized);
+          }
+        } catch {
+          degraded = true;
+          return fallback.set(key, value, ttlSeconds);
+        }
+      },
+
+      async del(key: string): Promise<void> {
+        if (degraded) return fallback.del(key);
+        try {
+          await client.del(key);
+        } catch {
+          degraded = true;
+          return fallback.del(key);
+        }
+      },
+    };
+  } catch (e: any) {
+    console.warn("Redis module unavailable, using in-memory cache:", e.message);
+    _cache = new MemoryCache();
   }
 
-  async get<T>(key: string): Promise<T | null> {
-    if (this.degraded) return this.fallback.get<T>(key);
-    try {
-      const data = await this.client.get(key);
-      if (!data) return null;
-      return JSON.parse(data) as T;
-    } catch {
-      this.degraded = true;
-      return this.fallback.get<T>(key);
-    }
-  }
-
-  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
-    if (this.degraded) return this.fallback.set(key, value, ttlSeconds);
-    try {
-      const serialized = JSON.stringify(value);
-      if (ttlSeconds) {
-        await this.client.set(key, serialized, "EX", ttlSeconds);
-      } else {
-        await this.client.set(key, serialized);
-      }
-    } catch {
-      this.degraded = true;
-      return this.fallback.set(key, value, ttlSeconds);
-    }
-  }
-
-  async del(key: string): Promise<void> {
-    if (this.degraded) return this.fallback.del(key);
-    try {
-      await this.client.del(key);
-    } catch {
-      this.degraded = true;
-      return this.fallback.del(key);
-    }
-  }
+  return _cache;
 }
 
-// Instantiate cache client based on environment configuration
-let cacheInstance: ICache;
+// Export a proxy so callers use `cache.get(...)` etc. transparently
+export const cache: ICache = new Proxy({} as ICache, {
+  get(_target, prop: string) {
+    const c = getCache();
+    const value = (c as any)[prop];
+    if (typeof value === "function") {
+      return value.bind(c);
+    }
+    return value;
+  },
+});
 
-if (process.env.REDIS_URL) {
-  cacheInstance = new RedisCache(process.env.REDIS_URL);
-} else {
-  cacheInstance = new MemoryCache();
-}
-
-export const cache = cacheInstance;
 export type { ICache };
-
