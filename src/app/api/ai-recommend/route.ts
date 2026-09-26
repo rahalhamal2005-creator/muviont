@@ -3,6 +3,8 @@ import { rateLimit } from "@/lib/security/limiter";
 import { db } from "@/lib/db";
 import { getPersonalizedRecommendations } from "@/lib/recommendations";
 
+export const runtime = "edge";
+
 export async function GET(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
   
