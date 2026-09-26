@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import MovieDetailClient from "@/components/cinematic/MovieDetailClient";
 import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 
+export const runtime = "edge";
 export const revalidate = 3600; // Cache details for 1 hour
 
 interface PageProps {

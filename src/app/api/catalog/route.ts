@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 import { AniListProvider } from "@/lib/providers/anilist.provider";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 const ANIME_GENRES = [
   { id: 1, name: "Action" },

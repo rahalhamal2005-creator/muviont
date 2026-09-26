@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 import SeriesDetailClient from "@/components/cinematic/SeriesDetailClient";
 
+export const runtime = "edge";
 export const revalidate = 3600;
 
 interface PageProps {
