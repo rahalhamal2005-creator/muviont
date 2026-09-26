@@ -7,10 +7,11 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build && npx @cloudflare/next-on-pages",
+    "build": "prisma generate && next build",
     "build:cloudflare": "npx @cloudflare/next-on-pages",
     "build:worker": "npx @opennextjs/cloudflare build",
     "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:deploy": "npx wrangler pages deploy .vercel/output/static",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate"
