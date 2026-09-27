@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { newsService } from "@/lib/news/news.service";
 import { rateLimit } from "@/lib/security/limiter";
 
+export const runtime = "edge";
+
 export async function GET(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
   

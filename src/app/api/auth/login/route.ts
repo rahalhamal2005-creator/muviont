@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
-import crypto from "crypto";
 import { verifyPassword } from "@/lib/password";
+
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     // Verify Password
-    const isValid = verifyPassword(password, user.passwordHash);
+    const isValid = await verifyPassword(password, user.passwordHash);
     if (!isValid) {
       return NextResponse.json(
         { error: "Invalid email or password" },

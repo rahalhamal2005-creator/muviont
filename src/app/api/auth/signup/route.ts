@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
-import crypto from "crypto";
 import { hashPassword } from "@/lib/password";
 import { isSuperAdmin } from "@/lib/auth";
+
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     // Hash password
-    const passwordHash = hashPassword(password);
+    const passwordHash = await hashPassword(password);
     const isEmailSuperAdmin = isSuperAdmin(emailTrimmed);
 
     // Create User

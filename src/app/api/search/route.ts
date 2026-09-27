@@ -5,6 +5,8 @@ import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 import { AniListProvider } from "@/lib/providers/anilist.provider";
 import { db } from "@/lib/db";
 
+export const runtime = "edge";
+
 const tmdb = new TMDBProvider();
 const anilist = new AniListProvider();
 
