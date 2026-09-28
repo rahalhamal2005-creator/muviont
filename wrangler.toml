@@ -1,8 +1,12 @@
 name = "muviont"
-main = ".vercel/output/static/_worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
-directory = ".vercel/output/static"
+directory = ".next"
 binding = "ASSETS"
+
+routes = [
+  { pattern = "muviont.com", custom_domain = true },
+  { pattern = "www.muviont.com", custom_domain = true }
+]
