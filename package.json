@@ -8,9 +8,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "build:cloudflare": "npx @opennextjs/cloudflare build && node -e \"require('fs').copyFileSync('.open-next/worker.js', '.open-next/_worker.js')\"",
-    "pages:build": "npm run build:cloudflare",
-    "deploy": "npm run build:cloudflare && npx wrangler pages deploy .open-next --project-name=muviont",
+    "build:worker": "npx @opennextjs/cloudflare build && node -e \"require('fs').writeFileSync('.open-next/wrangler.toml', 'name = \\\"muviont\\\"\\nmain = \\\"worker.js\\\"\\ncompatibility_date = \\\"2024-09-23\\\"\\ncompatibility_flags = [\\\"nodejs_compat\\\"]\\n\\n[assets]\\ndirectory = \\\"assets\\\"\\nbinding = \\\"ASSETS\\\"\\n')\"",
+    "build:cloudflare": "npm run build:worker",
+    "deploy": "npm run build:worker && npx wrangler deploy --config .open-next/wrangler.toml",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate && node patch-noble.js"
