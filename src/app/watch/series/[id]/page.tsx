@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { TMDBProvider, TMDBSeason, TMDBMedia } from "@/lib/providers/tmdb.provider";
 import WatchSeriesClient from "@/components/cinematic/WatchSeriesClient";
 
-export const runtime = "edge";
 
 interface WatchSeriesPageProps {
   params: Promise<{ id: string }>;

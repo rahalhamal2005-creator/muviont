@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { isSuperAdmin } from "@/lib/auth";
 
-export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

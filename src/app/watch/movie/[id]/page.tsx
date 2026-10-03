@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { TMDBProvider, TMDBMedia } from "@/lib/providers/tmdb.provider";
 import WatchMovieClient from "@/components/cinematic/WatchMovieClient";
 
-export const runtime = "edge";
 
 interface WatchMoviePageProps {
   params: Promise<{ id: string }>;

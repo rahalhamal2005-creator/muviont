@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import { verifyPassword } from "@/lib/password";
 
-export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

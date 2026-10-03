@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { AniListProvider } from "@/lib/providers/anilist.provider";
 import AnimeDetailClient from "@/components/cinematic/AnimeDetailClient";
 
-export const runtime = "edge";
 export const revalidate = 3600;
 
 interface PageProps {

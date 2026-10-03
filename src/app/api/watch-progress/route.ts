@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 import { AniListProvider } from "@/lib/providers/anilist.provider";
 
-export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   try {

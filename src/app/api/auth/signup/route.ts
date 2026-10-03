@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 import { hashPassword } from "@/lib/password";
 import { isSuperAdmin } from "@/lib/auth";
 
-export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

@@ -4,7 +4,6 @@ import { AniListProvider } from "@/lib/providers/anilist.provider";
 import { YouTubeProvider } from "@/lib/providers/youtube.provider";
 import { rateLimit } from "@/lib/security/limiter";
 
-export const runtime = "edge";
 
 const tmdb = new TMDBProvider();
 const anilist = new AniListProvider();

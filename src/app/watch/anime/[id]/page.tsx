@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { AniListProvider, AniListMedia } from "@/lib/providers/anilist.provider";
 import WatchAnimeClient from "@/components/cinematic/WatchAnimeClient";
 
-export const runtime = "edge";
 
 interface WatchAnimePageProps {
   params: Promise<{ id: string }>;
