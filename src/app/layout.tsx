@@ -30,10 +30,10 @@ export const metadata: Metadata = {
   authors: [{ name: "Muviont team", url: "https://muviont.com" }],
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
       { url: "/logo-icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/logo-icon.svg",
     apple: "/logo-icon.svg",
   },
   robots: {

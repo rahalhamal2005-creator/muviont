@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { isSuperAdmin } from "@/lib/auth";
+import { isSuperAdmin, createSignedSessionToken } from "@/lib/auth";
 
 
 export async function GET(req: NextRequest) {
@@ -71,42 +71,49 @@ export async function GET(req: NextRequest) {
 
     // Determine user role
     const isEmailSuperAdmin = isSuperAdmin(email);
-    
-    const updateData: any = {
-      name,
-      image,
-      emailVerified: new Date()
-    };
-    if (isEmailSuperAdmin) {
-      updateData.role = "SUPER_ADMIN";
+    const role: "SUPER_ADMIN" | "USER" = isEmailSuperAdmin ? "SUPER_ADMIN" : "USER";
+    const expiresAt = new Date(Date.now() + 30 * 24 * 3600 * 1000); // 30 days
+
+    let userId = `usr_${Buffer.from(email).toString("hex").slice(0, 16)}`;
+
+    // Optional database synchronization (safe, non-blocking on edge)
+    try {
+      if (db?.user && typeof db.user.upsert === "function") {
+        const dbUser = await db.user.upsert({
+          where: { email },
+          update: { name, image, role, emailVerified: new Date() },
+          create: { email, name, image, role, emailVerified: new Date() }
+        });
+        if (dbUser?.id) userId = dbUser.id;
+      }
+    } catch (dbErr) {
+      console.warn("DB user sync skipped:", dbErr);
     }
 
-    const createData: any = {
+    // Create cryptographically signed edge session token
+    const token = await createSignedSessionToken({
+      id: userId,
       email,
       name,
       image,
-      role: isEmailSuperAdmin ? "SUPER_ADMIN" : "USER",
-      emailVerified: new Date()
-    };
-
-    // Upsert User
-    const user = await db.user.upsert({
-      where: { email },
-      update: updateData,
-      create: createData
+      role,
+      expiresAt: expiresAt.getTime(),
     });
 
-    // Create session in database
-    const token = `session-${crypto.randomUUID()}`;
-    const expiresAt = new Date(Date.now() + 30 * 24 * 3600 * 1000); // 30 days
-
-    await db.session.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt
+    // Optional DB session record
+    try {
+      if (db?.session && typeof db.session.create === "function") {
+        await db.session.create({
+          data: {
+            userId,
+            token,
+            expiresAt
+          }
+        });
       }
-    });
+    } catch {
+      // Non-blocking
+    }
 
     // Set HTTP-only Cookie
     cookieStore.set("muviont_session", token, {

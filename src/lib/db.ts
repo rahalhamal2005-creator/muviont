@@ -19,30 +19,32 @@ const isEdgeRuntime =
 
 // Stub that silently resolves every chained call to null / []
 function createNoopProxy(): any {
-  return new Proxy(function () {}, {
+  const noopFn = (..._args: any[]) => Promise.resolve(null);
+  return new Proxy(noopFn, {
     get(_target, prop) {
-      // Allow common Prisma methods to be chainable
-      if (
-        typeof prop === "string" &&
-        [
-          "findUnique",
-          "findFirst",
-          "findMany",
-          "create",
-          "update",
-          "upsert",
-          "delete",
-          "deleteMany",
-          "count",
-          "aggregate",
-          "groupBy",
-          "createMany",
-          "updateMany",
-        ].includes(prop)
-      ) {
-        return (..._args: any[]) => Promise.resolve(null);
+      if (typeof prop === "string") {
+        if (
+          [
+            "findUnique",
+            "findFirst",
+            "findMany",
+            "create",
+            "update",
+            "upsert",
+            "delete",
+            "deleteMany",
+            "count",
+            "aggregate",
+            "groupBy",
+            "createMany",
+            "updateMany",
+            "$connect",
+            "$disconnect",
+          ].includes(prop)
+        ) {
+          return (..._args: any[]) => Promise.resolve(null);
+        }
       }
-      // Model access (e.g., db.user) returns a chainable proxy
       return createNoopProxy();
     },
     apply() {
@@ -93,7 +95,11 @@ export const db: any = new Proxy(
   {
     get(_target, prop) {
       const client = getClient();
+      if (!client) return createNoopProxy();
       const value = client[prop];
+      if (isEdgeRuntime) {
+        return value || createNoopProxy();
+      }
       if (typeof value === "function") {
         return value.bind(client);
       }
