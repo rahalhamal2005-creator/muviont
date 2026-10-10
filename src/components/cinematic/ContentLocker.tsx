@@ -212,7 +212,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
                 2
               </div>
               <div className="text-[8px] font-black text-white uppercase tracking-wider">Verify Free</div>
-              <p className="text-[7px] text-neutral-500 font-semibold leading-tight">Fill f 60s</p>
+              <p className="text-[7px] text-neutral-500 font-semibold leading-tight">60s Free</p>
             </div>
 
             <div className="space-y-1">
@@ -233,7 +233,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
             </>
           ) : (
             <>
-              Due to extreme server traffic, unverified streaming is locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the player. Once verified, your movie will play <span className="text-emerald-400 font-black">instantly f Ultra-HD quality</span>, and your direct download link will be fully activated.
+              Due to extreme server traffic, unverified streaming is locked. Complete just <span className="text-[var(--red)] font-black underline decoration-[1.5px]">1 quick 60-second option</span> below to <span className="text-[var(--red)] font-black">permanently unlock</span> the player. Once verified, your movie will play <span className="text-emerald-400 font-black">instantly in Ultra-HD quality</span>, and your direct download link will be fully activated.
             </>
           )}
         </p>
@@ -258,6 +258,26 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
           <div className="w-full space-y-2.5">
             {offers.map((offer) => {
               const isFree = offer.offer_type === "free";
+              const titleText = offer.anchor || offer.name || "";
+              const hasArabic = /[\u0600-\u06FF]/.test(titleText);
+
+              // Subtitle in harmony with the offer language
+              let subtitle = offer.conversion || "";
+              if (hasArabic) {
+                subtitle = isFree
+                  ? "أجب عن استطلاع خفيف لفتح الفيلم فوراً (بدون رقم هاتف)"
+                  : "أدخل رقم هاتفك وتأكيد الرمز لفتح الفيلم فوراً";
+              } else {
+                subtitle = isFree
+                  ? "Complete quick 30-60s entry to unlock instantly"
+                  : "Fast verification to unlock movie instantly";
+              }
+
+              // Badges in harmony with language
+              const categoryBadge = hasArabic
+                ? (isFree ? "⚡ استطلاع مجاني" : "📱 تفعيل بالهاتف")
+                : (isFree ? "⚡ 100% Free • No Phone" : "📱 Mobile PIN • SMS");
+
               return (
                 <button
                   key={offer.id}
@@ -279,6 +299,11 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
                     <div className="min-w-0">
                       {/* Top Badges */}
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                        {isFree && (
+                          <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                            ⚡ RECOMMENDED • FASTEST
+                          </span>
+                        )}
                         <span
                           className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${
                             isFree
@@ -286,26 +311,29 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
                               : "bg-blue-500/20 text-blue-300 border-blue-500/40"
                           }`}
                         >
-                          {offer.badge_ar || (isFree ? "⚡ خيار مجاني" : "📱 خيار الهاتف")}
-                        </span>
-                        <span className="text-[7.5px] font-semibold text-neutral-400">
-                          {isFree ? "بدون رقم هاتف • 60s" : "تفعيل فوري • SMS"}
+                          {categoryBadge}
                         </span>
                       </div>
 
-                      {/* Offer Anchor / Title */}
-                      <div className="text-[11px] sm:text-xs font-black text-white group-hover:text-amber-200 transition-colors leading-tight line-clamp-1">
-                        {offer.anchor}
+                      {/* Offer Anchor / Title (Keeps exact platform language) */}
+                      <div 
+                        className="text-[11px] sm:text-xs font-black text-white group-hover:text-amber-200 transition-colors leading-tight line-clamp-1"
+                        dir={hasArabic ? "rtl" : "ltr"}
+                      >
+                        {titleText}
                       </div>
 
-                      {/* Offer Conversion Instructions */}
-                      <div className="text-[8.5px] sm:text-[9px] text-neutral-400 font-medium mt-0.5 line-clamp-1">
-                        {offer.conversion}
+                      {/* Offer Conversion Instructions (Harmonized language) */}
+                      <div 
+                        className="text-[8.5px] sm:text-[9px] text-neutral-400 font-medium mt-0.5 line-clamp-1"
+                        dir={hasArabic ? "rtl" : "ltr"}
+                      >
+                        {subtitle}
                       </div>
                     </div>
                   </div>
 
-                  {/* Right side unlock button */}
+                  {/* Right side unlock button in English */}
                   <span
                     className={`text-[9px] font-black uppercase tracking-wider shrink-0 px-2.5 py-1.5 rounded-lg border flex items-center gap-1 transition-all ${
                       isFree
@@ -313,7 +341,7 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
                         : "bg-blue-500/20 text-blue-300 border-blue-500/40 group-hover:bg-blue-500 group-hover:text-black"
                     }`}
                   >
-                    <Sparkles className="w-2.5 h-2.5" /> فتح
+                    <Sparkles className="w-2.5 h-2.5" /> UNLOCK
                   </span>
                 </button>
               );
