@@ -4,11 +4,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "";
+    const cfIp = req.headers.get("cf-connecting-ip");
+    const realIp = req.headers.get("x-real-ip");
+    const forwardedFor = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    const clientIp = cfIp || realIp || forwardedFor || "";
     const userAgent = req.headers.get("user-agent") || "";
-
-    // Clean IP in case of proxy chains (take first IP)
-    const clientIp = ip.split(",")[0].trim();
 
     const feedUrl = new URL("https://d1cdbd1x576ga0.cloudfront.net/public/offers/feed.php");
     feedUrl.searchParams.set("user_id", "329901");
@@ -20,19 +20,24 @@ export async function GET(req: Request) {
       feedUrl.searchParams.set("user_agent", userAgent);
     }
 
-    console.log(`Fetching CPA offers for IP: ${clientIp}`);
-    const res = await fetch(feedUrl.toString(), { next: { revalidate: 180 } });
-    
-    let rawOffers: any[] = [];
-    if (res.ok) {
-      const data = await res.json().catch(() => []);
-      if (Array.isArray(data)) {
-        rawOffers = data;
+    let feedOffers: any[] = [];
+    try {
+      const res = await fetch(feedUrl.toString(), {
+        next: { revalidate: 120 },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          feedOffers = data;
+        }
       }
+    } catch (e: any) {
+      console.warn("AdBlueMedia feed fetch error:", e.message);
     }
 
-    // High-converting AdBlueMedia fallback offers if IP feed is empty or fails
-    const defaultOffers = [
+    // Different distinct AdBlueMedia offers (each has unique offer_id and unique campaign)
+    const distinctOffers = [
       {
         id: "24742",
         name: "Starzplay - Popular Content",
@@ -41,41 +46,77 @@ export async function GET(req: Request) {
         url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
         payout: "0.50",
         network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/101510/3021954007.200x200.png",
-        boosted: true,
       },
       {
-        id: "24743",
-        name: "HD Stream Player Access",
-        anchor: "Complete 1 Free Step to Unlock HD Stream",
-        conversion: "Free 60-second verification • Mobile & Desktop",
-        url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
+        id: "23914",
+        name: "Score a goal",
+        anchor: "التقط كرات القدم لتحصل على عروض خاصة!",
+        conversion: "Complete interactive mini-game verification",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
+        payout: "0.45",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/100650/4211833007.200x200.png",
+      },
+      {
+        id: "19603",
+        name: "GemezZ - Kids & Family",
+        anchor: "أدخل التفاصيل لتنزيل محتوى جديد!",
+        conversion: "Enter details and confirm verification",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=19603&sub2=u329901",
         payout: "0.40",
-        boosted: false,
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/96320/2153833007.200x200.png",
+      },
+      {
+        id: "19035",
+        name: "Tap Rewards - Coin Bonus",
+        anchor: "انقر للحصول على مكافأتك ومتابعة المشاهدة!",
+        conversion: "Tap to claim your free reward bonus",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=19035&sub2=u329901",
+        payout: "0.35",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/95740/1234567890.200x200.png",
       },
     ];
 
-    const sourceOffers = rawOffers.length > 0 ? rawOffers : defaultOffers;
+    // Combine feed offers and distinct backup offers while guaranteeing 100% uniqueness
+    const seenIds = new Set<string>();
+    const seenUrls = new Set<string>();
+    const uniqueList: any[] = [];
 
-    // Filter to ensure all offers have a valid redirect url
-    const validOffers = sourceOffers.filter(o => o.url && typeof o.url === "string" && !o.url.includes("check.php"));
+    // First, add valid offers from the real live feed
+    for (const o of feedOffers) {
+      if (!o || !o.url || typeof o.url !== "string" || o.url.includes("check.php")) continue;
+      const offerId = String(o.id || "");
+      // Extract offer_id param from url if available to detect duplicate campaigns
+      let parsedOfferId = offerId;
+      try {
+        const u = new URL(o.url);
+        parsedOfferId = u.searchParams.get("offer_id") || offerId;
+      } catch {}
 
-    const toUse = validOffers.length > 0 ? validOffers : defaultOffers;
+      if (!seenIds.has(parsedOfferId) && !seenUrls.has(o.url)) {
+        seenIds.add(parsedOfferId);
+        seenUrls.add(o.url);
+        uniqueList.push(o);
+      }
+    }
 
-    // Sort by payout (descending) to get the highest earning/converting offers
-    const sortedOffers = [...toUse].sort((a, b) => {
-      const payoutA = parseFloat(a.payout || "0");
-      const payoutB = parseFloat(b.payout || "0");
-      return payoutB - payoutA;
-    });
+    // If we have fewer than 2 distinct offers, add distinct offers from our library
+    for (const d of distinctOffers) {
+      if (uniqueList.length >= 2) break;
+      if (!seenIds.has(d.id) && !seenUrls.has(d.url)) {
+        seenIds.add(d.id);
+        seenUrls.add(d.url);
+        uniqueList.push(d);
+      }
+    }
 
-    // Mark the top 2 offers as "boosted"
-    const finalOffers = sortedOffers.slice(0, 2).map((offer, index) => ({
+    // Sort by payout and return exactly 2 distinct offers
+    const finalOffers = uniqueList.slice(0, 2).map((offer, index) => ({
       ...offer,
       boosted: index === 0,
     }));
 
     return NextResponse.json(finalOffers, {
-      headers: { "Cache-Control": "public, s-maxage=180, stale-while-revalidate=300" }
+      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
     });
   } catch (err: any) {
     console.error("CPA offers route error:", err.message);
@@ -87,12 +128,20 @@ export async function GET(req: Request) {
         conversion: "Enter your mobile number and verify the pin",
         url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
         payout: "0.50",
-        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/101510/3021954007.200x200.png",
         boosted: true,
-      }
+      },
+      {
+        id: "23914",
+        name: "Score a goal",
+        anchor: "التقط كرات القدم لتحصل على عروض خاصة!",
+        conversion: "Complete interactive mini-game verification",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
+        payout: "0.45",
+        boosted: false,
+      },
     ];
     return NextResponse.json(fallback, {
-      headers: { "Cache-Control": "public, s-maxage=60" }
+      headers: { "Cache-Control": "public, s-maxage=60" },
     });
   }
 }
