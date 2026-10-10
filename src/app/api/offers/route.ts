@@ -76,15 +76,57 @@ export async function GET(req: Request) {
       },
     ];
 
-    // Helper to determine if an offer is a 100% free survey/install/quiz (no phone number/credit card needed)
-    const isFreeOffer = (o: any) => {
+    const country = (req.headers.get("cf-ipcountry") || "").toUpperCase();
+    const ua = userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    const isAndroid = /android/.test(ua);
+    const isMobile = isIOS || isAndroid || /mobile|tablet/.test(ua);
+    const isDesktop = !isMobile;
+
+    // Filter out exhausting high-friction CPE offers (games requiring levels, hours of play, or deposits)
+    // Streaming visitors will abandon these; they only convert on quick 30-60s tasks.
+    const isHighFrictionCPE = (o: any) => {
+      const text = `${o.name || ""} ${o.conversion || ""} ${o.anchor || ""}`.toLowerCase();
+      if (text.includes(" cpe") || text.includes("(cpe)")) return true;
+      if (
+        text.includes("reach level") ||
+        text.includes("level ") ||
+        text.includes("play 3") ||
+        text.includes("play games") ||
+        text.includes("deposit") ||
+        text.includes("milestone") ||
+        text.includes("points") ||
+        text.includes("cash back")
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    // Filter by visitor's actual device so desktop users don't see mobile APKs, and iOS users don't see Android APKs
+    const matchesDevice = (o: any) => {
+      const text = `${o.name || ""} ${o.device || ""} ${o.devices || ""}`.toLowerCase();
+      if (isIOS && text.includes("android") && !text.includes("ios") && !text.includes("iphone")) return false;
+      if (isAndroid && (text.includes("ios") || text.includes("iphone") || text.includes("ipad")) && !text.includes("android")) return false;
+      if (isDesktop && (text.includes("android") || text.includes("ios") || text.includes("iphone") || text.includes("ipad") || text.includes("install and open"))) {
+        return false;
+      }
+      return true;
+    };
+
+    // Helper to determine if an offer is a 100% free survey/install/quiz/email submit (no phone billing)
+    const isFreeOrEmailOffer = (o: any) => {
       const cat = String(o.category_id || "");
       const text = `${o.conversion || ""} ${o.name || ""} ${o.anchor || ""}`.toLowerCase();
       return (
         cat === "66f5d911099a5325888c82d8" || // General Survey
+        text.includes("email") ||
+        text.includes("zip") ||
+        text.includes("giftcard") ||
         text.includes("survey") ||
         text.includes("quiz") ||
         text.includes("install") ||
+        text.includes("open") ||
         text.includes("download") ||
         text.includes("game") ||
         text.includes("free") ||
@@ -93,13 +135,16 @@ export async function GET(req: Request) {
       );
     };
 
-    // Parse valid feed offers with deduplication
+    // Parse valid feed offers with deduplication, CPE filter, and device matching
     const validFeedOffers: any[] = [];
     const seenIds = new Set<string>();
     const seenUrls = new Set<string>();
 
     for (const o of feedOffers) {
       if (!o || !o.url || typeof o.url !== "string" || o.url.includes("check.php")) continue;
+      if (isHighFrictionCPE(o)) continue; // Block exhausting CPE offers
+      if (!matchesDevice(o)) continue;    // Block wrong-device offers
+
       const offerId = String(o.id || "");
       let parsedOfferId = offerId;
       try {
@@ -114,36 +159,151 @@ export async function GET(req: Request) {
       }
     }
 
-    // Separate into two distinct buckets:
-    // Bucket A: 100% Free Quick Survey / Quiz / App (NO phone number, NO billing)
+    // Curated high-converting US / Tier 1 offers (Email Submits $2.50-$3.12 & Instant CPI $2.40)
+    const usCuratedOffers = [
+      {
+        id: "576",
+        name: "CTConnect - Paypal $100",
+        anchor: "Enter for a chance to win $100 PayPal Balance",
+        conversion: "Enter your email & zip code to qualify",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=576&sub2=u329901",
+        payout: "3.12",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/959/31462/1353090480.200x200.jpeg",
+        offer_type: "free",
+        badge: "⚡ Fast 30s Entry • $3.12",
+        badge_ar: "⚡ إدخال الإيميل (سريع ومجاني)",
+        device_match: "all",
+      },
+      {
+        id: "14565",
+        name: "CTConnect - Nike GiftCard",
+        anchor: "Enter for a chance to win a $100 Nike Gift Card",
+        conversion: "Enter your email & zip to qualify",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=14565&sub2=u329901",
+        payout: "3.04",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/959/31462/1353090480.200x200.jpeg",
+        offer_type: "free",
+        badge: "🎁 Free Gift Card Entry",
+        badge_ar: "🎁 استبيان هدية مجانية",
+        device_match: "all",
+      },
+      {
+        id: "24647",
+        name: "Prizezappy - Win $50K",
+        anchor: "Enter your email for instant unlock",
+        conversion: "Enter your info to get started",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=24647&sub2=u329901",
+        payout: "2.56",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/959/33018/4276840248.200x200.jpeg",
+        offer_type: "free",
+        badge: "⚡ Quick 30s Entry",
+        badge_ar: "⚡ إدخال سريع 30 ثانية",
+        device_match: "all",
+      },
+      {
+        id: "21801",
+        name: "Top Tycoon iOS CPI",
+        anchor: "Install and Open Top Tycoon App",
+        conversion: "Install and Open the app to verify",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=21801&sub2=u329901",
+        payout: "2.40",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/101510/3021954007.200x200.png",
+        offer_type: "free",
+        badge: "📲 Free Install & Open",
+        badge_ar: "📲 تثبيت وفتح التطبيق مجاناً",
+        device_match: "ios",
+      },
+      {
+        id: "6385",
+        name: "Cleanfox Android CPR",
+        anchor: "Install and register free Cleanfox app",
+        conversion: "Install and create a free account",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=6385&sub2=u329901",
+        payout: "2.36",
+        network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/101511/3636068551.200x200.png",
+        offer_type: "free",
+        badge: "📲 Free Android App",
+        badge_ar: "📲 تطبيق أندرويد مجاني",
+        device_match: "android",
+      },
+    ];
+
+    // Pick offers based on visitor's geo location:
+    const chosenOffers: any[] = [];
+
+    // If US / CA / UK / AU visitor:
+    const isTier1 = ["US", "CA", "GB", "AU", "NZ"].includes(country);
+
+    if (isTier1 && validFeedOffers.length < 2) {
+      // Prioritize high-payout US email submit and CPI
+      const matchingCurated = usCuratedOffers.filter((o) => {
+        if (o.device_match === "ios" && !isIOS) return false;
+        if (o.device_match === "android" && !isAndroid) return false;
+        if (isDesktop && (o.device_match === "ios" || o.device_match === "android")) return false;
+        return true;
+      });
+
+      for (const cur of matchingCurated) {
+        if (chosenOffers.length >= 2) break;
+        chosenOffers.push(cur);
+      }
+    }
+
+    // Separate feed offers into free/survey/email vs mobile pin
     const freeBucket = validFeedOffers
-      .filter(isFreeOffer)
+      .filter(isFreeOrEmailOffer)
       .sort((a, b) => parseFloat(b.payout || "0") - parseFloat(a.payout || "0"));
 
-    // Bucket B: Mobile Pin Submit / Carrier / SMS
     const mobileBucket = validFeedOffers
-      .filter((o) => !isFreeOffer(o))
+      .filter((o) => !isFreeOrEmailOffer(o))
       .sort((a, b) => parseFloat(b.payout || "0") - parseFloat(a.payout || "0"));
 
-    // Verified distinct fallback offers
+    // If we need more offers, populate from the feed
+    if (chosenOffers.length < 2 && freeBucket.length > 0) {
+      const topFree = freeBucket[0];
+      if (!chosenOffers.some((o) => String(o.id) === String(topFree.id))) {
+        chosenOffers.push({
+          ...topFree,
+          offer_type: "free",
+          badge: topFree.badge || "⚡ Free • No Phone Needed",
+          badge_ar: topFree.badge_ar || "⚡ استطلاع مجاني (بدون رقم هاتف)",
+          boosted: true,
+        });
+      }
+    }
+
+    if (chosenOffers.length < 2 && mobileBucket.length > 0) {
+      const topMobile = mobileBucket[0];
+      if (!chosenOffers.some((o) => String(o.id) === String(topMobile.id))) {
+        chosenOffers.push({
+          ...topMobile,
+          offer_type: "mobile",
+          badge: topMobile.badge || "📱 1-Click Mobile • SMS",
+          badge_ar: topMobile.badge_ar || "📱 تفعيل بالهاتف (رمز SMS)",
+          boosted: false,
+        });
+      }
+    }
+
+    // Fallback defaults for MENA / Global if still under 2
     const fallbackFree = {
-      id: "23914",
-      name: "Score a goal - Free Survey",
-      anchor: "أجب عن استطلاع سريع (مجاني بدون رقم هاتف)",
-      conversion: "Complete quick 60s free survey",
-      url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
+      id: "19035",
+      name: "Tap Rewards - Coin Rewards",
+      anchor: "انقر للحصول على مكافأتك ومتابعة المشاهدة!",
+      conversion: "Complete the survey",
+      url: "https://app.trcefy.com/click?pid=2&offer_id=19035&sub2=u329901",
       payout: "0.20",
-      network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/959/33018/4276840248.200x200.jpeg",
+      network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/959/31462/1353090480.200x200.jpeg",
       offer_type: "free",
-      badge: "⚡ Free • No Phone Needed",
-      badge_ar: "⚡ مجاني 100% (بدون رقم هاتف)",
+      badge: "⚡ Free Survey • No Phone",
+      badge_ar: "⚡ استطلاع مجاني (بدون رقم هاتف)",
     };
 
     const fallbackMobile = {
       id: "24742",
-      name: "Starzplay - Mobile PIN",
-      anchor: "تأكيد سريع عبر رقم الهاتف (رمز SMS)",
-      conversion: "Enter your mobile number and verify PIN",
+      name: "Starzplay - Popular Content",
+      anchor: "أدخل رقم هاتفك وشاهد العروض الشعبية!",
+      conversion: "Enter your mobile number and verify the pin",
       url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
       payout: "0.20",
       network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/101510/3021954007.200x200.png",
@@ -152,50 +312,13 @@ export async function GET(req: Request) {
       badge_ar: "📱 تفعيل بالهاتف (رمز SMS)",
     };
 
-    // Pick top 1 from Free bucket and top 1 from Mobile bucket to guarantee diversity
-    const chosenOffers: any[] = [];
-
-    // 1. First option: Free Survey/Task
-    if (freeBucket.length > 0) {
-      const topFree = freeBucket[0];
-      chosenOffers.push({
-        ...topFree,
-        offer_type: "free",
-        badge: "⚡ Free • No Phone Needed",
-        badge_ar: "⚡ استطلاع مجاني (بدون رقم هاتف)",
-        boosted: true,
-      });
-    } else {
-      chosenOffers.push(fallbackFree);
-    }
-
-    // 2. Second option: Mobile Pin Submit
-    if (mobileBucket.length > 0) {
-      const topMobile = mobileBucket[0];
-      // Guarantee it's not the same offer id as chosenOffers[0]
-      if (String(topMobile.id) !== String(chosenOffers[0].id)) {
-        chosenOffers.push({
-          ...topMobile,
-          offer_type: "mobile",
-          badge: "📱 1-Click Mobile • SMS",
-          badge_ar: "📱 تفعيل بالهاتف (رمز SMS)",
-          boosted: false,
-        });
-      }
-    }
-
-    // If still missing second offer, try next from free bucket or fallback mobile
-    if (chosenOffers.length < 2) {
-      if (freeBucket.length > 1 && String(freeBucket[1].id) !== String(chosenOffers[0].id)) {
-        chosenOffers.push({
-          ...freeBucket[1],
-          offer_type: "free",
-          badge: "⚡ Free Mini-Game",
-          badge_ar: "⚡ استبيان مجاني بديل",
-          boosted: false,
-        });
-      } else {
+    while (chosenOffers.length < 2) {
+      if (chosenOffers.length === 0) {
+        chosenOffers.push(fallbackFree);
+      } else if (String(chosenOffers[0].id) !== String(fallbackMobile.id)) {
         chosenOffers.push(fallbackMobile);
+      } else {
+        chosenOffers.push(fallbackFree);
       }
     }
 
@@ -206,22 +329,22 @@ export async function GET(req: Request) {
     console.error("CPA offers route error:", err.message);
     const fallback = [
       {
-        id: "23914",
-        name: "Score a goal",
-        anchor: "أجب عن استطلاع سريع (مجاني بدون رقم هاتف)",
-        conversion: "Complete quick 60s free survey",
-        url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
+        id: "19035",
+        name: "Tap Rewards - Coin Rewards",
+        anchor: "انقر للحصول على مكافأتك ومتابعة المشاهدة!",
+        conversion: "Complete the survey",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=19035&sub2=u329901",
         payout: "0.20",
         offer_type: "free",
-        badge: "⚡ Free • No Phone Needed",
-        badge_ar: "⚡ مجاني 100% (بدون رقم هاتف)",
+        badge: "⚡ Free Survey • No Phone",
+        badge_ar: "⚡ استطلاع مجاني (بدون رقم هاتف)",
         boosted: true,
       },
       {
         id: "24742",
         name: "Starzplay - Popular Content",
-        anchor: "تأكيد سريع عبر رقم الهاتف (رمز SMS)",
-        conversion: "Enter your mobile number and verify PIN",
+        anchor: "أدخل رقم هاتفك وشاهد العروض الشعبية!",
+        conversion: "Enter your mobile number and verify the pin",
         url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
         payout: "0.20",
         offer_type: "mobile",
