@@ -12,6 +12,9 @@ interface Offer {
   payout: string;
   network_icon?: string;
   boosted?: boolean;
+  offer_type?: "free" | "mobile";
+  badge?: string;
+  badge_ar?: string;
 }
 
 interface ContentLockerProps {
@@ -252,36 +255,69 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
             </button>
           </div>
         ) : (
-          <div className="w-full space-y-2">
-            {offers.map((offer) => (
-              <button
-                key={offer.id}
-                onClick={() => handleOfferClick(offer.url)}
-                className="w-full p-2.5 text-left rounded-xl transition-all duration-300 flex items-center justify-between border bg-red-950/10 border-[var(--red)]/20 hover:border-[var(--red)] hover:bg-red-950/20 shadow-[0_0_8px_rgba(229,56,59,0.04)] group"
-              >
-                <div className="flex items-center gap-2.5">
-                  {offer.network_icon && (
-                    <img 
-                      src={offer.network_icon} 
-                      alt="" 
-                      className="w-5 h-5 rounded-lg object-contain bg-white/5 p-0.5 border border-white/10" 
-                    />
-                  )}
-                  <div>
-                    <div className="text-[10px] sm:text-[11px] font-black text-white group-hover:text-[var(--red)] transition-colors leading-tight">
-                      {offer.anchor}
-                    </div>
-                    <div className="text-[8px] sm:text-[9px] text-neutral-400 font-semibold mt-0.5">
-                      {offer.conversion}
+          <div className="w-full space-y-2.5">
+            {offers.map((offer) => {
+              const isFree = offer.offer_type === "free";
+              return (
+                <button
+                  key={offer.id}
+                  onClick={() => handleOfferClick(offer.url)}
+                  className={`w-full p-3 text-left rounded-xl transition-all duration-300 flex items-center justify-between border group relative overflow-hidden ${
+                    isFree
+                      ? "bg-emerald-950/15 border-emerald-500/30 hover:border-emerald-400 hover:bg-emerald-950/25 shadow-[0_0_12px_rgba(16,185,129,0.06)]"
+                      : "bg-blue-950/15 border-blue-500/30 hover:border-blue-400 hover:bg-blue-950/25 shadow-[0_0_12px_rgba(59,130,246,0.06)]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                    {offer.network_icon && (
+                      <img
+                        src={offer.network_icon}
+                        alt=""
+                        className="w-6 h-6 rounded-lg object-contain bg-white/5 p-0.5 border border-white/10 shrink-0"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      {/* Top Badges */}
+                      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                        <span
+                          className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${
+                            isFree
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                              : "bg-blue-500/20 text-blue-300 border-blue-500/40"
+                          }`}
+                        >
+                          {offer.badge_ar || (isFree ? "⚡ خيار مجاني" : "📱 خيار الهاتف")}
+                        </span>
+                        <span className="text-[7.5px] font-semibold text-neutral-400">
+                          {isFree ? "بدون رقم هاتف • 60s" : "تفعيل فوري • SMS"}
+                        </span>
+                      </div>
+
+                      {/* Offer Anchor / Title */}
+                      <div className="text-[11px] sm:text-xs font-black text-white group-hover:text-amber-200 transition-colors leading-tight line-clamp-1">
+                        {offer.anchor}
+                      </div>
+
+                      {/* Offer Conversion Instructions */}
+                      <div className="text-[8.5px] sm:text-[9px] text-neutral-400 font-medium mt-0.5 line-clamp-1">
+                        {offer.conversion}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <span className="text-[8px] font-black uppercase text-[var(--red)] tracking-wider shrink-0 ml-2 flex items-center gap-1">
-                  <Sparkles className="w-2.5 h-2.5 fill-[var(--red)]" /> Unlock
-                </span>
-              </button>
-            ))}
+                  {/* Right side unlock button */}
+                  <span
+                    className={`text-[9px] font-black uppercase tracking-wider shrink-0 px-2.5 py-1.5 rounded-lg border flex items-center gap-1 transition-all ${
+                      isFree
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 group-hover:bg-emerald-500 group-hover:text-black"
+                        : "bg-blue-500/20 text-blue-300 border-blue-500/40 group-hover:bg-blue-500 group-hover:text-black"
+                    }`}
+                  >
+                    <Sparkles className="w-2.5 h-2.5" /> فتح
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
 

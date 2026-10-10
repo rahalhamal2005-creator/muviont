@@ -76,16 +76,31 @@ export async function GET(req: Request) {
       },
     ];
 
-    // Combine feed offers and distinct backup offers while guaranteeing 100% uniqueness
+    // Helper to determine if an offer is a 100% free survey/install/quiz (no phone number/credit card needed)
+    const isFreeOffer = (o: any) => {
+      const cat = String(o.category_id || "");
+      const text = `${o.conversion || ""} ${o.name || ""} ${o.anchor || ""}`.toLowerCase();
+      return (
+        cat === "66f5d911099a5325888c82d8" || // General Survey
+        text.includes("survey") ||
+        text.includes("quiz") ||
+        text.includes("install") ||
+        text.includes("download") ||
+        text.includes("game") ||
+        text.includes("free") ||
+        text.includes("valid information") ||
+        text.includes("rewards")
+      );
+    };
+
+    // Parse valid feed offers with deduplication
+    const validFeedOffers: any[] = [];
     const seenIds = new Set<string>();
     const seenUrls = new Set<string>();
-    const uniqueList: any[] = [];
 
-    // First, add valid offers from the real live feed
     for (const o of feedOffers) {
       if (!o || !o.url || typeof o.url !== "string" || o.url.includes("check.php")) continue;
       const offerId = String(o.id || "");
-      // Extract offer_id param from url if available to detect duplicate campaigns
       let parsedOfferId = offerId;
       try {
         const u = new URL(o.url);
@@ -95,48 +110,123 @@ export async function GET(req: Request) {
       if (!seenIds.has(parsedOfferId) && !seenUrls.has(o.url)) {
         seenIds.add(parsedOfferId);
         seenUrls.add(o.url);
-        uniqueList.push(o);
+        validFeedOffers.push(o);
       }
     }
 
-    // If we have fewer than 2 distinct offers, add distinct offers from our library
-    for (const d of distinctOffers) {
-      if (uniqueList.length >= 2) break;
-      if (!seenIds.has(d.id) && !seenUrls.has(d.url)) {
-        seenIds.add(d.id);
-        seenUrls.add(d.url);
-        uniqueList.push(d);
+    // Separate into two distinct buckets:
+    // Bucket A: 100% Free Quick Survey / Quiz / App (NO phone number, NO billing)
+    const freeBucket = validFeedOffers
+      .filter(isFreeOffer)
+      .sort((a, b) => parseFloat(b.payout || "0") - parseFloat(a.payout || "0"));
+
+    // Bucket B: Mobile Pin Submit / Carrier / SMS
+    const mobileBucket = validFeedOffers
+      .filter((o) => !isFreeOffer(o))
+      .sort((a, b) => parseFloat(b.payout || "0") - parseFloat(a.payout || "0"));
+
+    // Verified distinct fallback offers
+    const fallbackFree = {
+      id: "23914",
+      name: "Score a goal - Free Survey",
+      anchor: "أجب عن استطلاع سريع (مجاني بدون رقم هاتف)",
+      conversion: "Complete quick 60s free survey",
+      url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
+      payout: "0.20",
+      network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/959/33018/4276840248.200x200.jpeg",
+      offer_type: "free",
+      badge: "⚡ Free • No Phone Needed",
+      badge_ar: "⚡ مجاني 100% (بدون رقم هاتف)",
+    };
+
+    const fallbackMobile = {
+      id: "24742",
+      name: "Starzplay - Mobile PIN",
+      anchor: "تأكيد سريع عبر رقم الهاتف (رمز SMS)",
+      conversion: "Enter your mobile number and verify PIN",
+      url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
+      payout: "0.20",
+      network_icon: "https://cdn.affise.com/affise-media-service-prod/offers/962/101510/3021954007.200x200.png",
+      offer_type: "mobile",
+      badge: "📱 1-Click Mobile • SMS",
+      badge_ar: "📱 تفعيل بالهاتف (رمز SMS)",
+    };
+
+    // Pick top 1 from Free bucket and top 1 from Mobile bucket to guarantee diversity
+    const chosenOffers: any[] = [];
+
+    // 1. First option: Free Survey/Task
+    if (freeBucket.length > 0) {
+      const topFree = freeBucket[0];
+      chosenOffers.push({
+        ...topFree,
+        offer_type: "free",
+        badge: "⚡ Free • No Phone Needed",
+        badge_ar: "⚡ استطلاع مجاني (بدون رقم هاتف)",
+        boosted: true,
+      });
+    } else {
+      chosenOffers.push(fallbackFree);
+    }
+
+    // 2. Second option: Mobile Pin Submit
+    if (mobileBucket.length > 0) {
+      const topMobile = mobileBucket[0];
+      // Guarantee it's not the same offer id as chosenOffers[0]
+      if (String(topMobile.id) !== String(chosenOffers[0].id)) {
+        chosenOffers.push({
+          ...topMobile,
+          offer_type: "mobile",
+          badge: "📱 1-Click Mobile • SMS",
+          badge_ar: "📱 تفعيل بالهاتف (رمز SMS)",
+          boosted: false,
+        });
       }
     }
 
-    // Sort by payout and return exactly 2 distinct offers
-    const finalOffers = uniqueList.slice(0, 2).map((offer, index) => ({
-      ...offer,
-      boosted: index === 0,
-    }));
+    // If still missing second offer, try next from free bucket or fallback mobile
+    if (chosenOffers.length < 2) {
+      if (freeBucket.length > 1 && String(freeBucket[1].id) !== String(chosenOffers[0].id)) {
+        chosenOffers.push({
+          ...freeBucket[1],
+          offer_type: "free",
+          badge: "⚡ Free Mini-Game",
+          badge_ar: "⚡ استبيان مجاني بديل",
+          boosted: false,
+        });
+      } else {
+        chosenOffers.push(fallbackMobile);
+      }
+    }
 
-    return NextResponse.json(finalOffers, {
+    return NextResponse.json(chosenOffers.slice(0, 2), {
       headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
     });
   } catch (err: any) {
     console.error("CPA offers route error:", err.message);
     const fallback = [
       {
-        id: "24742",
-        name: "Starzplay - Popular Content",
-        anchor: "أدخل رقم هاتفك وشاهد العروض الشعبية!",
-        conversion: "Enter your mobile number and verify the pin",
-        url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
-        payout: "0.50",
+        id: "23914",
+        name: "Score a goal",
+        anchor: "أجب عن استطلاع سريع (مجاني بدون رقم هاتف)",
+        conversion: "Complete quick 60s free survey",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
+        payout: "0.20",
+        offer_type: "free",
+        badge: "⚡ Free • No Phone Needed",
+        badge_ar: "⚡ مجاني 100% (بدون رقم هاتف)",
         boosted: true,
       },
       {
-        id: "23914",
-        name: "Score a goal",
-        anchor: "التقط كرات القدم لتحصل على عروض خاصة!",
-        conversion: "Complete interactive mini-game verification",
-        url: "https://app.trcefy.com/click?pid=2&offer_id=23914&sub2=u329901",
-        payout: "0.45",
+        id: "24742",
+        name: "Starzplay - Popular Content",
+        anchor: "تأكيد سريع عبر رقم الهاتف (رمز SMS)",
+        conversion: "Enter your mobile number and verify PIN",
+        url: "https://app.trcefy.com/click?pid=2&offer_id=24742&sub2=u329901",
+        payout: "0.20",
+        offer_type: "mobile",
+        badge: "📱 1-Click Mobile • SMS",
+        badge_ar: "📱 تفعيل بالهاتف (رمز SMS)",
         boosted: false,
       },
     ];
