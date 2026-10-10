@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Play, Plus, Check, Star, Info } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface MediaCardProps {
   id: string;
@@ -46,6 +46,16 @@ export default function MediaCard({
     if (onClick) onClick();
   };
 
+  const [imgSrc, setImgSrc] = useState(
+    posterPath || "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop"
+  );
+
+  useEffect(() => {
+    if (posterPath) {
+      setImgSrc(posterPath);
+    }
+  }, [posterPath]);
+
   return (
     <div
       className="relative block rounded-xl overflow-hidden bg-[var(--card)] border border-[var(--border)] select-none group cursor-pointer flex-shrink-0 card-glow-hover transition-all duration-300"
@@ -54,11 +64,16 @@ export default function MediaCard({
       {/* Primary Click Link covering the whole poster area */}
       <Link href={detailHref} className="absolute inset-0 z-0 block" aria-label={title}>
         <Image
-          src={posterPath || `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&auto=format&fit=crop`}
+          src={imgSrc}
           alt={title}
           fill
           sizes="(max-width: 640px) 42vw, (max-width: 1024px) 22vw, 13vw"
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          onError={() =>
+            setImgSrc(
+              "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop"
+            )
+          }
           unoptimized
         />
         {/* Dark gradient overlay */}

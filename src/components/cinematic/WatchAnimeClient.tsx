@@ -186,7 +186,7 @@ export default function WatchAnimeClient({ anime, recommendations }: WatchAnimeC
               Anime Details
             </h4>
             <div className="space-y-3.5">
-              {anime.studios.length > 0 && (
+              {anime.studios && anime.studios.length > 0 && (
                 <div className="flex justify-between pb-2 border-b border-white/[0.05]">
                   <span className="text-neutral-500 font-bold uppercase tracking-wider text-[9px]">Studio</span>
                   <span className="font-semibold text-neutral-200 text-right">{anime.studios.slice(0, 2).join(", ")}</span>

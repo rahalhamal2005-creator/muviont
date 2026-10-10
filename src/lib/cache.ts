@@ -13,9 +13,10 @@ interface ICache {
   del(key: string): Promise<void>;
 }
 
-// In-Memory cache fallback implementation with TTL checks
+// In-Memory cache fallback implementation with TTL checks & LRU cap
 class MemoryCache implements ICache {
   private store = new Map<string, { value: any; expiresAt: number | null }>();
+  private readonly maxEntries = 1500;
 
   async get<T>(key: string): Promise<T | null> {
     const item = this.store.get(key);
@@ -29,6 +30,11 @@ class MemoryCache implements ICache {
   }
 
   async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
+    // Evict oldest if capacity exceeded
+    if (this.store.size >= this.maxEntries) {
+      const firstKey = this.store.keys().next().value;
+      if (firstKey) this.store.delete(firstKey);
+    }
     const expiresAt = ttlSeconds ? Date.now() + ttlSeconds * 1000 : null;
     this.store.set(key, { value, expiresAt });
   }
@@ -47,6 +53,7 @@ function getCache(): ICache {
     typeof globalThis !== "undefined" &&
     ((globalThis as any).__lagon !== undefined ||
       (globalThis as any).EdgeRuntime !== undefined ||
+      typeof (globalThis as any).WebSocketPair !== "undefined" ||
       (typeof (globalThis as any).caches !== "undefined" &&
         typeof (globalThis as any).HTMLRewriter !== "undefined"));
 

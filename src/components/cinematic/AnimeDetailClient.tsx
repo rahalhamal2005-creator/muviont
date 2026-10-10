@@ -394,7 +394,7 @@ export default function AnimeDetailClient({ anime }: AnimeDetailClientProps) {
                 </span>
               </div>
 
-              {anime.genres.length > 0 && (
+              {anime.genres && anime.genres.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <span className="text-neutral-500 font-bold uppercase tracking-wider text-[10px]">Genres</span>
                   <div className="flex flex-wrap gap-1.5">

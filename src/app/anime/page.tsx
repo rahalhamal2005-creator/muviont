@@ -1,7 +1,7 @@
 import AnimeHubClient from "@/components/cinematic/AnimeHubClient";
-import { AniListProvider } from "@/lib/providers/anilist.provider";
+import { AniListProvider, CURATED_FALLBACK_ANIME } from "@/lib/providers/anilist.provider";
 
-export const revalidate = 21600; // Cache hub data for 6 hours
+export const revalidate = 3600; // Cache hub data for 1 hour
 
 /** Compute a 7-day airing schedule window at module load time (server-side, recomputed each ISR cycle). */
 function getAiringWindow() {
@@ -14,11 +14,15 @@ export default async function Page() {
   const { startSec, endSec } = getAiringWindow();
 
   // Run queries in parallel, catching errors to prevent build-time failures
-  const [trendingAnime, popularAiring, airingSchedule] = await Promise.all([
+  const [trendingRaw, popularRaw, airingRaw] = await Promise.all([
     anilist.getTrending().catch(err => { console.error("Trending anime fetch failed:", err.message); return []; }),
     anilist.getPopularAiring().catch(err => { console.error("Popular airing anime fetch failed:", err.message); return []; }),
     anilist.getAiringSchedule(startSec, endSec).catch(err => { console.error("Airing schedule fetch failed:", err.message); return []; })
   ]);
+
+  const trendingAnime = (trendingRaw && trendingRaw.length > 0) ? trendingRaw : CURATED_FALLBACK_ANIME;
+  const popularAiring = (popularRaw && popularRaw.length > 0) ? popularRaw : CURATED_FALLBACK_ANIME.filter(a => a.status === "RELEASING");
+  const airingSchedule = (airingRaw && airingRaw.length > 0) ? airingRaw : CURATED_FALLBACK_ANIME;
 
   return (
     <AnimeHubClient

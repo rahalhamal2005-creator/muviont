@@ -49,12 +49,17 @@ export default async function WatchAnimePage({ params }: WatchAnimePageProps) {
       id: id,
       title: "Anime Stream",
       overview: "Watch full anime episodes online in HD on MUVIONT.",
-      posterPath: "",
-      backdropPath: "",
-      mediaType: "anime",
-      rating: 9.0,
+      posterPath: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop",
+      backdropPath: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop",
+      rating: 8.5,
       releaseDate: new Date().getFullYear().toString(),
-      genres: ["Action", "Anime"]
+      genres: ["Action", "Adventure", "Animation"],
+      episodes: 24,
+      totalEpisodes: 24,
+      latestEpisode: 24,
+      status: "FINISHED",
+      studios: ["Studio Pierrot"],
+      characters: []
     };
   }
 

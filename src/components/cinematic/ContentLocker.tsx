@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Loader2, Sparkles, RefreshCw } from "lucide-react";
 
 interface Offer {
   id: string;
@@ -28,6 +28,19 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
 
   const isDownload = mode === "download";
 
+  const fetchOffers = useCallback(() => {
+    setLoading(true);
+    fetch("/api/offers")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: Offer[]) => {
+        setOffers(Array.isArray(data) ? data.slice(0, 2) : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
+
   // 1. Register locker view/impression in AdBlueMedia dashboard on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -47,17 +60,8 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
 
   // 2. Fetch offers from our API
   useEffect(() => {
-    fetch("/api/offers")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: Offer[]) => {
-        // Only keep exactly 2 offers as requested by the user
-        setOffers(data.slice(0, 2));
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  }, []);
+    fetchOffers();
+  }, [fetchOffers]);
 
   // 3. Poll lead completion (JSONP to AdBlueMedia)
   useEffect(() => {
@@ -238,13 +242,13 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
             <span className="text-[8px] text-neutral-500 uppercase tracking-widest font-extrabold">Loading Offers…</span>
           </div>
         ) : offers.length === 0 ? (
-          <div className="w-full p-3 border border-white/[0.04] rounded-xl bg-white/[0.01]">
-            <span className="text-[10px] text-neutral-500">No verification options available right now.</span>
+          <div className="w-full p-4 border border-white/[0.06] rounded-xl bg-white/[0.02] flex flex-col items-center gap-2">
+            <span className="text-[11px] text-neutral-400 font-medium">Checking for available verification servers…</span>
             <button 
-              onClick={onUnlock}
-              className="mt-2 block w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors"
+              onClick={fetchOffers}
+              className="mt-1 px-4 py-2 bg-[var(--red)]/20 hover:bg-[var(--red)]/30 border border-[var(--red)]/40 text-[10px] text-white font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5"
             >
-              {isDownload ? "Skip and Download" : "Skip and Play"}
+              <RefreshCw className="w-3 h-3" /> Reload Verification Options
             </button>
           </div>
         ) : (

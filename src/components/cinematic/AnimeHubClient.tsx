@@ -93,15 +93,19 @@ export default function AnimeHubClient({
           return [...prev, ...newItems];
         });
       } else {
-        setResults(data.results || []);
+        const incoming = Array.isArray(data.results) && data.results.length > 0 ? data.results : trendingAnime;
+        setResults(incoming || []);
       }
       setTotalPages(data.totalPages || 1);
     } catch (e) {
       console.error("Failed to fetch anime catalog results:", e);
+      if (!append && trendingAnime && trendingAnime.length > 0) {
+        setResults(trendingAnime);
+      }
     } finally {
       setLoading(false);
     }
-  }, [genreId, year, sortBy]);
+  }, [genreId, year, sortBy, trendingAnime]);
 
   // Triggered when filters change
   useEffect(() => {
@@ -117,13 +121,22 @@ export default function AnimeHubClient({
 
   // Airing schedule filter
   useEffect(() => {
-    const filtered = airingSchedule.filter((item) => {
+    const filtered = (airingSchedule || []).filter((item) => {
       if (!item.nextAiringEpisode) return false;
       const date = new Date(item.nextAiringEpisode.airingAt * 1000);
       return date.getDay() === selectedDay;
     });
-    setFilteredSchedule(filtered);
-  }, [selectedDay, airingSchedule]);
+
+    if (filtered.length > 0) {
+      setFilteredSchedule(filtered);
+    } else if ((airingSchedule || []).length > 0) {
+      setFilteredSchedule(airingSchedule.slice(0, 7));
+    } else if ((popularAiring || []).length > 0) {
+      setFilteredSchedule(popularAiring.slice(0, 7));
+    } else {
+      setFilteredSchedule([]);
+    }
+  }, [selectedDay, airingSchedule, popularAiring]);
 
   // Intersection Observer for Infinite Scroll
   useEffect(() => {

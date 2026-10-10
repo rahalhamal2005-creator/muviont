@@ -50,3 +50,4 @@ clip muviont/
 *.mov
 
 .open-next/
+.wrangler/
