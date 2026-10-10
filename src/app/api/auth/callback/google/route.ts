@@ -112,6 +112,7 @@ export async function GET(req: NextRequest) {
     cookieStore.set("muviont_session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
       expires: expiresAt
     });
