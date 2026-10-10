@@ -274,37 +274,27 @@ export default function StreamingPlayer({
         }`}
         style={{ position: "relative" }}
       >
-        {/* Cinematic Loading Screen */}
-        {loading && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center overflow-hidden bg-neutral-950">
+        {/* Sleek Minimal Cinematic Loading Indicator - Only when unlocked */}
+        {unlocked && loading && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-300 pointer-events-none">
             {backdropUrl && (
-              <div className="absolute inset-0 pointer-events-none select-none">
+              <div className="absolute inset-0 pointer-events-none select-none opacity-20">
                 <img
                   src={backdropUrl}
                   alt=""
-                  className="w-full h-full object-cover filter blur-xl scale-110 opacity-30 animate-pulse"
-                  style={{ animationDuration: "3s" }}
+                  className="w-full h-full object-cover filter blur-2xl"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/80" />
+                <div className="absolute inset-0 bg-black/80" />
               </div>
             )}
-            <div className="relative z-10 flex flex-col items-center gap-4 bg-black/75 border border-white/10 p-7 sm:p-9 rounded-2xl backdrop-blur-2xl shadow-2xl max-w-sm text-center">
-              <div className="relative flex items-center justify-center w-14 h-14">
-                <div className="absolute inset-0 rounded-full border-2 border-[var(--red)] border-t-transparent animate-spin" />
-                <div className="absolute inset-2 rounded-full border border-white/15 animate-ping opacity-40" />
-                <Play className="w-5 h-5 text-[var(--red)] fill-current animate-pulse" />
+            <div className="relative z-10 flex flex-col items-center gap-3">
+              <div className="relative flex items-center justify-center w-10 h-10">
+                <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-[var(--red)] animate-spin" />
               </div>
-              <div className="space-y-1.5">
-                <h4 className="text-xs font-black text-white uppercase tracking-wider line-clamp-1">
-                  {title}
-                </h4>
-                <p className="text-[11px] text-neutral-400 font-medium">
-                  Connecting to {activeSourceName.split("(")[0].trim()}…
-                </p>
-                <div className="flex items-center justify-center gap-1.5 pt-1 text-[9px] text-emerald-400 font-bold uppercase tracking-widest">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Ultra HD Stream Ready
-                </div>
+              <div className="text-center">
+                <span className="text-[11px] font-medium text-neutral-300 tracking-wider uppercase">
+                  Buffering Stream…
+                </span>
               </div>
             </div>
           </div>

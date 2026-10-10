@@ -1,33 +1,67 @@
 import { MetadataRoute } from "next";
+import { TMDBProvider } from "@/lib/providers/tmdb.provider";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.includes("localhost") 
-    ? process.env.BETTER_AUTH_URL 
-    : "https://muviont.com";
+export const revalidate = 86400; // Refresh sitemap once every 24 hours
 
-  // Base pages
-  const routes = ["", "/movies", "/series", "/anime", "/trending", "/watchlist", "/login"].map((route) => ({
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = "https://muviont.com";
+
+  // Core static pages
+  const staticRoutes = [
+    "",
+    "/movies",
+    "/series",
+    "/anime",
+    "/trending",
+    "/watchlist",
+    "/login",
+  ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
-    changeFrequency: "daily" as const,
+    changeFrequency: (route === "" ? "daily" : "weekly") as "daily" | "weekly",
     priority: route === "" ? 1.0 : 0.8,
   }));
 
-  // Dynamic movie routes (pre-mapped popular movies)
-  const popularMovies = ["m-1", "m-2", "m-3", "m-4"].map((id) => ({
-    url: `${baseUrl}/movie/${id}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
-  }));
+  const dynamicRoutes: MetadataRoute.Sitemap = [];
 
-  // Dynamic anime routes (pre-mapped popular anime)
-  const popularAnime = ["a-1", "a-2", "a-3", "a-4"].map((id) => ({
-    url: `${baseUrl}/anime/${id}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
-  }));
+  try {
+    const tmdb = new TMDBProvider();
+    const [trending, popMovies, popSeries, topRated] = await Promise.all([
+      tmdb.getTrending("all").catch(() => []),
+      tmdb.getPopular("movie").catch(() => []),
+      tmdb.getPopular("series").catch(() => []),
+      tmdb.getTopRated("movie").catch(() => []),
+    ]);
 
-  return [...routes, ...popularMovies, ...popularAnime];
+    const allMedia = [...trending, ...popMovies, ...popSeries, ...topRated];
+    const seenIds = new Set<string>();
+
+    for (const item of allMedia) {
+      if (!item || !item.id || seenIds.has(item.id)) continue;
+      seenIds.add(item.id);
+
+      const isSeries = item.type === "series" || item.id.startsWith("s-");
+      const basePath = isSeries ? "series" : "movie";
+
+      // Detail page URL
+      dynamicRoutes.push({
+        url: `${baseUrl}/${basePath}/${item.id}`,
+        lastModified: new Date().toISOString(),
+        changeFrequency: "daily",
+        priority: 0.85,
+      });
+
+      // Watch stream URL
+      dynamicRoutes.push({
+        url: `${baseUrl}/watch/${basePath}/${item.id}`,
+        lastModified: new Date().toISOString(),
+        changeFrequency: "daily",
+        priority: 0.75,
+      });
+    }
+  } catch (err) {
+    console.warn("Dynamic sitemap generation error:", err);
+  }
+
+  return [...staticRoutes, ...dynamicRoutes];
 }

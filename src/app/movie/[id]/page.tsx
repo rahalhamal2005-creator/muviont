@@ -89,10 +89,32 @@ export default async function Page({ params }: PageProps) {
     };
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    "name": movie.title,
+    "description": movie.overview,
+    "image": movie.posterPath || movie.backdropPath,
+    "dateCreated": movie.releaseDate,
+    "aggregateRating": movie.rating ? {
+      "@type": "AggregateRating",
+      "ratingValue": movie.rating,
+      "bestRating": "10",
+      "worstRating": "1",
+      "ratingCount": 150
+    } : undefined
+  };
+
   return (
-    <MovieDetailClient 
-      movie={movie} 
-      recommendations={recommendations} 
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <MovieDetailClient 
+        movie={movie} 
+        recommendations={recommendations} 
+      />
+    </>
   );
 }

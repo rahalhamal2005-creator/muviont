@@ -19,17 +19,13 @@ export async function GET(req: NextRequest) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
   let redirectUri = "";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
   
-  if (host.includes("localhost") || host.includes("127.0.0.1") || host.includes("3000")) {
+  if (host.includes("localhost") || host.includes("127.0.0.1")) {
     redirectUri = `http://${host}/api/auth/callback/google`;
-  } else if (appUrl) {
-    const cleanAppUrl = appUrl.endsWith("/") ? appUrl.slice(0, -1) : appUrl;
-    redirectUri = `${cleanAppUrl}/api/auth/callback/google`;
   } else {
-    redirectUri = `https://muviont.com/api/auth/callback/google`;
+    redirectUri = "https://muviont.com/api/auth/callback/google";
   }
 
   try {

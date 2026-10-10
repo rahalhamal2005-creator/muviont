@@ -297,15 +297,15 @@ export default function ContentLocker({ onUnlock, title, backdropUrl, mode = "st
                       />
                     )}
                     <div className="min-w-0">
-                      {/* Top Badges */}
-                      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                      {/* Top Badges - Always on the exact same line side-by-side */}
+                      <div className="flex items-center gap-1.5 mb-1 flex-nowrap whitespace-nowrap overflow-x-auto no-scrollbar">
                         {isFree && (
-                          <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                          <span className="text-[7px] sm:text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 inline-flex items-center">
                             ⚡ RECOMMENDED • FASTEST
                           </span>
                         )}
                         <span
-                          className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${
+                          className={`text-[7.5px] sm:text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 inline-flex items-center ${
                             isFree
                               ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                               : "bg-blue-500/20 text-blue-300 border-blue-500/40"

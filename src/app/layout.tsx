@@ -29,7 +29,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Muviont team", url: "https://muviont.com" }],
   icons: {
-    icon: "/logo-icon.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo-icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/logo-icon.svg",
   },
   robots: {

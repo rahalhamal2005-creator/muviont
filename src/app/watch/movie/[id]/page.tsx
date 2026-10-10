@@ -54,10 +54,30 @@ export default async function WatchMoviePage({ params }: WatchMoviePageProps) {
       backdropPath: "",
       mediaType: "movie",
       rating: 8.5,
-      releaseDate: new Date().getFullYear().toString(),
       genres: ["Action", "Cinema"]
     };
   }
 
-  return <WatchMovieClient movie={movie} recommendations={recommendations} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    "name": movie.title,
+    "description": movie.overview,
+    "image": movie.posterPath || movie.backdropPath,
+    "dateCreated": movie.releaseDate,
+    "potentialAction": {
+      "@type": "WatchAction",
+      "target": `https://muviont.com/watch/movie/${encodeURIComponent(movie.id)}`
+    }
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <WatchMovieClient movie={movie} recommendations={recommendations} />
+    </>
+  );
 }

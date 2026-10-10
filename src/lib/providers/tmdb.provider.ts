@@ -183,13 +183,39 @@ export class TMDBProvider {
   async getDetails(id: string, defaultType: "movie" | "series" = "movie"): Promise<TMDBMedia | null> {
     this.checkApiKey();
     const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "series" : defaultType;
-    const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
-    const endpoint = type === "movie" ? `/movie/${rawId}` : `/tv/${rawId}`;
-    const startTime = Date.now();
+    let rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
 
-    if (!rawId || isNaN(Number(rawId))) {
+    // 1. Check if ID has numeric prefix (e.g. "575264-insidious" or "575264")
+    const leadingNumberMatch = rawId.match(/^(\d+)/);
+    let resolvedNumericId = leadingNumberMatch ? leadingNumberMatch[1] : null;
+
+    // 2. If title/slug was provided (e.g. "Insidious: Out of the Further" or "spider-man")
+    if (!resolvedNumericId && rawId.trim()) {
+      try {
+        let searchQuery = decodeURIComponent(rawId).replace(/[-_+]/g, " ").trim();
+        searchQuery = searchQuery.replace(/[:]+/g, " ").replace(/\s+/g, " ");
+        const searchEndpoint = type === "series" ? "/search/tv" : "/search/movie";
+        const searchRes = await fetch(
+          `${this.baseUrl}${searchEndpoint}?api_key=${this.apiKey}&query=${encodeURIComponent(searchQuery)}&page=1`,
+          { signal: AbortSignal.timeout(6000) }
+        );
+        if (searchRes.ok) {
+          const searchData = await searchRes.json();
+          if (searchData.results && searchData.results.length > 0) {
+            resolvedNumericId = String(searchData.results[0].id);
+          }
+        }
+      } catch (err) {
+        console.warn("Title search resolution failed:", err);
+      }
+    }
+
+    if (!resolvedNumericId || isNaN(Number(resolvedNumericId))) {
       return null;
     }
+
+    const endpoint = type === "movie" ? `/movie/${resolvedNumericId}` : `/tv/${resolvedNumericId}`;
+    const startTime = Date.now();
 
     try {
       const [detailsRes, creditsRes, videosRes] = await Promise.all([
@@ -261,12 +287,15 @@ export class TMDBProvider {
     this.checkApiKey();
     const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "series" : defaultType;
     const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
-    const endpoint = type === "movie" ? `/movie/${rawId}/recommendations` : `/tv/${rawId}/recommendations`;
-    const startTime = Date.now();
+    const match = rawId.match(/^(\d+)/);
+    const resolvedNumericId = match ? match[1] : null;
 
-    if (!rawId || isNaN(Number(rawId))) {
+    if (!resolvedNumericId || isNaN(Number(resolvedNumericId))) {
       return [];
     }
+
+    const endpoint = type === "movie" ? `/movie/${resolvedNumericId}/recommendations` : `/tv/${resolvedNumericId}/recommendations`;
+    const startTime = Date.now();
 
     try {
       const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
@@ -288,12 +317,15 @@ export class TMDBProvider {
     this.checkApiKey();
     const type = id.startsWith("m-") ? "movie" : id.startsWith("s-") ? "series" : defaultType;
     const rawId = id.startsWith("m-") || id.startsWith("s-") ? id.substring(2) : id;
-    const endpoint = type === "movie" ? `/movie/${rawId}/similar` : `/tv/${rawId}/similar`;
-    const startTime = Date.now();
+    const match = rawId.match(/^(\d+)/);
+    const resolvedNumericId = match ? match[1] : null;
 
-    if (!rawId || isNaN(Number(rawId))) {
+    if (!resolvedNumericId || isNaN(Number(resolvedNumericId))) {
       return [];
     }
+
+    const endpoint = type === "movie" ? `/movie/${resolvedNumericId}/similar` : `/tv/${resolvedNumericId}/similar`;
+    const startTime = Date.now();
 
     try {
       const res = await fetch(`${this.baseUrl}${endpoint}?api_key=${this.apiKey}`, {
