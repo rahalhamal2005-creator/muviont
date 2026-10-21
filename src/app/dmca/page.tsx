@@ -84,7 +84,7 @@ export default function DMCAPage() {
           <div className="bg-black/50 p-4 rounded-xl border border-white/10 text-xs space-y-1 font-mono text-neutral-300">
             <div><span className="text-neutral-500">Contact:</span> Legal & DMCA Compliance Officer</div>
             <div><span className="text-neutral-500">Service:</span> MUVIONT Platform</div>
-            <div><span className="text-neutral-500">Email:</span> <a href="mailto:legal@muviont.com" className="text-red-400 hover:underline">legal@muviont.com</a> / <a href="mailto:rahalhamal2005@gmail.com" className="text-red-400 hover:underline">rahalhamal2005@gmail.com</a></div>
+            <div><span className="text-neutral-500">Email:</span> <a href="mailto:legal@muviont.com" className="text-red-400 hover:underline">legal@muviont.com</a></div>
             <div><span className="text-neutral-500">Response SLA:</span> Within 24–48 Business Hours</div>
           </div>
           <p className="text-[11px] text-neutral-400 italic">
