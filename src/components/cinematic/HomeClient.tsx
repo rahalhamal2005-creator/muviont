@@ -8,6 +8,7 @@ import ContentRail from "./ContentRail";
 import NewsCard from "./NewsCard";
 import AISearchInput from "./AISearchInput";
 import BottomNav from "./BottomNav";
+import Footer from "./Footer";
 import { TMDBMedia } from "@/lib/providers/tmdb.provider";
 import { AniListMedia } from "@/lib/providers/anilist.provider";
 import { NormalizedArticle } from "@/lib/news/news.types";
@@ -369,6 +370,7 @@ export default function HomeClient({
 
       </main>
 
+      <Footer />
       <BottomNav />
     </div>
   );

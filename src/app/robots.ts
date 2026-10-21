@@ -6,13 +6,26 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/movie/", "/series/", "/anime/", "/watch/"],
-        disallow: ["/admin/", "/api/", "/api/auth/"],
+        allow: ["/", "/movie/", "/series/", "/anime/", "/dmca"],
+        disallow: ["/watch/", "/admin/", "/api/", "/api/auth/"],
       },
       {
         userAgent: ["Googlebot", "Bingbot", "Applebot"],
-        allow: "/",
-        disallow: ["/admin/", "/api/"],
+        allow: ["/", "/movie/", "/series/", "/anime/", "/dmca"],
+        disallow: ["/watch/", "/admin/", "/api/"],
+      },
+      {
+        // Explicitly block known automated DMCA and copyright scraping bots
+        userAgent: [
+          "Piracymeter",
+          "MarkMonitor",
+          "Digimarc",
+          "AudioEye",
+          "Bytespider",
+          "GPTBot",
+          "CCBot",
+        ],
+        disallow: ["/"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

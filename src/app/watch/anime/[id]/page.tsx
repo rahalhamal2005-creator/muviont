@@ -10,21 +10,18 @@ interface WatchAnimePageProps {
 
 export async function generateMetadata({ params }: WatchAnimePageProps): Promise<Metadata> {
   const { id } = await params;
-  const anilist = new AniListProvider();
-  try {
-    const anime = await anilist.getDetails(id);
-    if (!anime) return { title: "Watch Anime — MUVIONT" };
-    return {
-      title: `Watch ${anime.title} — MUVIONT`,
-      description: `Stream ${anime.title} all episodes online in HD on MUVIONT.`,
-      openGraph: {
-        title: `Watch ${anime.title} — MUVIONT`,
-        images: anime.backdropPath ? [{ url: anime.backdropPath }] : [],
+  return {
+    title: "Watch Anime — MUVIONT",
+    robots: {
+      index: false,
+      follow: false,
+      nocache: true,
+      googleBot: {
+        index: false,
+        follow: false,
       },
-    };
-  } catch {
-    return { title: "Watch Anime — MUVIONT" };
-  }
+    },
+  };
 }
 
 export default async function WatchAnimePage({ params }: WatchAnimePageProps) {

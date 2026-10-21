@@ -15,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/trending",
     "/watchlist",
     "/login",
+    "/dmca",
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
@@ -43,20 +44,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const isSeries = item.type === "series" || item.id.startsWith("s-");
       const basePath = isSeries ? "series" : "movie";
 
-      // Detail page URL
+      // Discovery & Detail page URL only (NO watch URLs)
       dynamicRoutes.push({
         url: `${baseUrl}/${basePath}/${item.id}`,
         lastModified: new Date().toISOString(),
-        changeFrequency: "daily",
-        priority: 0.85,
-      });
-
-      // Watch stream URL
-      dynamicRoutes.push({
-        url: `${baseUrl}/watch/${basePath}/${item.id}`,
-        lastModified: new Date().toISOString(),
-        changeFrequency: "daily",
-        priority: 0.75,
+        changeFrequency: "weekly",
+        priority: 0.7,
       });
     }
   } catch (err) {

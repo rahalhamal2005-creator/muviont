@@ -10,22 +10,18 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "MUVIONT | Premium Cinematic Streaming Platform",
-  description: "Stream movies, TV shows, and anime in pristine 4K quality. Discover personalized recommendations powered by Gemini AI. Fast, ad-free player experience.",
-  metadataBase: new URL(
-    process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.includes("localhost")
-      ? process.env.BETTER_AUTH_URL
-      : "https://muviont.com"
-  ),
+  title: "MUVIONT — Cinematic Film Discovery, Ratings & AI Entertainment Guide",
+  description: "Explore top-rated movies, trending TV shows, and anime with smart Gemini AI recommendations. Discover cast details, synopsis, ratings, and cinematic previews on MUVIONT.",
+  metadataBase: new URL("https://muviont.com"),
   keywords: [
     "muviont",
     "muviont.com",
-    "watch movies online",
-    "stream series free",
-    "watch anime english sub",
+    "movie discovery",
+    "entertainment guide",
+    "film ratings",
     "gemini ai recommendations",
-    "4k movies streaming",
-    "ad-free video player",
+    "cinema catalog",
+    "trailers and reviews",
   ],
   authors: [{ name: "Muviont team", url: "https://muviont.com" }],
   icons: {
@@ -43,13 +39,12 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
       "max-image-preview": "large",
-      "max-video-preview": -1,
       "max-snippet": -1,
     },
   },
   openGraph: {
-    title: "MUVIONT | Premium Cinematic Streaming Platform",
-    description: "Stream movies, TV shows, and anime in pristine 4K quality on MUVIONT.",
+    title: "MUVIONT — Cinematic Film Discovery & Entertainment Guide",
+    description: "Discover trending movies, TV series, and anime with smart AI recommendations on MUVIONT.",
     url: "https://muviont.com",
     siteName: "MUVIONT",
     images: [{ url: "/logo-icon.svg", width: 512, height: 512, alt: "MUVIONT" }],
