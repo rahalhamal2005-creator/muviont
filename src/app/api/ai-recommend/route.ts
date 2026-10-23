@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
 
   try {
     // If user is new, verify or create default profile in db to allow testing
-    if (userId !== "anonymous-default-user") {
-      const userExists = await db.user.findUnique({ where: { id: userId } });
+    if (userId !== "anonymous-default-user" && userId !== "guest-user") {
+      const userExists = await db.user.findUnique({ where: { id: userId } }).catch(() => null);
       if (!userExists) {
         await db.user.create({
           data: {
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
             name: "Muviont Guest",
             role: "USER"
           }
-        });
+        }).catch(() => {});
       }
     }
 

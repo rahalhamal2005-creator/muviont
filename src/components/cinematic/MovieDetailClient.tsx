@@ -202,7 +202,8 @@ export default function MovieDetailClient({ movie, recommendations }: MovieDetai
               {/* PRIMARY: Watch Now (Solid White) */}
               <Link
                 href={`/watch/movie/${movie.id}`}
-                className="flex items-center justify-center gap-2 px-6 sm:px-7 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm shadow-xl"
+                prefetch={false}
+                className="flex items-center justify-center gap-2 px-6 sm:px-7 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-xs sm:text-sm shadow-xl cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-black text-black" />
                 Watch Now

@@ -131,17 +131,12 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
             </motion.p>
 
             {/* Action Row — Enterprise Netflix Style */}
-            <motion.div
-              key={`${current.id}-ctas`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-              className="flex items-center gap-3"
-            >
+            <div className="flex items-center gap-3 relative z-30 pointer-events-auto">
               {/* Primary: Watch Now (Solid White, Black Bold Text, 6px Radius) */}
               <Link
                 href={`/watch/${routeType}/${current.id}`}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm shadow-xl"
+                prefetch={false}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-neutral-200 text-black font-black rounded-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm shadow-xl cursor-pointer select-auto"
               >
                 <Play className="w-4 h-4 fill-black text-black" />
                 Watch Now
@@ -150,12 +145,13 @@ export default function HeroSlider({ items, onPlayTrailer: _onPlayTrailer }: Her
               {/* Secondary: More Info (Frosted Glass 6px Radius) */}
               <Link
                 href={`/${routeType}/${current.id}`}
-                className="flex items-center justify-center gap-2 px-5 py-3 bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold rounded-md backdrop-blur-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm"
+                prefetch={false}
+                className="flex items-center justify-center gap-2 px-5 py-3 bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold rounded-md backdrop-blur-md transition-all duration-200 hover:scale-[1.02] active:scale-95 text-sm cursor-pointer select-auto"
               >
                 <Info className="w-4 h-4" />
                 More Info
               </Link>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
